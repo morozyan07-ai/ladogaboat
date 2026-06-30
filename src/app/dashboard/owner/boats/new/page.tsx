@@ -55,7 +55,7 @@ export default function NewBoatPage() {
   return (
     <div className="py-8 px-4">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-slate-900 mb-8">Добавить катер</h1>
+        <h1 className="text-3xl font-semibold text-slate-800 mb-8">Добавить катер</h1>
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <Field label="Название катера">

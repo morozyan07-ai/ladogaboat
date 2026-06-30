@@ -240,7 +240,7 @@ export default function WaterTaxiMap() {
       {/* Панель результата */}
       <div className="flex flex-col gap-4">
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-          <h3 className="font-bold text-slate-900 mb-4">Расчёт поездки</h3>
+          <h3 className="font-semibold text-slate-800 mb-4">Расчёт поездки</h3>
 
           {!trip ? (
             <div className="py-8 text-center text-slate-400 text-sm">
@@ -287,7 +287,7 @@ function Row({ label, value, bold }: { label: string; value: string; bold?: bool
   return (
     <div className="flex justify-between items-center py-2.5 border-b border-slate-100 last:border-0">
       <span className="text-slate-500 text-sm">{label}</span>
-      <span className={`text-sm ${bold ? 'font-bold text-slate-900' : 'text-slate-700'}`}>{value}</span>
+      <span className={`text-sm ${bold ? 'font-semibold text-slate-800' : 'text-slate-700'}`}>{value}</span>
     </div>
   )
 }

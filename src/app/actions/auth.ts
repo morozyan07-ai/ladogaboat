@@ -33,11 +33,21 @@ export async function register(state: FormState, formData: FormData): Promise<Fo
   }
 
   const { name, email, password, role } = validated.data
-  const existing = await prisma.user.findUnique({ where: { email } })
-  if (existing) return { errors: { email: ['Email уже зарегистрирован'] } }
 
-  const passwordHash = await bcrypt.hash(password, 10)
-  const user = await prisma.user.create({ data: { name, email, passwordHash, role } })
+  let user
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } })
+    if (existing) return { errors: { email: ['Email уже зарегистрирован'] } }
+
+    const passwordHash = await bcrypt.hash(password, 10)
+    user = await prisma.user.create({ data: { name, email, passwordHash, role } })
+  } catch (err: unknown) {
+    if (err && typeof err === 'object' && 'code' in err && err.code === 'P2002') {
+      return { errors: { email: ['Email уже зарегистрирован'] } }
+    }
+    console.error('Ошибка регистрации:', err)
+    return { message: 'Не удалось создать аккаунт. Попробуйте ещё раз через пару минут.' }
+  }
 
   await createSession({ id: user.id, role: user.role, name: user.name, email: user.email })
   redirect(role === 'OWNER' ? '/dashboard/owner' : '/dashboard/guest')
@@ -54,11 +64,18 @@ export async function login(state: FormState, formData: FormData): Promise<FormS
   }
 
   const { email, password } = validated.data
-  const user = await prisma.user.findUnique({ where: { email } })
-  if (!user) return { message: 'Неверный email или пароль' }
 
-  const valid = await bcrypt.compare(password, user.passwordHash)
-  if (!valid) return { message: 'Неверный email или пароль' }
+  let user
+  try {
+    user = await prisma.user.findUnique({ where: { email } })
+    if (!user) return { message: 'Неверный email или пароль' }
+
+    const valid = await bcrypt.compare(password, user.passwordHash)
+    if (!valid) return { message: 'Неверный email или пароль' }
+  } catch (err: unknown) {
+    console.error('Ошибка входа:', err)
+    return { message: 'Сервис временно недоступен. Попробуйте ещё раз через пару минут.' }
+  }
 
   await createSession({ id: user.id, role: user.role, name: user.name, email: user.email })
   redirect(user.role === 'OWNER' ? '/dashboard/owner' : '/dashboard/guest')

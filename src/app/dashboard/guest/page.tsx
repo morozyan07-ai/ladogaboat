@@ -23,7 +23,7 @@ function ReviewModal({ booking, onClose, onSubmit }: {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-        <h3 className="text-lg font-bold text-slate-900 mb-4">Оставить отзыв</h3>
+        <h3 className="text-lg font-semibold text-slate-800 mb-4">Оставить отзыв</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Оценка</label>
@@ -93,7 +93,7 @@ function GuestDashboardContent() {
   return (
     <div className="py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">Мои бронирования</h1>
+        <h1 className="text-3xl font-semibold text-slate-800 mb-2">Мои бронирования</h1>
         {justBooked && (
           <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 mb-6 text-sm">
             ✅ Бронирование успешно оформлено! Судовладелец свяжется с вами.
@@ -118,13 +118,13 @@ function GuestDashboardContent() {
               <div key={b.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <Link href={`/boats/${b.boatId}`} className="font-semibold text-slate-900 hover:text-blue-600 transition-colors">
+                    <Link href={`/boats/${b.boatId}`} className="font-semibold text-slate-800 hover:text-blue-600 transition-colors">
                       {b.boat?.title}
                     </Link>
                     <p className="text-sm text-slate-500 mt-1">
                       {new Date(b.startDate).toLocaleDateString('ru-RU')} — {new Date(b.endDate).toLocaleDateString('ru-RU')}
                     </p>
-                    <p className="text-sm font-medium text-slate-900 mt-1">
+                    <p className="text-sm font-medium text-slate-800 mt-1">
                       {Number(b.totalPrice).toLocaleString('ru-RU')} ₽
                     </p>
                   </div>

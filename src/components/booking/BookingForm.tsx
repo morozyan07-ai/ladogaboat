@@ -51,7 +51,7 @@ export default function BookingForm({ boatId, pricePerDay, isLoggedIn }: Props) 
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-      <h3 className="text-lg font-bold text-slate-900 mb-4">Забронировать</h3>
+      <h3 className="text-lg font-semibold text-slate-800 mb-4">Забронировать</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Дата начала</label>
@@ -85,7 +85,7 @@ export default function BookingForm({ boatId, pricePerDay, isLoggedIn }: Props) 
               <span>Комиссия платформы (10%)</span>
               <span>{commission.toLocaleString('ru-RU')} ₽</span>
             </div>
-            <div className="flex justify-between font-bold text-slate-900 pt-2 border-t border-blue-100">
+            <div className="flex justify-between font-semibold text-slate-800 pt-2 border-t border-blue-100">
               <span>Итого</span>
               <span>{total.toLocaleString('ru-RU')} ₽</span>
             </div>

@@ -57,7 +57,7 @@ function RegisterForm() {
             <label key={value} className="relative cursor-pointer">
               <input type="radio" name="role" value={value} defaultChecked={defaultRole === value} className="sr-only peer" />
               <div className="border-2 border-slate-200 peer-checked:border-blue-500 peer-checked:bg-blue-50 rounded-xl p-3 text-center transition-colors">
-                <div className="font-medium text-slate-900 text-sm">{label}</div>
+                <div className="font-medium text-slate-800 text-sm">{label}</div>
                 <div className="text-xs text-slate-500 mt-0.5">{desc}</div>
               </div>
             </label>
@@ -81,7 +81,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <span className="text-5xl">⛵</span>
-          <h1 className="text-2xl font-bold text-slate-900 mt-4">Создать аккаунт</h1>
+          <h1 className="text-2xl font-semibold text-slate-800 mt-4">Создать аккаунт</h1>
           <p className="text-slate-500 mt-2">Присоединитесь к Ladoga Boat</p>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">

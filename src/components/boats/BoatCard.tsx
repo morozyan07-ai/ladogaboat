@@ -24,7 +24,7 @@ export default function BoatCard({ boat }: Props) {
         </div>
       </div>
       <div className="p-4">
-        <h3 className="font-semibold text-slate-900 text-lg mb-1 truncate">{boat.title}</h3>
+        <h3 className="font-semibold text-slate-800 text-lg mb-1 truncate">{boat.title}</h3>
         <p className="text-slate-500 text-sm mb-2 flex items-center gap-1">
           <span>📍</span> {boat.location}
         </p>

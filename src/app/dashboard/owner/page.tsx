@@ -28,7 +28,7 @@ export default async function OwnerDashboard() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Кабинет судовладельца</h1>
+            <h1 className="text-3xl font-semibold text-slate-800">Кабинет судовладельца</h1>
             <p className="text-slate-500 mt-1">Привет, {session.name}!</p>
           </div>
           <Link
@@ -48,7 +48,7 @@ export default async function OwnerDashboard() {
           ].map(({ label, value, icon }) => (
             <div key={label} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
               <div className="text-3xl mb-2">{icon}</div>
-              <div className="text-2xl font-bold text-slate-900">{value}</div>
+              <div className="text-2xl font-semibold text-slate-800">{value}</div>
               <div className="text-slate-500 text-sm">{label}</div>
             </div>
           ))}
@@ -57,7 +57,7 @@ export default async function OwnerDashboard() {
         {/* Boats */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm mb-8">
           <div className="p-6 border-b border-slate-100">
-            <h2 className="text-xl font-bold text-slate-900">Мои катера</h2>
+            <h2 className="text-xl font-semibold text-slate-800">Мои катера</h2>
           </div>
           {boats.length === 0 ? (
             <div className="p-12 text-center text-slate-400">
@@ -72,7 +72,7 @@ export default async function OwnerDashboard() {
               {boats.map((boat) => (
                 <div key={boat.id} className="p-4 flex items-center justify-between hover:bg-slate-50">
                   <div>
-                    <p className="font-medium text-slate-900">{boat.title}</p>
+                    <p className="font-medium text-slate-800">{boat.title}</p>
                     <p className="text-sm text-slate-500">
                       {boat._count.bookings} бронирований · {boat._count.reviews} отзывов
                     </p>
@@ -94,7 +94,7 @@ export default async function OwnerDashboard() {
         {/* Recent bookings */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">
           <div className="p-6 border-b border-slate-100">
-            <h2 className="text-xl font-bold text-slate-900">Последние бронирования</h2>
+            <h2 className="text-xl font-semibold text-slate-800">Последние бронирования</h2>
           </div>
           {bookings.length === 0 ? (
             <div className="p-12 text-center text-slate-400">Бронирований пока нет</div>
@@ -104,13 +104,13 @@ export default async function OwnerDashboard() {
                 <div key={b.id} className="p-4">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="font-medium text-slate-900">{b.boat.title}</p>
+                      <p className="font-medium text-slate-800">{b.boat.title}</p>
                       <p className="text-sm text-slate-500">
                         Гость: {b.guest.name} · {new Date(b.startDate).toLocaleDateString('ru-RU')} — {new Date(b.endDate).toLocaleDateString('ru-RU')}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-slate-900">{Number(b.totalPrice).toLocaleString('ru-RU')} ₽</p>
+                      <p className="font-semibold text-slate-800">{Number(b.totalPrice).toLocaleString('ru-RU')} ₽</p>
                       <StatusBadge status={b.status} />
                     </div>
                   </div>

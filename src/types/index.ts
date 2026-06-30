@@ -58,6 +58,6 @@ export type Review = {
 export type SearchParams = {
   location?: string
   startDate?: string
-  endDate?: string
+  time?: string
   capacity?: string
 }

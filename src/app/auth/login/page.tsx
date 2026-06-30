@@ -13,7 +13,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <span className="text-5xl">⛵</span>
-          <h1 className="text-2xl font-bold text-slate-900 mt-4">Войти в аккаунт</h1>
+          <h1 className="text-2xl font-semibold text-slate-800 mt-4">Войти в аккаунт</h1>
           <p className="text-slate-500 mt-2">Добро пожаловать обратно!</p>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
