@@ -107,6 +107,10 @@ model Booking {
   refundReason      String?
   refundRequestedAt DateTime?
   refundDecidedAt   DateTime?
+
+  // ЮKassa
+  yookassaPaymentId String?
+  paidAt            DateTime?
 }
 
 model Review {

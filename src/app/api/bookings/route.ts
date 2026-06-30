@@ -2,8 +2,10 @@ import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import prisma from '@/lib/prisma'
 import { getSession } from '@/lib/session'
+import { createPayment } from '@/lib/yookassa'
 
 const COMMISSION_RATE = 0.08
+const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.ladogaboat.ru'
 
 const createSchema = z.object({
   boatId: z.string(),
@@ -69,6 +71,7 @@ export async function POST(req: NextRequest) {
   })
   if (conflict) return Response.json({ error: 'Катер занят на выбранные даты' }, { status: 409 })
 
+  // Создаём бронирование со статусом PENDING (ждём оплаты)
   const booking = await prisma.booking.create({
     data: {
       boatId,
@@ -80,5 +83,35 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  return Response.json({ ...booking, totalPrice: Number(booking.totalPrice), commission: Number(booking.commission) }, { status: 201 })
+  // Создаём платёж в ЮKassa
+  let paymentUrl: string | null = null
+  try {
+    const payment = await createPayment({
+      amountRub: totalPrice,
+      description: `Аренда: ${boat.title} (${days} дн.)`,
+      bookingId: booking.id,
+      returnUrl: `${SITE_URL}/dashboard/guest?payment=done&booking=${booking.id}`,
+    })
+    paymentUrl = payment.confirmation?.confirmation_url ?? null
+    if (payment.id) {
+      await prisma.booking.update({
+        where: { id: booking.id },
+        data: { yookassaPaymentId: payment.id },
+      })
+    }
+  } catch (err) {
+    // Платёж не создан (ключи не настроены / ошибка ЮKassa).
+    // Бронирование создано — гость увидит его в ЛК и сможет оплатить позже.
+    console.error('YooKassa payment error:', err)
+  }
+
+  return Response.json(
+    {
+      ...booking,
+      totalPrice: Number(booking.totalPrice),
+      commission: Number(booking.commission),
+      paymentUrl,
+    },
+    { status: 201 }
+  )
 }

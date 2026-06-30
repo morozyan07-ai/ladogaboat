@@ -36,12 +36,17 @@ export default function BookingForm({ boatId, pricePerDay, isLoggedIn }: Props) 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ boatId, startDate, endDate }),
       })
+      const data = await res.json()
       if (!res.ok) {
-        const data = await res.json()
         setError(data.error ?? 'Ошибка при бронировании')
         return
       }
-      router.push('/dashboard/guest?booked=1')
+      // Если ЮKassa вернул ссылку — перенаправляем на оплату
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl
+      } else {
+        router.push('/dashboard/guest?booked=1')
+      }
     } catch {
       setError('Ошибка сети, попробуйте снова')
     } finally {
