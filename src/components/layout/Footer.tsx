@@ -14,6 +14,7 @@ export default function Footer() {
             <h3 className="font-semibold text-white mb-4">Навигация</h3>
             <ul className="space-y-2 text-sm">
               <li><Link href="/boats" className="hover:text-white transition-colors">Каталог катеров</Link></li>
+              <li><Link href="/service-center" className="hover:text-white transition-colors">Сервисный центр</Link></li>
               <li><Link href="/auth/register" className="hover:text-white transition-colors">Зарегистрироваться</Link></li>
               <li><Link href="/auth/login" className="hover:text-white transition-colors">Войти</Link></li>
             </ul>
@@ -34,12 +35,17 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-slate-700 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">⛵</span>
-            <span>© {new Date().getFullYear()} Ladoga Boat</span>
+        <div className="border-t border-slate-700 mt-8 pt-8">
+          <p className="text-xs text-slate-500 text-center mb-4">
+            ИП Морозов Владимир Владимирович · ИНН 110110795542 · ОГРНИП 322623400017352
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">⛵</span>
+              <span>© {new Date().getFullYear()} Ladoga Boat</span>
+            </div>
+            <span className="text-slate-600">Сайт создан на Next.js</span>
           </div>
-          <span className="text-slate-600">Сайт создан на Next.js</span>
         </div>
       </div>
     </footer>

@@ -61,12 +61,65 @@ function ReviewModal({ booking, onClose, onSubmit }: {
   )
 }
 
+function RefundModal({ booking, onClose, onSubmit }: {
+  booking: Booking
+  onClose: () => void
+  onSubmit: (bookingId: string, reason: string) => Promise<string | null>
+}) {
+  const [reason, setReason] = useState('')
+  const [pending, startTransition] = useTransition()
+  const [error, setError] = useState('')
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    startTransition(async () => {
+      const err = await onSubmit(booking.id, reason)
+      if (err) { setError(err); return }
+      onClose()
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+        <h3 className="text-lg font-semibold text-slate-800 mb-2">Запрос на возврат средств</h3>
+        <p className="text-sm text-slate-500 mb-4">
+          Опишите, почему вы хотите вернуть оплату за бронирование «{booking.boat?.title}». Заявку
+          рассмотрит судовладелец или поддержка Ladoga Boat.
+        </p>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Причина возврата</label>
+            <textarea
+              required
+              minLength={5}
+              rows={4}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Например: поездка отменена судовладельцем / не подошли условия и т.д."
+              className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            />
+          </div>
+          {error && <p className="text-red-500 text-sm bg-red-50 rounded-lg px-4 py-3">{error}</p>}
+          <div className="flex gap-3">
+            <button type="button" onClick={onClose} className="flex-1 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Отмена</button>
+            <button type="submit" disabled={pending} className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">
+              {pending ? 'Отправка...' : 'Отправить запрос'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 function GuestDashboardContent() {
   const searchParams = useSearchParams()
   const justBooked = searchParams.get('booked') === '1'
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [reviewFor, setReviewFor] = useState<Booking | null>(null)
+  const [refundFor, setRefundFor] = useState<Booking | null>(null)
 
   useEffect(() => {
     fetch('/api/bookings')
@@ -88,6 +141,21 @@ function GuestDashboardContent() {
   async function cancelBooking(id: string) {
     await fetch(`/api/bookings/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'CANCELLED' }) })
     setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status: 'CANCELLED' } : b))
+  }
+
+  async function submitRefund(bookingId: string, reason: string): Promise<string | null> {
+    const res = await fetch(`/api/bookings/${bookingId}/refund`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason }),
+    })
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}))
+      return data.error ?? 'Не удалось отправить запрос'
+    }
+    const updated = await fetch('/api/bookings').then((r) => r.json())
+    setBookings(updated)
+    return null
   }
 
   return (
@@ -141,12 +209,32 @@ function GuestDashboardContent() {
                           Отменить
                         </button>
                       )}
+                      {(b.status === 'CONFIRMED' || b.status === 'COMPLETED') && (!b.refundStatus || b.refundStatus === 'NONE') && (
+                        <button onClick={() => setRefundFor(b)} className="text-xs text-red-500 hover:underline">
+                          Запросить возврат
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
                 {b.review && (
                   <div className="mt-3 pt-3 border-t border-slate-100 text-sm text-slate-500">
                     Ваш отзыв: {'★'.repeat(b.review.rating)} — {b.review.comment}
+                  </div>
+                )}
+                {b.refundStatus === 'REQUESTED' && (
+                  <div className="mt-3 pt-3 border-t border-amber-100 text-sm text-amber-700">
+                    Запрос на возврат отправлен, ожидает рассмотрения.
+                  </div>
+                )}
+                {b.refundStatus === 'APPROVED' && (
+                  <div className="mt-3 pt-3 border-t border-green-100 text-sm text-green-700">
+                    Возврат одобрен — бронирование отменено.
+                  </div>
+                )}
+                {b.refundStatus === 'REJECTED' && (
+                  <div className="mt-3 pt-3 border-t border-red-100 text-sm text-red-600">
+                    Запрос на возврат отклонён.
                   </div>
                 )}
               </div>
@@ -156,6 +244,9 @@ function GuestDashboardContent() {
       </div>
       {reviewFor && (
         <ReviewModal booking={reviewFor} onClose={() => setReviewFor(null)} onSubmit={submitReview} />
+      )}
+      {refundFor && (
+        <RefundModal booking={refundFor} onClose={() => setRefundFor(null)} onSubmit={submitRefund} />
       )}
     </div>
   )

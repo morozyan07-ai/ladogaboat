@@ -1,6 +1,7 @@
 export type Role = 'GUEST' | 'OWNER' | 'ADMIN'
 export type BoatStatus = 'ACTIVE' | 'INACTIVE'
 export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED'
+export type RefundStatus = 'NONE' | 'REQUESTED' | 'APPROVED' | 'REJECTED'
 
 export type User = {
   id: string
@@ -9,6 +10,15 @@ export type User = {
   role: Role
   phone?: string | null
   createdAt: Date
+  // Платёжные реквизиты судовладельца (заполняются в ЛК для выплат)
+  payoutLegalName?: string | null
+  payoutInn?: string | null
+  payoutOgrn?: string | null
+  payoutBankName?: string | null
+  payoutBik?: string | null
+  payoutAccount?: string | null
+  payoutCorrAccount?: string | null
+  payoutUpdatedAt?: Date | null
 }
 
 export type Boat = {
@@ -42,6 +52,10 @@ export type Booking = {
   boat?: Boat
   guest?: Pick<User, 'id' | 'name' | 'email'>
   review?: Review | null
+  refundStatus?: RefundStatus
+  refundReason?: string | null
+  refundRequestedAt?: Date | null
+  refundDecidedAt?: Date | null
 }
 
 export type Review = {

@@ -22,7 +22,7 @@ export default function BookingForm({ boatId, pricePerDay, isLoggedIn }: Props) 
       ? Math.max(0, Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000))
       : 0
   const total = days * pricePerDay
-  const commission = Math.round(total * 0.1)
+  const commission = Math.round(total * 0.08)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -82,7 +82,7 @@ export default function BookingForm({ boatId, pricePerDay, isLoggedIn }: Props) 
               <span>{total.toLocaleString('ru-RU')} ₽</span>
             </div>
             <div className="flex justify-between text-slate-500">
-              <span>Комиссия платформы (10%)</span>
+              <span>Комиссия платформы (8%)</span>
               <span>{commission.toLocaleString('ru-RU')} ₽</span>
             </div>
             <div className="flex justify-between font-semibold text-slate-800 pt-2 border-t border-blue-100">

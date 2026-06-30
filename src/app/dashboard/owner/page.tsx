@@ -1,11 +1,13 @@
 import Link from 'next/link'
 import { verifyOwner } from '@/lib/dal'
 import prisma from '@/lib/prisma'
+import OwnerPayoutForm from '@/components/dashboard/OwnerPayoutForm'
+import RefundDecisionButtons from '@/components/dashboard/RefundDecisionButtons'
 
 export default async function OwnerDashboard() {
   const session = await verifyOwner()
 
-  const [boats, bookings] = await Promise.all([
+  const [boats, bookings, payoutUser] = await Promise.all([
     prisma.boat.findMany({
       where: { ownerId: session.userId },
       include: { _count: { select: { bookings: true, reviews: true } } },
@@ -16,6 +18,19 @@ export default async function OwnerDashboard() {
       include: { boat: { select: { title: true } }, guest: { select: { name: true, email: true } } },
       orderBy: { createdAt: 'desc' },
       take: 10,
+    }),
+    prisma.user.findUnique({
+      where: { id: session.userId },
+      select: {
+        payoutLegalName: true,
+        payoutInn: true,
+        payoutOgrn: true,
+        payoutBankName: true,
+        payoutBik: true,
+        payoutAccount: true,
+        payoutCorrAccount: true,
+        payoutUpdatedAt: true,
+      },
     }),
   ])
 
@@ -52,6 +67,11 @@ export default async function OwnerDashboard() {
               <div className="text-slate-500 text-sm">{label}</div>
             </div>
           ))}
+        </div>
+
+        {/* Реквизиты для выплат */}
+        <div className="mb-8">
+          <OwnerPayoutForm initial={payoutUser ?? {}} />
         </div>
 
         {/* Boats */}
@@ -114,6 +134,23 @@ export default async function OwnerDashboard() {
                       <StatusBadge status={b.status} />
                     </div>
                   </div>
+                  {b.refundStatus === 'REQUESTED' && (
+                    <div className="mt-3 pt-3 border-t border-amber-100 bg-amber-50 -mx-4 -mb-4 px-4 py-3 rounded-b-xl">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-xs font-medium text-amber-700">Запрос на возврат средств</p>
+                          <p className="text-sm text-slate-600 mt-0.5">{b.refundReason}</p>
+                        </div>
+                        <RefundDecisionButtons bookingId={b.id} />
+                      </div>
+                    </div>
+                  )}
+                  {b.refundStatus === 'APPROVED' && (
+                    <p className="mt-2 text-xs text-green-700">Возврат одобрен — бронирование отменено</p>
+                  )}
+                  {b.refundStatus === 'REJECTED' && (
+                    <p className="mt-2 text-xs text-red-600">Запрос на возврат отклонён</p>
+                  )}
                 </div>
               ))}
             </div>

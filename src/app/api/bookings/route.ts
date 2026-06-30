@@ -3,7 +3,7 @@ import { z } from 'zod'
 import prisma from '@/lib/prisma'
 import { getSession } from '@/lib/session'
 
-const COMMISSION_RATE = 0.1
+const COMMISSION_RATE = 0.08
 
 const createSchema = z.object({
   boatId: z.string(),

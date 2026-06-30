@@ -35,6 +35,12 @@ export default function HeaderNav({ role }: Props) {
         </Link>
       )}
 
+      {!isAuthPage && (
+        <Link href="/service-center" className="text-slate-600 hover:text-blue-600 font-medium transition-colors">
+          Сервисный центр
+        </Link>
+      )}
+
       <div ref={contactsRef} className="relative">
         <button
           type="button"
@@ -82,6 +88,12 @@ export default function HeaderNav({ role }: Props) {
             >
               <span className="text-lg">🛟</span> Техническая поддержка
             </Link>
+            <div className="border-t border-slate-100 my-1" />
+            <p className="px-3 py-2 text-xs text-slate-400 leading-relaxed">
+              Индивидуальный предприниматель Морозов Владимир Владимирович
+              <br />
+              ИНН 110110795542 · ОГРНИП 322623400017352
+            </p>
           </div>
         )}
       </div>

@@ -25,6 +25,13 @@ enum BookingStatus {
   COMPLETED
 }
 
+enum RefundStatus {
+  NONE
+  REQUESTED
+  APPROVED
+  REJECTED
+}
+
 model User {
   id           String    @id @default(cuid())
   email        String    @unique
@@ -37,6 +44,17 @@ model User {
   boats        Boat[]
   bookings     Booking[]
   reviews      Review[]
+
+  // Платёжные реквизиты судовладельца для выплат (ИП/ООО) — нужны для сплитования
+  // платежей через ЮKassa и/или прямых выплат на расчётный счёт.
+  payoutLegalName   String? // Полное наименование: ИП Иванов И.И. / ООО "Компания"
+  payoutInn         String?
+  payoutOgrn        String? // ОГРНИП или ОГРН
+  payoutBankName    String?
+  payoutBik         String?
+  payoutAccount     String? // Расчётный счёт
+  payoutCorrAccount String? // Корреспондентский счёт
+  payoutUpdatedAt   DateTime?
 }
 
 model Boat {
@@ -82,6 +100,13 @@ model Booking {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   review      Review?
+
+  // Запрос на возврат средств от Гостя (см. оферту п.4) — заявка фиксируется здесь,
+  // фактический возврат денег выполняется Оператором вручную (до интеграции возвратов в ЮKassa).
+  refundStatus      RefundStatus @default(NONE)
+  refundReason      String?
+  refundRequestedAt DateTime?
+  refundDecidedAt   DateTime?
 }
 
 model Review {
