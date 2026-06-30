@@ -92,13 +92,14 @@ export default function HeaderNav({ role }: Props) {
             Сервисный центр
           </Link>
         )}
-        <div ref={contactsRef} className="relative">
+        <div ref={contactsRef} className="relative" onMouseEnter={() => setContactsOpen(true)} onMouseLeave={() => setContactsOpen(false)}>
           <button type="button" onClick={() => setContactsOpen((v) => !v)}
-            className="text-slate-600 hover:text-blue-600 font-medium transition-colors">
+            className="text-slate-600 hover:text-blue-600 font-medium transition-colors flex items-center gap-1">
             Контакты
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 4l4 4 4-4"/></svg>
           </button>
           {contactsOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-50">
+            <div className="absolute right-0 mt-1 w-56 bg-white border border-slate-200 rounded-xl shadow-lg p-2 z-[100]">
               <a href={CONTACTS.telegram} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-50 text-slate-700">
                 <span>✈️</span> Telegram

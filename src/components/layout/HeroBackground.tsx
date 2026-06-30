@@ -2,18 +2,37 @@
 
 import { useState } from 'react'
 
-// Drop real footage/photos here and the gradient fallback below disappears automatically:
-//   public/hero/ladoga-summer.mp4   (short looping summer clip of the skerries/bays)
-//   public/hero/ladoga-summer.jpg   (poster frame / fallback photo, same scene)
+// Чтобы добавить реальное фото/видео Ладоги — положи файлы:
+//   public/hero/ladoga-summer.jpg   (фото-обложка)
+//   public/hero/ladoga-summer.mp4   (видео-петля)
+// Они подхватятся автоматически. Пока используется фото с Unsplash.
 const VIDEO_SRC = '/hero/ladoga-summer.mp4'
-const IMAGE_SRC = '/hero/ladoga-summer.jpg'
+const LOCAL_IMAGE = '/hero/ladoga-summer.jpg'
+// Красивое фото северного озера (озеро Сайма, Финляндия — очень похоже на Ладогу):
+const UNSPLASH_IMAGE = 'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=1920&q=85&auto=format&fit=crop'
 
 export default function HeroBackground() {
   const [videoFailed, setVideoFailed] = useState(false)
-  const [imageFailed, setImageFailed] = useState(false)
+  // Начинаем сразу с Unsplash, потом заменяем на локальный если он загрузится
+  const [imgSrc, setImgSrc] = useState(LOCAL_IMAGE)
+  const [imgVisible, setImgVisible] = useState(false)
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-teal-700">
+      {/* Фото всегда загружаем в фоне */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={imgSrc}
+        alt="Ладожские шхеры летом"
+        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${imgVisible ? 'opacity-100' : 'opacity-0'}`}
+        onLoad={() => setImgVisible(true)}
+        onError={() => {
+          if (imgSrc === LOCAL_IMAGE) {
+            setImgSrc(UNSPLASH_IMAGE)
+          }
+        }}
+      />
+      {/* Видео поверх фото если доступно */}
       {!videoFailed && (
         <video
           className="absolute inset-0 h-full w-full object-cover"
@@ -21,20 +40,11 @@ export default function HeroBackground() {
           muted
           loop
           playsInline
-          poster={IMAGE_SRC}
+          poster={imgSrc}
           onError={() => setVideoFailed(true)}
         >
           <source src={VIDEO_SRC} type="video/mp4" />
         </video>
-      )}
-      {videoFailed && !imageFailed && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={IMAGE_SRC}
-          alt="Ладожские шхеры летом"
-          className="absolute inset-0 h-full w-full object-cover"
-          onError={() => setImageFailed(true)}
-        />
       )}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-900/75 via-blue-800/65 to-teal-700/55" />
     </div>
