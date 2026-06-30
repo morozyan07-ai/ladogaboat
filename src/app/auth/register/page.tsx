@@ -37,6 +37,17 @@ function RegisterForm() {
         {state?.errors?.email && <p className="text-red-500 text-xs mt-1">{state.errors.email[0]}</p>}
       </div>
       <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Телефон</label>
+        <input
+          name="phone"
+          type="tel"
+          required
+          placeholder="+7 999 123-45-67"
+          className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {state?.errors?.phone && <p className="text-red-500 text-xs mt-1">{state.errors.phone[0]}</p>}
+      </div>
+      <div>
         <label className="block text-sm font-medium text-slate-700 mb-1">Пароль</label>
         <input
           name="password"
@@ -64,6 +75,18 @@ function RegisterForm() {
           ))}
         </div>
         {state?.errors?.role && <p className="text-red-500 text-xs mt-1">{state.errors.role[0]}</p>}
+      </div>
+      <div>
+        <label className="flex items-start gap-2 cursor-pointer">
+          <input name="consent" type="checkbox" required className="mt-1" />
+          <span className="text-xs text-slate-500">
+            Я согласен на{' '}
+            <Link href="/legal/consent" target="_blank" className="text-blue-600 hover:underline">
+              обработку персональных данных
+            </Link>
+          </span>
+        </label>
+        {state?.errors?.consent && <p className="text-red-500 text-xs mt-1">{state.errors.consent[0]}</p>}
       </div>
       {state?.message && (
         <p className="text-red-500 text-sm bg-red-50 rounded-lg px-4 py-3">{state.message}</p>

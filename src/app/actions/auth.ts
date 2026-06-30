@@ -9,6 +9,7 @@ import { createSession, deleteSession } from '@/lib/session'
 const RegisterSchema = z.object({
   name: z.string().min(2, 'Имя должно содержать минимум 2 символа').trim(),
   email: z.email('Введите корректный email').trim(),
+  phone: z.string().min(10, 'Введите корректный номер телефона').trim(),
   password: z.string().min(6, 'Пароль должен содержать минимум 6 символов'),
   role: z.enum(['GUEST', 'OWNER']),
 })
@@ -24,6 +25,7 @@ export async function register(state: FormState, formData: FormData): Promise<Fo
   const validated = RegisterSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
+    phone: formData.get('phone'),
     password: formData.get('password'),
     role: formData.get('role'),
   })
@@ -32,7 +34,11 @@ export async function register(state: FormState, formData: FormData): Promise<Fo
     return { errors: validated.error.flatten().fieldErrors }
   }
 
-  const { name, email, password, role } = validated.data
+  if (formData.get('consent') !== 'on') {
+    return { errors: { consent: ['Необходимо согласие на обработку персональных данных'] } }
+  }
+
+  const { name, email, phone, password, role } = validated.data
 
   let user
   try {
@@ -40,7 +46,7 @@ export async function register(state: FormState, formData: FormData): Promise<Fo
     if (existing) return { errors: { email: ['Email уже зарегистрирован'] } }
 
     const passwordHash = await bcrypt.hash(password, 10)
-    user = await prisma.user.create({ data: { name, email, passwordHash, role } })
+    user = await prisma.user.create({ data: { name, email, phone, passwordHash, role } })
   } catch (err: unknown) {
     if (err && typeof err === 'object' && 'code' in err && err.code === 'P2002') {
       return { errors: { email: ['Email уже зарегистрирован'] } }
