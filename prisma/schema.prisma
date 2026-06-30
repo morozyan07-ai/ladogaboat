@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  GUEST
+  OWNER
+  ADMIN
+}
+
+enum BoatStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         Role      @default(GUEST)
+  phone        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  boats        Boat[]
+  bookings     Booking[]
+  reviews      Review[]
+}
+
+model Boat {
+  id           String         @id @default(cuid())
+  ownerId      String
+  owner        User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title        String
+  description  String
+  capacity     Int
+  pricePerDay  Decimal        @db.Decimal(10, 2)
+  location     String
+  routes       String[]
+  images       String[]
+  status       BoatStatus     @default(ACTIVE)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  bookings     Booking[]
+  availability Availability[]
+  reviews      Review[]
+}
+
+model Availability {
+  id        String   @id @default(cuid())
+  boatId    String
+  boat      Boat     @relation(fields: [boatId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date
+  available Boolean  @default(true)
+
+  @@unique([boatId, date])
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  boatId      String
+  boat        Boat          @relation(fields: [boatId], references: [id])
+  guestId     String
+  guest       User          @relation(fields: [guestId], references: [id])
+  startDate   DateTime      @db.Date
+  endDate     DateTime      @db.Date
+  totalPrice  Decimal       @db.Decimal(10, 2)
+  commission  Decimal       @db.Decimal(10, 2)
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  review      Review?
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  boatId    String
+  boat      Boat     @relation(fields: [boatId], references: [id])
+  guestId   String
+  guest     User     @relation(fields: [guestId], references: [id])
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
+}

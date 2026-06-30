@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /a)",
+      "PowerShell(& \"C:\\\\Program Files\\\\PostgreSQL\\\\17\\\\bin\\\\psql.exe\" -U postgres -c \"SELECT 1 FROM pg_database WHERE datname='ladoga_boat';\" 2>&1)",
+      "PowerShell($env:PGPASSWORD = \"password\"; & \"C:\\\\Program Files\\\\PostgreSQL\\\\17\\\\bin\\\\psql.exe\" -U postgres -c \"SELECT 1 FROM pg_database WHERE datname='ladoga_boat';\")",
+      "mcp__visualize__show_widget"
+    ]
+  }
+}
