@@ -4,17 +4,19 @@ import HeaderNav from '@/components/layout/HeaderNav'
 
 function LogoSvg() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 270" width="140" height="56" role="img" aria-label="Ladoga Boat">
-      <style>{`.dk{fill:#1b2e4b}.wv{fill:none;stroke:#3dbfad;stroke-linecap:round}`}</style>
-      <path className="dk" d="M206 143 C214 127 238 112 264 107 L272 105 C278 104 285 107 288 113 L438 116 C452 116 462 126 464 138 L460 145 C458 148 454 150 450 150 L214 150 C208 150 204 147 206 143Z"/>
-      <path className="dk" d="M302 113 L317 94 C320 90 327 88 334 88 L362 88 C369 88 374 92 376 97 L386 113Z"/>
-      <line x1="337" y1="88" x2="333" y2="62" stroke="#1b2e4b" strokeWidth="2.5" strokeLinecap="round"/>
-      <circle cx="333" cy="60" r="3.5" className="dk"/>
-      <path className="wv" strokeWidth="7" d="M182 163 Q228 151 274 163 Q320 175 366 163 Q412 151 458 163 Q480 168 500 163"/>
-      <path className="wv" strokeWidth="5" opacity="0.55" d="M172 180 Q220 168 268 180 Q316 192 364 180 Q412 168 460 180 Q484 185 504 180"/>
-      <text y="242" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="900" fontSize="52" letterSpacing="5" textAnchor="middle" x="340">
-        <tspan fill="#1b2e4b">LADOGA</tspan><tspan fill="#3dbfad"> BOAT</tspan>
-      </text>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" width="126" height="88" role="img" aria-label="Ladoga Boat Rental">
+      {/* Mast */}
+      <line x1="192" y1="42" x2="197" y2="15" stroke="#1a2e4a" strokeWidth="2.5" strokeLinecap="round"/>
+      {/* Speedboat hull */}
+      <path fill="#1a2e4a" d="M 78,107 Q 195,122 312,96 L 314,82 Q 284,60 248,55 Q 232,53 226,46 Q 217,38 202,38 Q 186,38 178,46 Q 172,53 158,56 L 115,64 L 78,76 Z"/>
+      {/* Wave 1 */}
+      <path fill="none" stroke="#3dbead" strokeWidth="5" strokeLinecap="round" d="M 52,120 Q 120,108 188,120 Q 256,132 324,120 Q 342,116 356,120"/>
+      {/* Wave 2 */}
+      <path fill="none" stroke="#3dbead" strokeWidth="3.5" strokeLinecap="round" opacity="0.65" d="M 42,135 Q 112,123 180,135 Q 248,147 316,135 Q 336,131 348,135"/>
+      {/* LADOGA */}
+      <text x="200" y="192" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="900" fontSize="60" letterSpacing="7" textAnchor="middle" fill="#1a2e4a">LADOGA</text>
+      {/* BOAT RENTAL */}
+      <text x="200" y="222" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="700" fontSize="22" letterSpacing="6" textAnchor="middle" fill="#3dbead">BOAT RENTAL</text>
     </svg>
   )
 }
@@ -25,18 +27,12 @@ export default async function Header() {
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-24">
           <Link href="/" className="flex items-center">
             <LogoSvg />
           </Link>
 
           <HeaderNav role={session?.role ?? null} />
-
-          <div className="md:hidden">
-            <Link href="/auth/login" className="text-blue-600 font-medium">
-              Войти
-            </Link>
-          </div>
         </div>
       </div>
     </header>

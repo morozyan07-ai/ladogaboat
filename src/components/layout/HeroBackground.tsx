@@ -9,7 +9,8 @@ import { useState } from 'react'
 const VIDEO_SRC = '/hero/ladoga-summer.mp4'
 const LOCAL_IMAGE = '/hero/ladoga-summer.jpg'
 // Красивое фото северного озера (озеро Сайма, Финляндия — очень похоже на Ладогу):
-const UNSPLASH_IMAGE = 'https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=1920&q=85&auto=format&fit=crop'
+// Фото: Республика Карелия, Россия (Владимир Федотов, Unsplash, free license)
+const UNSPLASH_IMAGE = 'https://images.unsplash.com/photo-1660488996194-b3dc1a5bfcdc?w=1920&q=85&auto=format&fit=crop'
 
 export default function HeroBackground() {
   const [videoFailed, setVideoFailed] = useState(false)

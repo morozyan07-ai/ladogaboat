@@ -1,19 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 270" width="680" height="270" role="img">
-  <title>Ladoga Boat</title>
-  <style>
-    .dk{fill:#1b2e4b}
-    .wv{fill:none;stroke:#3dbfad;stroke-linecap:round}
-  </style>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" role="img" aria-label="Ladoga Boat Rental">
+  <defs>
+    <style>
+      .b{fill:#1a2e4a}
+      .w{fill:none;stroke:#3dbead;stroke-linecap:round;stroke-linejoin:round}
+    </style>
+  </defs>
 
-  <path class="dk" d="M206 143 C214 127 238 112 264 107 L272 105 C278 104 285 107 288 113 L438 116 C452 116 462 126 464 138 L460 145 C458 148 454 150 450 150 L214 150 C208 150 204 147 206 143Z"/>
-  <path class="dk" d="M302 113 L317 94 C320 90 327 88 334 88 L362 88 C369 88 374 92 376 97 L386 113Z"/>
-  <line x1="337" y1="88" x2="333" y2="62" stroke="#1b2e4b" stroke-width="2.5" stroke-linecap="round"/>
-  <circle cx="333" cy="60" r="3.5" class="dk"/>
+  <!-- Mast / antenna -->
+  <line class="b" x1="192" y1="42" x2="197" y2="15" stroke="#1a2e4a" stroke-width="2.5" stroke-linecap="round"/>
 
-  <path class="wv" stroke-width="7" d="M182 163 Q228 151 274 163 Q320 175 366 163 Q412 151 458 163 Q480 168 500 163"/>
-  <path class="wv" stroke-width="5" opacity="0.55" d="M172 180 Q220 168 268 180 Q316 192 364 180 Q412 168 460 180 Q484 185 504 180"/>
+  <!-- Speedboat silhouette -->
+  <path class="b" d="
+    M 78,107
+    Q 195,122 312,96
+    L 314,82
+    Q 284,60 248,55
+    Q 232,53 226,46
+    Q 217,38 202,38
+    Q 186,38 178,46
+    Q 172,53 158,56
+    L 115,64
+    L 78,76
+    Z
+  "/>
 
-  <text y="242" font-family="'Arial Black',Arial,sans-serif" font-weight="900" font-size="52" letter-spacing="5" text-anchor="middle" x="340">
-    <tspan fill="#1b2e4b">LADOGA</tspan><tspan fill="#3dbfad"> BOAT</tspan>
-  </text>
+  <!-- Wave 1 -->
+  <path class="w" stroke-width="5" d="M 52,120 Q 120,108 188,120 Q 256,132 324,120 Q 342,116 356,120"/>
+  <!-- Wave 2 -->
+  <path class="w" stroke-width="3.5" opacity="0.65" d="M 42,135 Q 112,123 180,135 Q 248,147 316,135 Q 336,131 348,135"/>
+
+  <!-- LADOGA -->
+  <text x="200" y="192"
+    font-family="'Arial Black',Arial,sans-serif"
+    font-weight="900"
+    font-size="60"
+    letter-spacing="7"
+    text-anchor="middle"
+    fill="#1a2e4a">LADOGA</text>
+
+  <!-- BOAT RENTAL -->
+  <text x="200" y="222"
+    font-family="'Arial Black',Arial,sans-serif"
+    font-weight="700"
+    font-size="22"
+    letter-spacing="6"
+    text-anchor="middle"
+    fill="#3dbead">BOAT RENTAL</text>
 </svg>
