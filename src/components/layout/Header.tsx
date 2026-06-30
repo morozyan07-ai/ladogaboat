@@ -4,7 +4,7 @@ import HeaderNav from '@/components/layout/HeaderNav'
 
 function LogoSvg() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" width="126" height="88" role="img" aria-label="Ladoga Boat Rental">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 205" width="126" height="65" role="img" aria-label="Ladoga Boat">
       {/* Mast */}
       <line x1="192" y1="42" x2="197" y2="15" stroke="#1a2e4a" strokeWidth="2.5" strokeLinecap="round"/>
       {/* Speedboat hull */}
@@ -13,10 +13,10 @@ function LogoSvg() {
       <path fill="none" stroke="#3dbead" strokeWidth="5" strokeLinecap="round" d="M 52,120 Q 120,108 188,120 Q 256,132 324,120 Q 342,116 356,120"/>
       {/* Wave 2 */}
       <path fill="none" stroke="#3dbead" strokeWidth="3.5" strokeLinecap="round" opacity="0.65" d="M 42,135 Q 112,123 180,135 Q 248,147 316,135 Q 336,131 348,135"/>
-      {/* LADOGA */}
-      <text x="200" y="192" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="900" fontSize="60" letterSpacing="7" textAnchor="middle" fill="#1a2e4a">LADOGA</text>
-      {/* BOAT RENTAL */}
-      <text x="200" y="222" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="700" fontSize="22" letterSpacing="6" textAnchor="middle" fill="#3dbead">BOAT RENTAL</text>
+      {/* LADOGA BOAT */}
+      <text x="200" y="195" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="900" fontSize="44" letterSpacing="3" textAnchor="middle">
+        <tspan fill="#1a2e4a">LADOGA</tspan><tspan fill="#3dbead"> BOAT</tspan>
+      </text>
     </svg>
   )
 }
