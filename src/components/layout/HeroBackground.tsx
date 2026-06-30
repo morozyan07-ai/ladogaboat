@@ -19,7 +19,7 @@ export default function HeroBackground() {
         className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setLoaded(true)}
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/70 via-blue-800/55 to-teal-700/45" />
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-900/60 via-blue-800/40 to-teal-800/50" />
     </div>
   )
 }
