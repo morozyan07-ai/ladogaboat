@@ -113,9 +113,17 @@ function RefundModal({ booking, onClose, onSubmit }: {
   )
 }
 
-function GuestDashboardContent() {
+function JustBookedBanner() {
   const searchParams = useSearchParams()
-  const justBooked = searchParams.get('booked') === '1'
+  if (searchParams.get('booked') !== '1') return null
+  return (
+    <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 mb-6 text-sm">
+      ✅ Бронирование успешно оформлено! Судовладелец свяжется с вами.
+    </div>
+  )
+}
+
+function GuestDashboardContent() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [reviewFor, setReviewFor] = useState<Booking | null>(null)
@@ -162,11 +170,9 @@ function GuestDashboardContent() {
     <div className="py-8 px-4">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-semibold text-slate-800 mb-2">Мои бронирования</h1>
-        {justBooked && (
-          <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 mb-6 text-sm">
-            ✅ Бронирование успешно оформлено! Судовладелец свяжется с вами.
-          </div>
-        )}
+        <Suspense fallback={null}>
+          <JustBookedBanner />
+        </Suspense>
 
         {loading ? (
           <div className="space-y-4">
@@ -264,9 +270,5 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function GuestDashboard() {
-  return (
-    <Suspense fallback={<div className="p-8 text-center text-slate-400">Загрузка...</div>}>
-      <GuestDashboardContent />
-    </Suspense>
-  )
+  return <GuestDashboardContent />
 }
