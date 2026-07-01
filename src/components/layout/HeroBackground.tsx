@@ -14,9 +14,9 @@ function getSeason(): 'winter' | 'spring' | 'summer' | 'autumn' {
 // Остальные сезоны — временный фон из Unsplash, замени когда появятся фото
 const SEASON_IMAGES: Record<ReturnType<typeof getSeason>, string> = {
   winter: '/hero/winter.jpg',
-  spring: 'https://images.unsplash.com/photo-1660488996194-b3dc1a5bfcdc?w=1920&q=80&auto=format&fit=crop',
-  summer: 'https://images.unsplash.com/photo-1660488996194-b3dc1a5bfcdc?w=1920&q=80&auto=format&fit=crop',
-  autumn: 'https://images.unsplash.com/photo-1660488996194-b3dc1a5bfcdc?w=1920&q=80&auto=format&fit=crop',
+  spring: '/hero/ladoga-summer.jpg',
+  summer: '/hero/ladoga-summer.jpg',
+  autumn: '/hero/ladoga-summer.jpg',
 }
 
 const SEASON_ALT: Record<ReturnType<typeof getSeason>, string> = {

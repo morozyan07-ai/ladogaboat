@@ -14,6 +14,18 @@ export const metadata: Metadata = {
 
 async function searchBoats(params: SearchParams): Promise<Boat[]> {
   try {
+    // Таймаут 8 сек — если Neon не проснулся, возвращаем [] вместо 503
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('db_timeout')), 8000)
+    )
+    return await Promise.race([fetchBoats(params), timeout])
+  } catch {
+    return []
+  }
+}
+
+async function fetchBoats(params: SearchParams): Promise<Boat[]> {
+  try {
     const where: Record<string, unknown> = { status: 'ACTIVE' }
     if (params.location) {
       const locations = params.location.split(',').filter(Boolean)
@@ -71,9 +83,23 @@ export default async function BoatsPage({ searchParams }: Props) {
         )}
         {boats.length === 0 ? (
           <div className="text-center py-20 text-slate-400">
-            <div className="text-5xl mb-4">🔍</div>
-            <p className="text-lg font-medium text-slate-600">Катера не найдены</p>
-            <p className="text-sm mt-2">Попробуйте изменить параметры поиска</p>
+            <div className="text-5xl mb-4">⛵</div>
+            <p className="text-lg font-medium text-slate-600">
+              {params.location ? 'Катера не найдены' : 'Катера загружаются...'}
+            </p>
+            <p className="text-sm mt-2">
+              {params.location
+                ? 'Попробуйте изменить параметры поиска'
+                : 'Первый запрос занимает несколько секунд — обновите страницу'}
+            </p>
+            {!params.location && (
+              <a
+                href="/boats"
+                className="mt-4 inline-block bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                Обновить
+              </a>
+            )}
           </div>
         ) : (
           <>
