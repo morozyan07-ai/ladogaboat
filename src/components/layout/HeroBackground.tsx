@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import ladogaSummerSrc from '../../../public/hero/ladoga-summer.jpg'
+import winterSrc from '../../../public/hero/winter.jpg'
 
 function getSeason(): 'winter' | 'spring' | 'summer' | 'autumn' {
   const month = new Date().getMonth() // 0=Jan … 11=Dec
@@ -13,10 +15,10 @@ function getSeason(): 'winter' | 'spring' | 'summer' | 'autumn' {
 // Зима — своё фото Ладоги (public/hero/winter.jpg)
 // Остальные сезоны — временный фон из Unsplash, замени когда появятся фото
 const SEASON_IMAGES: Record<ReturnType<typeof getSeason>, string> = {
-  winter: '/hero/winter.jpg',
-  spring: '/hero/ladoga-summer.jpg',
-  summer: '/hero/ladoga-summer.jpg',
-  autumn: '/hero/ladoga-summer.jpg',
+  winter: winterSrc.src,
+  spring: ladogaSummerSrc.src,
+  summer: ladogaSummerSrc.src,
+  autumn: ladogaSummerSrc.src,
 }
 
 const SEASON_ALT: Record<ReturnType<typeof getSeason>, string> = {
