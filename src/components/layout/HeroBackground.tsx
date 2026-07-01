@@ -2,20 +2,42 @@
 
 import { useState } from 'react'
 
-// Фото: Республика Карелия, Россия (Владимир Федотов, Unsplash, free license)
-// Чтобы заменить на собственное фото Ладоги — положи public/hero/ladoga.jpg
-// и замени HERO_IMAGE ниже на '/hero/ladoga.jpg'
-const HERO_IMAGE = 'https://images.unsplash.com/photo-1660488996194-b3dc1a5bfcdc?w=1920&q=85&auto=format&fit=crop'
+function getSeason(): 'winter' | 'spring' | 'summer' | 'autumn' {
+  const month = new Date().getMonth() // 0=Jan … 11=Dec
+  if (month <= 1 || month === 11) return 'winter'
+  if (month <= 4) return 'spring'
+  if (month <= 7) return 'summer'
+  return 'autumn'
+}
+
+// Зима — своё фото Ладоги (public/hero/winter.jpg)
+// Остальные сезоны — временный фон из Unsplash, замени когда появятся фото
+const SEASON_IMAGES: Record<ReturnType<typeof getSeason>, string> = {
+  winter: '/hero/winter.jpg',
+  spring: 'https://images.unsplash.com/photo-1660488996194-b3dc1a5bfcdc?w=1920&q=80&auto=format&fit=crop',
+  summer: 'https://images.unsplash.com/photo-1660488996194-b3dc1a5bfcdc?w=1920&q=80&auto=format&fit=crop',
+  autumn: 'https://images.unsplash.com/photo-1660488996194-b3dc1a5bfcdc?w=1920&q=80&auto=format&fit=crop',
+}
+
+const SEASON_ALT: Record<ReturnType<typeof getSeason>, string> = {
+  winter: 'Ладожское озеро зимой, закат над льдом',
+  spring: 'Ладожские шхеры, Карелия весной',
+  summer: 'Ладожское озеро летом',
+  autumn: 'Ладожские шхеры, Карелия осенью',
+}
 
 export default function HeroBackground() {
   const [loaded, setLoaded] = useState(false)
+  const season = getSeason()
+  const src = SEASON_IMAGES[season]
+  const alt = SEASON_ALT[season]
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-teal-700">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={HERO_IMAGE}
-        alt="Ладожские шхеры, Карелия"
+        src={src}
+        alt={alt}
         className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setLoaded(true)}
       />

@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
 import SearchForm from '@/components/boats/SearchForm'
-import WaterTaxiSection from '@/components/taxi/WaterTaxiSection'
 import HeroBackground from '@/components/layout/HeroBackground'
 
 export default function HomePage() {
@@ -24,22 +23,6 @@ export default function HomePage() {
               <SearchForm />
             </Suspense>
           </div>
-        </div>
-      </section>
-
-      {/* Water taxi calculator */}
-      <section className="py-14 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <div className="inline-flex items-center gap-2 bg-teal-50 text-teal-700 text-sm font-semibold px-3 py-1 rounded-full mb-3">
-              🚤 Новое
-            </div>
-            <h2 className="text-2xl font-semibold text-slate-800">Водное такси</h2>
-            <p className="text-slate-500 mt-1">
-              Поставьте точки отправления и прибытия — мы рассчитаем маршрут, время и стоимость.
-            </p>
-          </div>
-          <WaterTaxiSection />
         </div>
       </section>
 
