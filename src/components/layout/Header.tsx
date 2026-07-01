@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { getSession } from '@/lib/session'
 import HeaderNav from '@/components/layout/HeaderNav'
-import logoSrc from '../../../public/logo-original.png'
 
 export default async function Header() {
   const session = await getSession()
@@ -13,7 +12,7 @@ export default async function Header() {
           <Link href="/" className="flex items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={logoSrc.src}
+              src="/logo-original.png"
               alt="Ladoga Boat"
               style={{ height: '64px', width: 'auto' }}
             />
