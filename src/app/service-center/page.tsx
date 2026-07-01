@@ -48,6 +48,7 @@ const SERVICE_BLOCKS = [
     title: 'Транспортировка',
     items: [
       { name: 'Доставка катера к сервису', price: 'индивидуально' },
+      { name: 'Ремонт на воде', price: 'от 15 000 ₽' },
     ],
   },
 ]
@@ -84,16 +85,11 @@ export default function ServiceCenterPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           <div className="bg-white border border-slate-100 rounded-2xl p-6 text-center shadow-sm">
             <div className="text-3xl mb-2">📍</div>
             <p className="font-medium text-slate-800">Сортавала</p>
             <p className="text-slate-500 text-sm">Участок у воды на Ладожском озере</p>
-          </div>
-          <div className="bg-white border border-slate-100 rounded-2xl p-6 text-center shadow-sm">
-            <div className="text-3xl mb-2">👤</div>
-            <p className="font-medium text-slate-800">Капитан ГИМС всех категорий</p>
-            <p className="text-slate-500 text-sm">Руководитель центра — практик с опытом туров по Ладоге</p>
           </div>
           <div className="bg-white border border-slate-100 rounded-2xl p-6 text-center shadow-sm">
             <div className="text-3xl mb-2">🗺️</div>

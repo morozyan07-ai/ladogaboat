@@ -39,11 +39,8 @@ export default function Footer() {
           <p className="text-xs text-slate-500 text-center mb-4">
             ИП Морозов Владимир Владимирович · ИНН 110110795542 · ОГРНИП 322623400017352
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">⛵</span>
-              <span>© {new Date().getFullYear()} Ladoga Boat</span>
-            </div>
+          <div className="flex flex-row items-center justify-between gap-3 text-sm text-slate-500">
+            <span>© {new Date().getFullYear()} Ladoga Boat</span>
             <span className="text-slate-600">Сайт создан на Next.js</span>
           </div>
         </div>
