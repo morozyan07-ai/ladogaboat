@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import bcrypt from 'bcryptjs'
 import { z } from 'zod'
 import prisma from '@/lib/prisma'
-import { createSession, deleteSession } from '@/lib/session'
+import { createSession } from '@/lib/session'
 
 const RegisterSchema = z.object({
   name: z.string().min(2, 'Имя должно содержать минимум 2 символа').trim(),
@@ -87,7 +87,3 @@ export async function login(state: FormState, formData: FormData): Promise<FormS
   redirect(user.role === 'OWNER' ? '/dashboard/owner' : '/dashboard/guest')
 }
 
-export async function logout() {
-  await deleteSession()
-  redirect('/')
-}

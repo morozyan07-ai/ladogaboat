@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import { logout } from '@/app/actions/auth'
+import { logout } from '@/app/actions/logout'
 import { CONTACTS } from '@/lib/contacts'
 
 type Props = {
