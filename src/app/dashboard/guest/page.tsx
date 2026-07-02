@@ -67,36 +67,31 @@ function RefundModal({ booking, onClose, onSubmit }: {
   onSubmit: (bookingId: string, reason: string) => Promise<string | null>
 }) {
   const [reason, setReason] = useState('')
-  const [pending, startTransition] = useTransition()
   const [error, setError] = useState('')
+  const [pending, startTransition] = useTransition()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setError('')
     startTransition(async () => {
       const err = await onSubmit(booking.id, reason)
-      if (err) { setError(err); return }
-      onClose()
+      if (err) { setError(err) } else { onClose() }
     })
   }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold text-slate-800 mb-2">Запрос на возврат средств</h3>
-        <p className="text-sm text-slate-500 mb-4">
-          Опишите, почему вы хотите вернуть оплату за бронирование «{booking.boat?.title}». Заявку
-          рассмотрит судовладелец или поддержка Ladoga Boat.
-        </p>
+        <h3 className="text-lg font-semibold text-slate-800 mb-4">Запрос возврата</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Причина возврата</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Причина</label>
             <textarea
               required
-              minLength={5}
               rows={4}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Например: поездка отменена судовладельцем / не подошли условия и т.д."
+              placeholder="Опишите причину возврата..."
               className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             />
           </div>
@@ -115,10 +110,17 @@ function RefundModal({ booking, onClose, onSubmit }: {
 
 function JustBookedBanner() {
   const searchParams = useSearchParams()
+  if (searchParams.get('payment') === 'done') {
+    return (
+      <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 mb-6 text-sm">
+        ✅ Оплата прошла успешно! Ваше бронирование подтверждено.
+      </div>
+    )
+  }
   if (searchParams.get('booked') !== '1') return null
   return (
     <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 mb-6 text-sm">
-      ✅ Бронирование успешно оформлено! Судовладелец свяжется с вами.
+      ✅ Бронирование оформлено! Нажмите «Оплатить», чтобы подтвердить его.
     </div>
   )
 }
@@ -128,6 +130,7 @@ function GuestDashboardContent() {
   const [loading, setLoading] = useState(true)
   const [reviewFor, setReviewFor] = useState<Booking | null>(null)
   const [refundFor, setRefundFor] = useState<Booking | null>(null)
+  const [payPending, setPayPending] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/bookings')
@@ -149,6 +152,27 @@ function GuestDashboardContent() {
   async function cancelBooking(id: string) {
     await fetch(`/api/bookings/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'CANCELLED' }) })
     setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status: 'CANCELLED' } : b))
+  }
+
+  async function handlePay(bookingId: string) {
+    setPayPending(bookingId)
+    try {
+      const res = await fetch('/api/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId }),
+      })
+      const data = await res.json()
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl
+      } else {
+        alert(data.error ?? 'Не удалось создать ссылку на оплату')
+      }
+    } catch {
+      alert('Ошибка сети, попробуйте снова')
+    } finally {
+      setPayPending(null)
+    }
   }
 
   async function submitRefund(bookingId: string, reason: string): Promise<string | null> {
@@ -204,16 +228,25 @@ function GuestDashboardContent() {
                   </div>
                   <div className="text-right space-y-2">
                     <StatusBadge status={b.status} />
-                    <div className="flex flex-col gap-1.5">
+                    <div className="flex flex-col gap-1.5 items-end">
                       {b.status === 'COMPLETED' && !b.review && (
                         <button onClick={() => setReviewFor(b)} className="text-xs text-blue-600 hover:underline">
                           Оставить отзыв
                         </button>
                       )}
                       {b.status === 'PENDING' && (
-                        <button onClick={() => cancelBooking(b.id)} className="text-xs text-red-500 hover:underline">
-                          Отменить
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handlePay(b.id)}
+                            disabled={payPending === b.id}
+                            className="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                          >
+                            {payPending === b.id ? 'Загрузка...' : '💳 Оплатить'}
+                          </button>
+                          <button onClick={() => cancelBooking(b.id)} className="text-xs text-red-500 hover:underline">
+                            Отменить
+                          </button>
+                        </>
                       )}
                       {(b.status === 'CONFIRMED' || b.status === 'COMPLETED') && (!b.refundStatus || b.refundStatus === 'NONE') && (
                         <button onClick={() => setRefundFor(b)} className="text-xs text-red-500 hover:underline">
@@ -260,7 +293,7 @@ function GuestDashboardContent() {
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
-    PENDING: { label: 'Ожидает', cls: 'bg-yellow-100 text-yellow-700' },
+    PENDING: { label: 'Ожидает оплаты', cls: 'bg-yellow-100 text-yellow-700' },
     CONFIRMED: { label: 'Подтверждено', cls: 'bg-green-100 text-green-700' },
     CANCELLED: { label: 'Отменено', cls: 'bg-red-100 text-red-700' },
     COMPLETED: { label: 'Завершено', cls: 'bg-blue-100 text-blue-700' },

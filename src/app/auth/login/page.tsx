@@ -2,8 +2,20 @@
 
 import Link from 'next/link'
 import { useActionState } from 'react'
+import { Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { login } from '@/app/actions/auth'
 import Button from '@/components/ui/Button'
+
+function ResetSuccessBanner() {
+  const searchParams = useSearchParams()
+  if (searchParams.get('reset') !== 'done') return null
+  return (
+    <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl px-4 py-3 mb-6 text-sm">
+      ✅ Пароль успешно изменён. Войдите с новым паролем.
+    </div>
+  )
+}
 
 export default function LoginPage() {
   const [state, action, pending] = useActionState(login, undefined)
@@ -17,6 +29,9 @@ export default function LoginPage() {
           <p className="text-slate-500 mt-2">Добро пожаловать обратно!</p>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+          <Suspense fallback={null}>
+            <ResetSuccessBanner />
+          </Suspense>
           <form action={action} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
@@ -31,7 +46,12 @@ export default function LoginPage() {
               {state?.errors?.email && <p className="text-red-500 text-xs mt-1">{state.errors.email[0]}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Пароль</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-slate-700">Пароль</label>
+                <Link href="/auth/forgot" className="text-xs text-blue-600 hover:underline">
+                  Забыли пароль?
+                </Link>
+              </div>
               <input
                 name="password"
                 type="password"
