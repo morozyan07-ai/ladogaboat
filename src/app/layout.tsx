@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   title: { default: SITE_TITLE, template: `%s — ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
   keywords: SEO_KEYWORDS,
-  alternates: { canonical: '/' },
+  alternates: { canonical: SITE_URL },
   openGraph: {
     type: 'website',
     locale: 'ru_RU',
