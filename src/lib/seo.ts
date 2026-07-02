@@ -1,4 +1,4 @@
-export const SITE_URL = 'https://ladogaboat.ru'
+export const SITE_URL = 'https://www.ladogaboat.ru'
 export const SITE_NAME = 'Ladoga Boat'
 export const SITE_TITLE = 'Ladoga Boat — аренда катеров на Ладожском озере'
 export const SITE_DESCRIPTION =
