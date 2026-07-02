@@ -1,3 +1,4 @@
+// cache-bust: 2026-07-03
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import './globals.css'
