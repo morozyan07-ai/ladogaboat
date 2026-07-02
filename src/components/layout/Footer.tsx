@@ -36,11 +36,9 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-slate-700 mt-8 pt-8">
-          <p className="text-xs text-slate-500 text-center mb-4">
-            ИП Морозов Владимир Владимирович · ИНН 110110795542 · ОГРНИП 322623400017352
-          </p>
-          <div className="flex flex-row items-center justify-between gap-3 text-sm text-slate-500">
+          <div className="flex flex-row items-center justify-between gap-3 text-xs text-slate-500">
             <span>© {new Date().getFullYear()} Ladoga Boat</span>
+            <span className="text-center">ИП Морозов Владимир Владимирович · ИНН 110110795542 · ОГРНИП 322623400017352</span>
             <span className="text-slate-600">Сайт создан на Next.js</span>
           </div>
         </div>
