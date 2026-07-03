@@ -157,7 +157,7 @@ export default async function BoatDetailPage({ params }: Props) {
                   {boat.reviews.map((review) => (
                     <div key={review.id} className="bg-slate-50 rounded-xl p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-slate-800">{review.guest.name}</span>
+                        <span className="font-medium text-slate-800">{review.guest?.name ?? 'Гость'}</span>
                         <span className="text-amber-500 font-semibold">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
                       </div>
                       <p className="text-slate-600 text-sm">{review.comment}</p>
