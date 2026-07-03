@@ -94,8 +94,7 @@ export async function POST(req: NextRequest) {
 
   let bookingCode = generateBookingCode()
   for (let i = 0; i < 4; i++) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const existing = await (prisma.booking.findUnique as any)({ where: { bookingCode } })
+    const existing = await prisma.booking.findUnique({ where: { bookingCode } })
     if (!existing) break
     bookingCode = generateBookingCode()
   }
@@ -103,8 +102,7 @@ export async function POST(req: NextRequest) {
   const startFmt = start.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
   const endFmt = end.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const booking = await (prisma.booking.create as any)({
+  const booking = await prisma.booking.create({
     data: {
       boatId,
       guestId: session?.userId ?? undefined,
@@ -142,7 +140,6 @@ export async function POST(req: NextRequest) {
     console.error('YooKassa payment error:', err)
   }
 
-  // Email гостю
   let emailTo: string | null = null
   let emailName = 'Гость'
   if (session) {
@@ -179,7 +176,6 @@ export async function POST(req: NextRequest) {
     })
   }
 
-  // Email судовладельцу
   if (boat.owner?.email) {
     const contactInfo = session
       ? `Гость: ${emailName}`

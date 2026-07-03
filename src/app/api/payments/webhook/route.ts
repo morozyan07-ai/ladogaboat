@@ -8,14 +8,6 @@ import { sendEmail } from '@/lib/email'
 
 const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.ladogaboat.ru'
 
-type BookingWithGuest = {
-  id: string; status: string; boatId: string; startDate: Date; endDate: Date;
-  totalPrice: { toNumber?: () => number } | number;
-  boat: { title: string; location: string };
-  guest: { name: string; email: string } | null;
-  guestEmail: string | null; guestName: string | null; bookingCode: string | null;
-}
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -36,15 +28,13 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'no bookingId' }, { status: 400 })
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const booking = await (prisma.booking.findUnique as any)({
+    const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: {
         boat: { select: { title: true, location: true } },
         guest: { select: { name: true, email: true } },
       },
-    }) as BookingWithGuest | null
-
+    })
     if (!booking) {
       console.error('Webhook: booking not found', bookingId)
       return Response.json({ error: 'booking not found' }, { status: 404 })
@@ -74,9 +64,6 @@ export async function POST(req: NextRequest) {
       const confirmUrl = booking.bookingCode
         ? `${SITE_URL}/booking/confirm?code=${booking.bookingCode}`
         : `${SITE_URL}/dashboard/guest`
-      const totalRub = typeof booking.totalPrice === 'object' && booking.totalPrice?.toNumber
-        ? booking.totalPrice.toNumber()
-        : Number(booking.totalPrice)
 
       await sendEmail({
         to: guestEmail,
@@ -90,7 +77,7 @@ export async function POST(req: NextRequest) {
           `Катер: ${booking.boat.title}`,
           `Место: ${booking.boat.location}`,
           `Даты: ${startFmt} — ${endFmt}`,
-          `Сумма: ${totalRub.toLocaleString('ru-RU')} ₽`,
+          `Сумма: ${Number(booking.totalPrice).toLocaleString('ru-RU')} ₽`,
           '',
           `Детали: ${confirmUrl}`,
           '',

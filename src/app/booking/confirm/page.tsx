@@ -12,11 +12,9 @@ type Props = { searchParams: Promise<{ code?: string }> }
 export default async function BookingConfirmPage({ searchParams }: Props) {
   const { code } = await searchParams
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let booking: any = null
+  let booking = null
   if (code) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    booking = await (prisma.booking.findUnique as any)({
+    booking = await prisma.booking.findUnique({
       where: { bookingCode: code },
       include: { boat: { select: { title: true, location: true } } },
     })
@@ -47,7 +45,7 @@ export default async function BookingConfirmPage({ searchParams }: Props) {
     <div className="min-h-[60vh] flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
-          <div className="text-5xl mb-4">{isPaid ? '✅' : '⏳'}</div>
+          <div className="text-5xl mb-4">{isPaid ? 'OK' : '...'}</div>
           <h1 className="text-2xl font-semibold text-slate-800 mb-2">
             {isPaid ? 'Бронирование подтверждено!' : 'Бронирование принято'}
           </h1>
