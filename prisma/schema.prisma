@@ -102,8 +102,9 @@ model Booking {
   id          String        @id @default(cuid())
   boatId      String
   boat        Boat          @relation(fields: [boatId], references: [id])
-  guestId     String
-  guest       User          @relation(fields: [guestId], references: [id])
+  // Зарегистрированный гость (null для гостевых бронирований без регистрации)
+  guestId     String?
+  guest       User?         @relation(fields: [guestId], references: [id])
   startDate   DateTime      @db.Date
   endDate     DateTime      @db.Date
   totalPrice  Decimal       @db.Decimal(10, 2)
@@ -112,6 +113,12 @@ model Booking {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   review      Review?
+
+  // Данные гостя без регистрации
+  guestName   String?
+  guestPhone  String?
+  guestEmail  String?
+  bookingCode String?  @unique // Уникальный код для получения статуса по email/SMS
 
   // Запрос на возврат средств от Гостя (см. оферту п.4) — заявка фиксируется здесь,
   // фактический возврат денег выполняется Оператором вручную (до интеграции возвратов в ЮKassa).
