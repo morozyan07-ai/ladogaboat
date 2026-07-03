@@ -107,11 +107,9 @@ export async function POST(req: NextRequest) {
   const booking = await prisma.booking.create({
     data: {
       boatId,
-      guestId: session?.userId ?? null,
-      guestName: !session ? (guestName ?? null) : null,
-      guestPhone: !session ? (guestPhone ?? null) : null,
-      guestEmail: !session ? (guestEmail ?? null) : null,
-      bookingCode,
+      guestId: session?.userId ?? undefined,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ...({ guestName: !session ? (guestName ?? null) : null, guestPhone: !session ? (guestPhone ?? null) : null, guestEmail: !session ? (guestEmail ?? null) : null, bookingCode } as any),
       startDate: start,
       endDate: end,
       totalPrice,
