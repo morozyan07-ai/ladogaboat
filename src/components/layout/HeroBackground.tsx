@@ -35,7 +35,7 @@ export default function HeroBackground() {
   const alt = SEASON_ALT[season]
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-teal-700">
+    <div className="absolute inset-0 overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-teal-700 pointer-events-none">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
