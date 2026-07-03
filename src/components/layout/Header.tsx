@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getSession } from '@/lib/session'
 import HeaderNav from '@/components/layout/HeaderNav'
+
 export default async function Header() {
   const session = await getSession()
 
@@ -16,7 +17,6 @@ export default async function Header() {
               style={{ height: '48px', width: 'auto' }}
             />
           </Link>
-
           <HeaderNav role={session?.role ?? null} />
         </div>
       </div>
