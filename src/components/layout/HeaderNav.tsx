@@ -82,6 +82,16 @@ export default function HeaderNav({ role }: Props) {
             Каталог катеров
           </Link>
         )}
+        {!isAuthPage && (
+          <Link href="/ladoga" className="text-slate-600 hover:text-blue-600 font-medium transition-colors">
+            Ладога
+          </Link>
+        )}
+        {!isAuthPage && (
+          <Link href="/about" className="text-slate-600 hover:text-blue-600 font-medium transition-colors">
+            О нас
+          </Link>
+        )}
         <div ref={contactsRef} className="relative" onMouseEnter={() => setContactsOpen(true)} onMouseLeave={() => setContactsOpen(false)}>
           <button type="button" onClick={() => setContactsOpen((v) => !v)}
             className="text-slate-600 hover:text-blue-600 font-medium transition-colors flex items-center gap-1">
