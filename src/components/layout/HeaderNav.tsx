@@ -119,17 +119,7 @@ export default function HeaderNav({ role }: Props) {
               </button>
             </form>
           </>
-        ) : (
-          <>
-            <Link href="/auth/login" className="text-slate-600 hover:text-blue-600 font-medium transition-colors">
-              Войти
-            </Link>
-            <Link href="/auth/register"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-              Регистрация
-            </Link>
-          </>
-        )}
+        ) : null}
       </nav>
 
       {/* Mobile hamburger */}
