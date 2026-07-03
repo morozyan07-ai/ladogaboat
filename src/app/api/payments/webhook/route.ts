@@ -28,13 +28,20 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'no bookingId' }, { status: 400 })
     }
 
-    const booking = await prisma.booking.findUnique({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const booking = await (prisma.booking.findUnique as any)({
       where: { id: bookingId },
       include: {
         boat: { select: { title: true, location: true } },
         guest: { select: { name: true, email: true } },
       },
-    })
+    }) as {
+      id: string; status: string; boatId: string; startDate: Date; endDate: Date;
+      totalPrice: number | { toNumber: () => number };
+      boat: { title: string; location: string };
+      guest: { name: string; email: string } | null;
+      guestEmail: string | null; guestName: string | null; bookingCode: string | null;
+    } | null
     if (!booking) {
       console.error('Webhook: booking not found', bookingId)
       return Response.json({ error: 'booking not found' }, { status: 404 })
