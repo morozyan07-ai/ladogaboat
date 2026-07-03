@@ -1,7 +1,7 @@
 import { Section, P, B } from '@/components/legal/LegalText'
 
 export const metadata = {
-  title: 'Публичная оферта — Ladoga Boat',
+  title: 'Публичная оферта',
   alternates: { canonical: '/legal/oferta' },
 }
 

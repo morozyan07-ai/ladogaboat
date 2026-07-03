@@ -1,7 +1,7 @@
 import { Section, P, B } from '@/components/legal/LegalText'
 
 export const metadata = {
-  title: 'Политика обработки персональных данных — Ladoga Boat',
+  title: 'Политика обработки персональных данных',
   alternates: { canonical: '/legal/privacy' },
 }
 
