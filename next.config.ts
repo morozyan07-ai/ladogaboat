@@ -39,8 +39,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Применяем ко всем маршрутам
-        source: "/(.*)",
+        // Применяем к страницам, но НЕ к статическим файлам Next.js
+        source: "/((?!_next/static|_next/image|favicon\\.ico).*)",
         headers: securityHeaders,
       },
     ];
