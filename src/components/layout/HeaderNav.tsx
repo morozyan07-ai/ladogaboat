@@ -57,18 +57,7 @@ export default function HeaderNav({ role }: Props) {
             </button>
           </form>
         </>
-      ) : (
-        <>
-          <Link href="/auth/login" onClick={() => setMenuOpen(false)}
-            className="block px-3 py-2 text-slate-600 hover:text-blue-600 font-medium transition-colors">
-            Войти
-          </Link>
-          <Link href="/auth/register" onClick={() => setMenuOpen(false)}
-            className="block mx-3 my-2 text-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
-            Регистрация
-          </Link>
-        </>
-      )}
+      ) : null}
     </>
   )
 
@@ -79,11 +68,6 @@ export default function HeaderNav({ role }: Props) {
         {!isAuthPage && (
           <Link href="/boats" className="text-slate-600 hover:text-blue-600 font-medium transition-colors">
             Каталог катеров
-          </Link>
-        )}
-        {!isAuthPage && (
-          <Link href="/service-center" className="text-slate-600 hover:text-blue-600 font-medium transition-colors">
-            Сервисный центр
           </Link>
         )}
         <div ref={contactsRef} className="relative" onMouseEnter={() => setContactsOpen(true)} onMouseLeave={() => setContactsOpen(false)}>
