@@ -18,21 +18,18 @@ export default async function BookingConfirmPage({ searchParams }: Props) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     booking = await (prisma.booking.findUnique as any)({
       where: { bookingCode: code },
-      include: {
-        boat: { select: { title: true, location: true } },
-      },
+      include: { boat: { select: { title: true, location: true } } },
     })
   }
 
-  // Если код не найден — показываем общую страницу
   if (!booking) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="max-w-md text-center">
-          <div className="text-5xl mb-4">🔍</div>
+          <div className="text-5xl mb-4">404</div>
           <h1 className="text-2xl font-semibold text-slate-800 mb-2">Бронирование не найдено</h1>
           <p className="text-slate-500 mb-6">
-            Проверьте код в письме или SMS. Если письмо не пришло — напишите нам.
+            Проверьте код в письме. Если письмо не пришло — напишите нам.
           </p>
           <Link href="/support" className="text-blue-600 hover:underline text-sm">
             Связаться с поддержкой
@@ -42,14 +39,8 @@ export default async function BookingConfirmPage({ searchParams }: Props) {
     )
   }
 
-  const startFmt = new Date(booking.startDate).toLocaleDateString('ru-RU', {
-    day: 'numeric', month: 'long',
-  })
-  const endFmt = new Date(booking.endDate).toLocaleDateString('ru-RU', {
-    day: 'numeric', month: 'long', year: 'numeric',
-  })
-
-  const isPending = booking.status === 'PENDING'
+  const startFmt = new Date(booking.startDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+  const endFmt = new Date(booking.endDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
   const isPaid = booking.status === 'CONFIRMED' || !!booking.paidAt
 
   return (
@@ -63,7 +54,7 @@ export default async function BookingConfirmPage({ searchParams }: Props) {
           <p className="text-slate-500 mb-6 text-sm">
             {isPaid
               ? 'Оплата прошла. Ждём вас на Ладоге!'
-              : 'Ожидаем оплату. Детали отправлены на ваш email.'}
+              : 'Детали отправлены на ваш email. Ожидаем оплату.'}
           </p>
 
           <div className="bg-slate-50 rounded-xl p-4 text-left space-y-2 mb-6">
@@ -89,20 +80,17 @@ export default async function BookingConfirmPage({ searchParams }: Props) {
             </div>
           </div>
 
-          {isPending && !isPaid && (
+          {!isPaid && (
             <p className="text-xs text-slate-400 mb-4">
-              Судовладелец получил уведомление и свяжется с вами для подтверждения.
-              Ваш email и телефон использованы только для этого бронирования.
+              Судовладелец получил уведомление и свяжется с вами.
             </p>
           )}
 
-          <Link
-            href="/boats"
+          <Link href="/boats"
             className="block w-full text-center bg-blue-600 text-white font-semibold px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors">
             Смотреть другие катера
           </Link>
-          <Link
-            href="/support"
+          <Link href="/support"
             className="block mt-3 text-sm text-slate-400 hover:text-slate-600 transition-colors">
             Нужна помощь? Написать в поддержку
           </Link>
