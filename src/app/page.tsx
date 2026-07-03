@@ -22,7 +22,6 @@ export default function HomePage() {
           </h1>
           <p className="text-blue-100 text-lg sm:text-xl mb-10 max-w-2xl mx-auto">
             Откройте для себя Ладожские шхеры, остров Валаам и живописные заливы.
-            Более 50 катеров от проверенных судовладельцев.
           </p>
           <div className="max-w-4xl mx-auto">
             <Suspense fallback={<div className="h-24 bg-white/10 rounded-2xl animate-pulse" />}>
