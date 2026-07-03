@@ -5,8 +5,6 @@ import { sendEmail } from '@/lib/email'
 import { CONTACTS } from '@/lib/contacts'
 
 // Гость запрашивает возврат средств по оплаченному бронированию (см. оферту п.4).
-// Заявка фиксируется на бронировании и уходит письмом в поддержку — фактический
-// возврат денег Оператор выполняет вручную, пока в ЮKassa не подключён возврат API.
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession()
   if (!session) return Response.json({ error: 'Не авторизован' }, { status: 401 })
@@ -42,7 +40,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   await sendEmail({
     to: CONTACTS.supportEmail,
     subject: `Запрос на возврат: бронирование ${booking.boat.title}`,
-    text: `Гость: ${guestName} (${guestEmail})\nБронирование: ${id}\nСумма: ${Number(booking.totalPrice)} ₽\n\nПричина возврата:\n${reason.trim()}`,
+    text: `Гость: ${guestName} (${guestEmail})\nБронирование: ${id}\nСумма: ${Number(booking.totalPrice)} ₽\n\nПричина:\n${reason.trim()}`,
     replyTo: guestEmail || undefined,
   })
 
@@ -53,7 +51,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   })
 }
 
-// Судовладелец (или администратор) принимает решение по запросу на возврат.
+// Судовладелец принимает решение по запросу на возврат.
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession()
   if (!session) return Response.json({ error: 'Не авторизован' }, { status: 401 })
@@ -79,7 +77,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     data: {
       refundStatus: decision,
       refundDecidedAt: new Date(),
-      // Полный возврат при одобрении — отменяем бронирование (см. оферту п.4.2).
       status: decision === 'APPROVED' ? 'CANCELLED' : booking.status,
     },
   })
