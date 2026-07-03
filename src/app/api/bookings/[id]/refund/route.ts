@@ -36,11 +36,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     data: { refundStatus: 'REQUESTED', refundReason: reason.trim(), refundRequestedAt: new Date() },
   })
 
+  const guestName = booking.guest?.name ?? booking.guestName ?? 'Гость'
+  const guestEmail = booking.guest?.email ?? booking.guestEmail ?? ''
+
   await sendEmail({
     to: CONTACTS.supportEmail,
     subject: `Запрос на возврат: бронирование ${booking.boat.title}`,
-    text: `Гость: ${booking.guest.name} (${booking.guest.email})\nБронирование: ${id}\nСумма: ${Number(booking.totalPrice)} ₽\n\nПричина возврата:\n${reason.trim()}`,
-    replyTo: booking.guest.email,
+    text: `Гость: ${guestName} (${guestEmail})\nБронирование: ${id}\nСумма: ${Number(booking.totalPrice)} ₽\n\nПричина возврата:\n${reason.trim()}`,
+    replyTo: guestEmail || undefined,
   })
 
   return Response.json({
