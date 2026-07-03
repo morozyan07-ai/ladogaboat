@@ -1,9 +1,11 @@
 import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaNeon } from "@prisma/adapter-neon";
+import { neon } from "@neondatabase/serverless";
 import bcrypt from "bcryptjs";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const sql = neon(process.env.DATABASE_URL!);
+const adapter = new PrismaNeon(sql);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
@@ -61,16 +63,11 @@ async function main() {
     data: {
       ownerId: owner1.id,
       title: "Катер «Северный ветер»",
-      description:
-        "Комфортабельный моторный катер для прогулок по Ладожскому озеру. Оборудован навигацией, спасательными жилетами и мангалом на борту. Подходит для рыбалки и отдыха на островах.",
+      description: "Комфортабельный моторный катер для прогулок по Ладожскому озеру.",
       capacity: 8,
       pricePerDay: 12000,
       location: "Приозерск",
-      routes: [
-        "Приозерск — острова Ладожских шхер",
-        "Приозерск — Сортавала",
-        "Рыбалка на Ладоге",
-      ],
+      routes: ["Приозерск — острова Ладожских шхер", "Приозерск — Сортавала", "Рыбалка на Ладоге"],
       images: ["/boats/boat1-1.jpg", "/boats/boat1-2.jpg"],
       status: "ACTIVE",
     },
@@ -80,16 +77,11 @@ async function main() {
     data: {
       ownerId: owner1.id,
       title: "Яхта «Ладожская звезда»",
-      description:
-        "Парусная яхта класса «крейсер» для многодневных путешествий. Есть каюты для ночёвки, кухня, санузел. Идеально для длительных экспедиций вдоль берегов Ладоги.",
+      description: "Парусная яхта класса «крейсер» для многодневных путешествий.",
       capacity: 6,
       pricePerDay: 18000,
       location: "Сортавала",
-      routes: [
-        "Сортавала — Валаам",
-        "Сортавала — Питкяранта",
-        "Кругосветка Ладожских шхер",
-      ],
+      routes: ["Сортавала — Валаам", "Сортавала — Питкяранта", "Кругосветка Ладожских шхер"],
       images: ["/boats/boat2-1.jpg", "/boats/boat2-2.jpg"],
       status: "ACTIVE",
     },
@@ -99,25 +91,19 @@ async function main() {
     data: {
       ownerId: owner2.id,
       title: "Моторная лодка «Тихая гавань»",
-      description:
-        "Небольшая манёвренная лодка для рыбалки и прогулок в прибрежной зоне. Отличный вариант для небольшой компании или семьи с детьми.",
+      description: "Небольшая манёвренная лодка для рыбалки и прогулок в прибрежной зоне.",
       capacity: 4,
       pricePerDay: 5500,
       location: "Шлиссельбург",
-      routes: [
-        "Шлиссельбург — крепость Орешек",
-        "Рыбалка у истока Невы",
-        "Прогулка по Неве",
-      ],
+      routes: ["Шлиссельбург — крепость Орешек", "Рыбалка у истока Невы", "Прогулка по Неве"],
       images: ["/boats/boat3-1.jpg"],
       status: "ACTIVE",
     },
   });
 
-  // Доступность на июль 2026
   const availabilityData = [];
   for (let d = 1; d <= 31; d++) {
-    const date = new Date(2026, 6, d); // July 2026
+    const date = new Date(2026, 6, d);
     if (date.getMonth() !== 6) break;
     availabilityData.push({ boatId: boat1.id, date, available: d !== 10 && d !== 11 });
     availabilityData.push({ boatId: boat2.id, date, available: d < 5 || d > 12 });
@@ -125,7 +111,6 @@ async function main() {
   }
   await prisma.availability.createMany({ data: availabilityData });
 
-  // Бронирование
   const booking = await prisma.booking.create({
     data: {
       boatId: boat1.id,
@@ -138,27 +123,18 @@ async function main() {
     },
   });
 
-  // Отзыв
   await prisma.review.create({
     data: {
       bookingId: booking.id,
       boatId: boat1.id,
       guestId: guest.id,
       rating: 5,
-      comment:
-        "Отличная поездка! Катер в идеальном состоянии, Андрей очень приветливый хозяин. Побывали на Ладожских шхерах — виды невероятные. Обязательно вернёмся!",
+      comment: "Отличная поездка! Катер в идеальном состоянии. Обязательно вернёмся!",
     },
   });
 
   console.log("✓ Пользователи:", admin.email, owner1.email, owner2.email, guest.email);
   console.log("✓ Лодки:", boat1.title, boat2.title, boat3.title);
-  console.log("✓ Доступность:", availabilityData.length, "записей");
-  console.log("✓ Бронирование и отзыв созданы");
-  console.log("\nТестовые аккаунты (пароль для всех: password123):");
-  console.log("  admin@ladoga.ru — Администратор");
-  console.log("  owner1@ladoga.ru — Владелец лодок");
-  console.log("  owner2@ladoga.ru — Владелец лодки");
-  console.log("  guest@ladoga.ru — Гость");
 }
 
 main()
