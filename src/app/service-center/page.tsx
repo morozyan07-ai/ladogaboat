@@ -3,7 +3,7 @@ import ServiceCenterLeadForm from '@/components/service-center/ServiceCenterLead
 import { SITE_URL } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Сервисный центр Ladoga Boat — сервис катеров в Сортавале',
+  title: 'Сервисный центр — сервис катеров в Сортавале',
   description:
     'Сервисный центр маломерного флота в Сортавале, Карелия: техническое обслуживание, ремонт, хранение, мойка и дооборудование катеров. Открывается на Ладожском озере.',
   alternates: { canonical: '/service-center' },

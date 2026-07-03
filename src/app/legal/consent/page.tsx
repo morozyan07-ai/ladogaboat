@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Section, P } from '@/components/legal/LegalText'
 
-export const metadata = { title: 'Согласие на обработку персональных данных — Ladoga Boat' }
+export const metadata = { title: 'Согласие на обработку персональных данных' }
 
 export default function ConsentPage() {
   return (
