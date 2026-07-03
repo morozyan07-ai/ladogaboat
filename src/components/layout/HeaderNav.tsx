@@ -40,12 +40,6 @@ export default function HeaderNav({ role }: Props) {
           Каталог катеров
         </Link>
       )}
-      {!isAuthPage && (
-        <Link href="/service-center" onClick={() => setMenuOpen(false)}
-          className="block px-3 py-2 text-slate-600 hover:text-blue-600 font-medium transition-colors">
-          Сервисный центр
-        </Link>
-      )}
       <Link href="/support" onClick={() => setMenuOpen(false)}
         className="block px-3 py-2 text-slate-600 hover:text-blue-600 font-medium transition-colors">
         Контакты
