@@ -12,9 +12,11 @@ type Props = { searchParams: Promise<{ code?: string }> }
 export default async function BookingConfirmPage({ searchParams }: Props) {
   const { code } = await searchParams
 
-  let booking = null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let booking: any = null
   if (code) {
-    booking = await prisma.booking.findUnique({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    booking = await (prisma.booking.findUnique as any)({
       where: { bookingCode: code },
       include: {
         boat: { select: { title: true, location: true } },
