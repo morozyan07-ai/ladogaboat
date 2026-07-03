@@ -12,7 +12,6 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    // Обрабатываем только успешную оплату
     if (body.event !== 'payment.succeeded') {
       return Response.json({ ok: true })
     }
@@ -41,7 +40,6 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'booking not found' }, { status: 404 })
     }
 
-    // Идемпотентность: если уже подтверждено — ок
     if (booking.status === 'CONFIRMED') {
       return Response.json({ ok: true })
     }
@@ -51,4 +49,48 @@ export async function POST(req: NextRequest) {
       data: {
         status: 'CONFIRMED',
         yookassaPaymentId: payment.id,
-        paidAt: new Date(
+        paidAt: new Date(),
+      },
+    })
+
+    console.log(`Booking ${bookingId} confirmed via YooKassa payment ${payment.id}`)
+
+    const guestEmail = booking.guest?.email ?? booking.guestEmail
+    const guestName = booking.guest?.name ?? booking.guestName ?? 'Гость'
+
+    if (guestEmail) {
+      const startFmt = new Date(booking.startDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+      const endFmt = new Date(booking.endDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+      const confirmUrl = booking.bookingCode
+        ? `${SITE_URL}/booking/confirm?code=${booking.bookingCode}`
+        : `${SITE_URL}/dashboard/guest`
+
+      await sendEmail({
+        to: guestEmail,
+        subject: `Oplata podtverzhdena — ${booking.boat.title} (${startFmt})`,
+        text: [
+          `Zdravstvuyte, ${guestName}!`,
+          '',
+          'Oplata proshla uspeshno. Bronirovanie podtverzhdeno.',
+          '',
+          `Kod bronirovaniya: ${booking.bookingCode ?? bookingId}`,
+          `Kater: ${booking.boat.title}`,
+          `Mesto: ${booking.boat.location}`,
+          `Daty: ${startFmt} — ${endFmt}`,
+          `Summa: ${Number(booking.totalPrice).toLocaleString('ru-RU')} RUB`,
+          '',
+          `Detali: ${confirmUrl}`,
+          '',
+          'Zhdem vas na Ladoge! Voprosy: support@ladogaboat.ru',
+          '',
+          'Ladoga Boat',
+        ].join('\n'),
+      })
+    }
+
+    return Response.json({ ok: true })
+  } catch (err) {
+    console.error('Webhook error:', err)
+    return Response.json({ error: 'internal' }, { status: 500 })
+  }
+}
