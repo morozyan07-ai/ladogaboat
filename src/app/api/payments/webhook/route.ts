@@ -1,4 +1,3 @@
-export const runtime = 'edge'
 
 // Webhook от ЮKassa — вызывается при изменении статуса платежа.
 // Настройте URL в ЮKassa → Интеграция → HTTP-уведомления:
