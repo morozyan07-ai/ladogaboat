@@ -8,6 +8,14 @@ import { sendEmail } from '@/lib/email'
 
 const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.ladogaboat.ru'
 
+type BookingWithGuest = {
+  id: string; status: string; boatId: string; startDate: Date; endDate: Date;
+  totalPrice: { toNumber?: () => number } | number;
+  boat: { title: string; location: string };
+  guest: { name: string; email: string } | null;
+  guestEmail: string | null; guestName: string | null; bookingCode: string | null;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
@@ -35,13 +43,8 @@ export async function POST(req: NextRequest) {
         boat: { select: { title: true, location: true } },
         guest: { select: { name: true, email: true } },
       },
-    }) as {
-      id: string; status: string; boatId: string; startDate: Date; endDate: Date;
-      totalPrice: number | { toNumber: () => number };
-      boat: { title: string; location: string };
-      guest: { name: string; email: string } | null;
-      guestEmail: string | null; guestName: string | null; bookingCode: string | null;
-    } | null
+    }) as BookingWithGuest | null
+
     if (!booking) {
       console.error('Webhook: booking not found', bookingId)
       return Response.json({ error: 'booking not found' }, { status: 404 })
@@ -71,24 +74,27 @@ export async function POST(req: NextRequest) {
       const confirmUrl = booking.bookingCode
         ? `${SITE_URL}/booking/confirm?code=${booking.bookingCode}`
         : `${SITE_URL}/dashboard/guest`
+      const totalRub = typeof booking.totalPrice === 'object' && booking.totalPrice?.toNumber
+        ? booking.totalPrice.toNumber()
+        : Number(booking.totalPrice)
 
       await sendEmail({
         to: guestEmail,
-        subject: `Oplata podtverzhdena — ${booking.boat.title} (${startFmt})`,
+        subject: `Оплата подтверждена — ${booking.boat.title} (${startFmt})`,
         text: [
-          `Zdravstvuyte, ${guestName}!`,
+          `Здравствуйте, ${guestName}!`,
           '',
-          'Oplata proshla uspeshno. Bronirovanie podtverzhdeno.',
+          'Оплата прошла успешно. Бронирование подтверждено.',
           '',
-          `Kod bronirovaniya: ${booking.bookingCode ?? bookingId}`,
-          `Kater: ${booking.boat.title}`,
-          `Mesto: ${booking.boat.location}`,
-          `Daty: ${startFmt} — ${endFmt}`,
-          `Summa: ${Number(booking.totalPrice).toLocaleString('ru-RU')} RUB`,
+          `Код бронирования: ${booking.bookingCode ?? bookingId}`,
+          `Катер: ${booking.boat.title}`,
+          `Место: ${booking.boat.location}`,
+          `Даты: ${startFmt} — ${endFmt}`,
+          `Сумма: ${totalRub.toLocaleString('ru-RU')} ₽`,
           '',
-          `Detali: ${confirmUrl}`,
+          `Детали: ${confirmUrl}`,
           '',
-          'Zhdem vas na Ladoge! Voprosy: support@ladogaboat.ru',
+          'Ждём вас на Ладоге! Вопросы: support@ladogaboat.ru',
           '',
           'Ladoga Boat',
         ].join('\n'),

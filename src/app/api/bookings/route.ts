@@ -71,7 +71,6 @@ export async function POST(req: NextRequest) {
 
   const start = new Date(startDate)
   const end = new Date(endDate)
-
   if (start >= end) return Response.json({ error: 'Дата окончания должна быть позже начала' }, { status: 400 })
 
   const boat = await prisma.boat.findUnique({
@@ -96,7 +95,7 @@ export async function POST(req: NextRequest) {
   let bookingCode = generateBookingCode()
   for (let i = 0; i < 4; i++) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const existing = await prisma.booking.findUnique({ where: { bookingCode } as any })
+    const existing = await (prisma.booking.findUnique as any)({ where: { bookingCode } })
     if (!existing) break
     bookingCode = generateBookingCode()
   }
@@ -104,12 +103,15 @@ export async function POST(req: NextRequest) {
   const startFmt = start.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
   const endFmt = end.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
 
-  const booking = await prisma.booking.create({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const booking = await (prisma.booking.create as any)({
     data: {
       boatId,
       guestId: session?.userId ?? undefined,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ...({ guestName: !session ? (guestName ?? null) : null, guestPhone: !session ? (guestPhone ?? null) : null, guestEmail: !session ? (guestEmail ?? null) : null, bookingCode } as any),
+      guestName: !session ? (guestName ?? null) : null,
+      guestPhone: !session ? (guestPhone ?? null) : null,
+      guestEmail: !session ? (guestEmail ?? null) : null,
+      bookingCode,
       startDate: start,
       endDate: end,
       totalPrice,
@@ -153,29 +155,27 @@ export async function POST(req: NextRequest) {
   }
 
   if (emailTo) {
-    const guestMsg = [
-      `Здравствуйте, ${emailName}!`,
-      '',
-      'Ваше бронирование принято.',
-      `Код бронирования: ${bookingCode}`,
-      '',
-      `Катер: ${boat.title}`,
-      `Даты: ${startFmt} — ${endFmt} (${days} дн.)`,
-      `Сумма: ${totalPrice.toLocaleString('ru-RU')} ₽`,
-      '',
-      paymentUrl
-        ? `Для подтверждения оплатите бронирование:\n${paymentUrl}`
-        : 'Менеджер свяжется с вами для уточнения деталей оплаты.',
-      '',
-      'Вопросы: support@ladogaboat.ru',
-      '',
-      'Ladoga Boat',
-    ].join('\n')
-
     await sendEmail({
       to: emailTo,
       subject: `Бронирование ${bookingCode} — ${boat.title}`,
-      text: guestMsg,
+      text: [
+        `Здравствуйте, ${emailName}!`,
+        '',
+        'Ваше бронирование принято.',
+        `Код бронирования: ${bookingCode}`,
+        '',
+        `Катер: ${boat.title}`,
+        `Даты: ${startFmt} — ${endFmt} (${days} дн.)`,
+        `Сумма: ${totalPrice.toLocaleString('ru-RU')} ₽`,
+        '',
+        paymentUrl
+          ? `Для подтверждения оплатите бронирование:\n${paymentUrl}`
+          : 'Менеджер свяжется с вами для уточнения деталей оплаты.',
+        '',
+        'Вопросы: support@ladogaboat.ru',
+        '',
+        'Ladoga Boat',
+      ].join('\n'),
     })
   }
 
