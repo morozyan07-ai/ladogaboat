@@ -1,6 +1,3 @@
-import ladogaSummerSrc from '../../../public/hero/ladoga-summer.jpg'
-import winterSrc from '../../../public/hero/winter.jpg'
-
 function getSeason(): 'winter' | 'spring' | 'summer' | 'autumn' {
   const month = new Date().getMonth()
   if (month <= 1 || month === 11) return 'winter'
@@ -10,10 +7,10 @@ function getSeason(): 'winter' | 'spring' | 'summer' | 'autumn' {
 }
 
 const SEASON_IMAGES: Record<ReturnType<typeof getSeason>, string> = {
-  winter: winterSrc.src,
-  spring: ladogaSummerSrc.src,
-  summer: ladogaSummerSrc.src,
-  autumn: ladogaSummerSrc.src,
+  winter: '/hero/winter.jpg',
+  spring: '/hero/ladoga-summer.jpg',
+  summer: '/hero/ladoga-summer.jpg',
+  autumn: '/hero/ladoga-summer.jpg',
 }
 
 const SEASON_ALT: Record<ReturnType<typeof getSeason>, string> = {
