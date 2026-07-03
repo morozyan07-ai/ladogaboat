@@ -89,4 +89,8 @@ export default function OfertaPage() {
         <P>Расчётный счёт: 40802810400003212935</P>
         <P>БИК: 044525974</P>
         <P>Корреспондентский счёт: 30101810145250000974</P>
-        <P>Email: support@lad
+        <P>Email: support@ladogaboat.ru</P>
+      </Section>
+    </div>
+  )
+}
