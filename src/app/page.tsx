@@ -1,4 +1,10 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+}
+
 import { Suspense } from 'react'
 import SearchForm from '@/components/boats/SearchForm'
 import HeroBackground from '@/components/layout/HeroBackground'
