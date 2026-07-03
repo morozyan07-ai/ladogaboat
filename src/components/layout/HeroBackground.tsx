@@ -1,19 +1,14 @@
-'use client'
-
-import { useState } from 'react'
 import ladogaSummerSrc from '../../../public/hero/ladoga-summer.jpg'
 import winterSrc from '../../../public/hero/winter.jpg'
 
 function getSeason(): 'winter' | 'spring' | 'summer' | 'autumn' {
-  const month = new Date().getMonth() // 0=Jan … 11=Dec
+  const month = new Date().getMonth()
   if (month <= 1 || month === 11) return 'winter'
   if (month <= 4) return 'spring'
   if (month <= 7) return 'summer'
   return 'autumn'
 }
 
-// Зима — своё фото Ладоги (public/hero/winter.jpg)
-// Остальные сезоны — временный фон из Unsplash, замени когда появятся фото
 const SEASON_IMAGES: Record<ReturnType<typeof getSeason>, string> = {
   winter: winterSrc.src,
   spring: ladogaSummerSrc.src,
@@ -29,19 +24,15 @@ const SEASON_ALT: Record<ReturnType<typeof getSeason>, string> = {
 }
 
 export default function HeroBackground() {
-  const [loaded, setLoaded] = useState(false)
   const season = getSeason()
-  const src = SEASON_IMAGES[season]
-  const alt = SEASON_ALT[season]
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-teal-700 pointer-events-none">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={src}
-        alt={alt}
-        className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${loaded ? 'opacity-100' : 'opacity-0'}`}
-        onLoad={() => setLoaded(true)}
+        src={SEASON_IMAGES[season]}
+        alt={SEASON_ALT[season]}
+        className="absolute inset-0 h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-blue-900/60 via-blue-800/40 to-teal-800/50" />
     </div>
