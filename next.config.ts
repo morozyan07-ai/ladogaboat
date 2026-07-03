@@ -22,6 +22,13 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        // Страницы авторизации не должны индексироваться
+        source: '/auth/(.*)',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      },
     ];
   },
 };

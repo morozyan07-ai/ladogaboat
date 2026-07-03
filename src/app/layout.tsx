@@ -14,7 +14,6 @@ export const metadata: Metadata = {
   title: { default: SITE_TITLE, template: `%s — ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
   keywords: SEO_KEYWORDS,
-  alternates: { canonical: SITE_URL },
   openGraph: {
     type: 'website',
     locale: 'ru_RU',
@@ -30,7 +29,6 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: ['/hero/ladoga-summer.jpg'],
   },
-  robots: { index: true, follow: true },
   verification: {
     yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION,
     google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
