@@ -1,3 +1,4 @@
+export const runtime = 'edge'
 import type { Metadata } from 'next'
 import ServiceCenterLeadForm from '@/components/service-center/ServiceCenterLeadForm'
 import { SITE_URL } from '@/lib/seo'
