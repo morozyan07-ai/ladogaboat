@@ -15,7 +15,7 @@
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
     "@hookform/resolvers": "^5.4.0",
-    "@neondatabase/serverless": "^0.11.1",
+    "@neondatabase/serverless": "^1.1.0",
     "@prisma/adapter-neon": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@types/bcryptjs": "^2.4.6",
@@ -34,15 +34,4 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@cloudflare/next-on-pages": "^1",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20.19.43",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.9",
-    "tailwindcss": "^4",
-    "typescript": "^5",
-    "wrangler": "^3"
-  }
-}
+    "@cloudflare/next-on-pages": 
