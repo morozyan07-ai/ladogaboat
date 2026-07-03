@@ -95,7 +95,8 @@ export async function POST(req: NextRequest) {
 
   let bookingCode = generateBookingCode()
   for (let i = 0; i < 4; i++) {
-    const existing = await prisma.booking.findUnique({ where: { bookingCode } })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const existing = await prisma.booking.findUnique({ where: { bookingCode } as any })
     if (!existing) break
     bookingCode = generateBookingCode()
   }
