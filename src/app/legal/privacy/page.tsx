@@ -1,6 +1,9 @@
 import { Section, P, B } from '@/components/legal/LegalText'
 
-export const metadata = { title: 'Политика обработки персональных данных — Ladoga Boat' }
+export const metadata = {
+  title: 'Политика обработки персональных данных — Ladoga Boat',
+  alternates: { canonical: '/legal/privacy' },
+}
 
 export default function PrivacyPage() {
   return (
@@ -79,8 +82,4 @@ export default function PrivacyPage() {
 
       <Section title="9. Заключительные положения">
         <P>9.1. Оператор вправе вносить изменения в настоящую Политику. Действующая редакция всегда размещена на Сайте по адресу ladogaboat.ru/legal/privacy.</P>
-        <P>9.2. Контакты Оператора по вопросам обработки персональных данных: support@ladogaboat.ru.</P>
-      </Section>
-    </div>
-  )
-}
+        <P>9.2. Контакты Оператора по вопросам обработки персональных данных: support@lad

@@ -6,6 +6,6 @@ const nextConfig: NextConfig = {
   assetPrefix: process.env.VERCEL_ENV === 'production'
     ? 'https://ladogaboat.vercel.app'
     : '',
-};
 
-export default nextConfig;
+  async headers() {
+    return
