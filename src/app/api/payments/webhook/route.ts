@@ -4,6 +4,9 @@
 
 import { NextRequest } from 'next/server'
 import prisma from '@/lib/prisma'
+import { sendEmail } from '@/lib/email'
+
+const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.ladogaboat.ru'
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,7 +29,13 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: 'no bookingId' }, { status: 400 })
     }
 
-    const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        boat: { select: { title: true, location: true } },
+        guest: { select: { name: true, email: true } },
+      },
+    })
     if (!booking) {
       console.error('Webhook: booking not found', bookingId)
       return Response.json({ error: 'booking not found' }, { status: 404 })
@@ -47,6 +56,41 @@ export async function POST(req: NextRequest) {
     })
 
     console.log(`Booking ${bookingId} confirmed via YooKassa payment ${payment.id}`)
+
+    // Email-уведомление гостю об успешной оплате
+    const guestEmail = booking.guest?.email ?? booking.guestEmail
+    const guestName  = booking.guest?.name  ?? booking.guestName ?? 'Гость'
+
+    if (guestEmail) {
+      const startFmt = new Date(booking.startDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+      const endFmt   = new Date(booking.endDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+      const confirmUrl = booking.bookingCode
+        ? `${SITE_URL}/booking/confirm?code=${booking.bookingCode}`
+        : `${SITE_URL}/dashboard/guest`
+
+      await sendEmail({
+        to: guestEmail,
+        subject: `✅ Оплата подтверждена — ${booking.boat.title} (${startFmt})`,
+        text: [
+          `Здравствуйте, ${guestName}!`,
+          '',
+          'Оплата прошла успешно. Бронирование подтверждено.',
+          '',
+          `Код бронирования: ${booking.bookingCode ?? bookingId}`,
+          `Катер: ${booking.boat.title}`,
+          `Место: ${booking.boat.location}`,
+          `Даты: ${startFmt} — ${endFmt}`,
+          `Сумма: ${Number(booking.totalPrice).toLocaleString('ru-RU')} ₽`,
+          '',
+          `Детали: ${confirmUrl}`,
+          '',
+          'Ждём вас на Ладоге! Вопросы: support@ladogaboat.ru',
+          '',
+          'Ladoga Boat',
+        ].join('\n'),
+      })
+    }
+
     return Response.json({ ok: true })
   } catch (err) {
     console.error('Webhook error:', err)
