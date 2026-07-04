@@ -39,9 +39,14 @@ config.parameterizationSchema = {
 }
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
-  const { Buffer } = await import('node:buffer')
-  const wasmArray = Buffer.from(wasmBase64, 'base64')
-  return new WebAssembly.Module(wasmArray)
+  // Use Web API instead of node:buffer for Edge Runtime compatibility
+  const standardBase64 = wasmBase64.replace(/-/g, '+').replace(/_/g, '/')
+  const binaryString = atob(standardBase64)
+  const bytes = new Uint8Array(binaryString.length)
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i)
+  }
+  return new WebAssembly.Module(bytes)
 }
 
 config.compilerWasm = {
