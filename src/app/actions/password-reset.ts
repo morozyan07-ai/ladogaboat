@@ -99,8 +99,4 @@ export async function resetPassword(state: FormState, formData: FormData): Promi
 
   await prisma.$transaction(async (tx) => {
     await tx.user.update({ where: { id: record.userId }, data: { passwordHash } })
-    await tx.passwordResetToken.update({ where: { id: record.id }, data: { usedAt: new Date() } })
-  })
-
-  redirect('/auth/login?reset=done')
-}
+    awai

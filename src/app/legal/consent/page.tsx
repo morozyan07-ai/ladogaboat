@@ -1,4 +1,3 @@
-export const runtime = 'edge'
 import Link from 'next/link'
 import { Section, P } from '@/components/legal/LegalText'
 

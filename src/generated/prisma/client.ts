@@ -66,4 +66,4 @@ export type Booking = Prisma.BookingModel
  * Model Review
  * 
  */
-export type Review = Prisma.ReviewModel
+export type Review = Prisma.

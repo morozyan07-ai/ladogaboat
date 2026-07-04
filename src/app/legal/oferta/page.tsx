@@ -1,4 +1,3 @@
-export const runtime = 'edge'
 import { Section, P, B } from '@/components/legal/LegalText'
 
 export const metadata = {

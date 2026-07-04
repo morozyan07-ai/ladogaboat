@@ -1,4 +1,3 @@
-export const runtime = 'edge'
 import Link from 'next/link'
 import { verifyOwner } from '@/lib/dal'
 import prisma from '@/lib/prisma'
