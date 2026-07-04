@@ -1,7 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { randomBytes } from 'crypto'
+// randomBytes replaced with Web Crypto API for Edge Runtime compatibility
 import { hash } from 'bcrypt-ts/browser'
 import { z } from 'zod'
 import prisma from '@/lib/prisma'
@@ -32,7 +32,8 @@ export async function requestPasswordReset(state: FormState, formData: FormData)
     // Инвалидируем старые токены этого пользователя
     await prisma.passwordResetToken.deleteMany({ where: { userId: user.id } })
 
-    const token = randomBytes(32).toString('hex')
+    const bytes = crypto.getRandomValues(new Uint8Array(32))
+    const token = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
     const expiresAt = new Date(Date.now() + TOKEN_TTL_MS)
 
     await prisma.passwordResetToken.create({
