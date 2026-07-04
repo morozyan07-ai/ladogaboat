@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "node scripts/migrate-deploy.js",
-    "pages:build": "opennextjs-cloudflare build && cp .open-next/worker.js .open-next/assets/_worker.js",
+    "pages:build": "opennextjs-cloudflare build",
     "preview": "npx wrangler pages dev .open-next/assets",
     "deploy": "npm run pages:build && npx wrangler pages deploy .open-next/assets"
   },
