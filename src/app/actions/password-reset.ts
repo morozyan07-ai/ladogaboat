@@ -2,7 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { randomBytes } from 'crypto'
-import bcrypt from 'bcryptjs'
+import { hash } from 'bcrypt-ts/browser'
 import { z } from 'zod'
 import prisma from '@/lib/prisma'
 import { sendEmail } from '@/lib/email'
@@ -94,7 +94,7 @@ export async function resetPassword(state: FormState, formData: FormData): Promi
     return { message: 'Ссылка недействительна или устарела. Запросите новую.' }
   }
 
-  const passwordHash = await bcrypt.hash(password, 10)
+  const passwordHash = await hash(password, 10)
 
   await prisma.$transaction(async (tx) => {
     await tx.user.update({ where: { id: record.userId }, data: { passwordHash } })

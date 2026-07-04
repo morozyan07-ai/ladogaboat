@@ -1,6 +1,7 @@
+export const runtime = 'edge'
 
 import { NextRequest } from 'next/server'
-import bcrypt from 'bcryptjs'
+import { hash } from 'bcrypt-ts/browser'
 import { z } from 'zod'
 import prisma from '@/lib/prisma'
 import { createSession } from '@/lib/session'
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) return Response.json({ error: 'Email уже используется' }, { status: 409 })
 
-  const passwordHash = await bcrypt.hash(password, 10)
+  const passwordHash = await hash(password, 10)
   const user = await prisma.user.create({ data: { name, email, passwordHash, role } })
   await createSession({ id: user.id, role: user.role, name: user.name, email: user.email })
 

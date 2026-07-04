@@ -1,7 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import bcrypt from 'bcryptjs'
+import { hash, compare } from 'bcrypt-ts/browser'
 import { z } from 'zod'
 import prisma from '@/lib/prisma'
 import { createSession } from '@/lib/session'
@@ -45,7 +45,7 @@ export async function register(state: FormState, formData: FormData): Promise<Fo
     const existing = await prisma.user.findUnique({ where: { email } })
     if (existing) return { errors: { email: ['Email уже зарегистрирован'] } }
 
-    const passwordHash = await bcrypt.hash(password, 10)
+    const passwordHash = await hash(password, 10)
     user = await prisma.user.create({ data: { name, email, phone, passwordHash, role } })
   } catch (err: unknown) {
     if (err && typeof err === 'object' && 'code' in err && err.code === 'P2002') {
@@ -76,7 +76,7 @@ export async function login(state: FormState, formData: FormData): Promise<FormS
     user = await prisma.user.findUnique({ where: { email } })
     if (!user) return { message: 'Неверный email или пароль' }
 
-    const valid = await bcrypt.compare(password, user.passwordHash)
+    const valid = await compare(password, user.passwordHash)
     if (!valid) return { message: 'Неверный email или пароль' }
   } catch (err: unknown) {
     console.error('Ошибка входа:', err)

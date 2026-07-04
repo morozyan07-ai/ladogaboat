@@ -1,4 +1,5 @@
 'use client'
+export const runtime = 'edge'
 
 import { useActionState } from 'react'
 import { submitSupportRequest } from '@/app/actions/support'
