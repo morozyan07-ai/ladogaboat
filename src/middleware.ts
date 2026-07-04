@@ -2,13 +2,11 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { decrypt } from '@/lib/session'
 
-export const runtime = 'edge'
-
 const protectedRoutes = ['/dashboard']
 const ownerRoutes = ['/dashboard/owner']
 const guestRoutes = ['/dashboard/guest']
 
-export default async function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname
   const token = req.cookies.get('session')?.value
   const session = await decrypt(token)
