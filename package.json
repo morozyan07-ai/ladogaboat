@@ -8,9 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "node scripts/migrate-deploy.js",
-    "pages:build": "npx @cloudflare/next-on-pages@1",
-    "preview": "npx wrangler pages dev .vercel/output/static",
-    "deploy": "npm run pages:build && npx wrangler pages deploy .vercel/output/static"
+    "pages:build": "opennextjs-cloudflare build",
+    "preview": "npx wrangler pages dev .open-next/assets",
+    "deploy": "npm run pages:build && npx wrangler pages deploy .open-next/assets"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
@@ -34,7 +34,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@cloudflare/next-on-pages": "^1",
+    "@opennextjs/cloudflare": "^1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.19.43",
     "@types/react": "^19",
@@ -43,6 +43,6 @@
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "wrangler": "^3"
+    "wrangler": "^4"
   }
 }
