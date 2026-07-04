@@ -2,6 +2,12 @@ name = "ladogaboat"
 main = ".open-next/worker.js"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
+workers_dev = false
+
+routes = [
+  { pattern = "ladogaboat.ru/*", zone_name = "ladogaboat.ru" },
+  { pattern = "www.ladogaboat.ru/*", zone_name = "ladogaboat.ru" }
+]
 
 [assets]
 directory = ".open-next/assets"
