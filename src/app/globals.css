@@ -13,7 +13,7 @@
   --color-primary-800: oklch(32% 0.13 240);
   --color-primary-900: oklch(25% 0.10 240);
 
-  --font-sans: var(--font-geist-sans);
+  --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 body {
