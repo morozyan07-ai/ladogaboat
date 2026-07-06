@@ -22,6 +22,19 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+      - name: Minify worker bundles
+        run: |
+          echo "=== Sizes BEFORE minify ==="
+          find .open-next -name "*.mjs" -exec du -sh {} \;
+
+          find .open-next -name "*.mjs" | while read f; do
+            echo "Minifying: $f"
+            npx esbuild "$f" --bundle=false --minify-whitespace --minify-syntax --outfile="$f"
+          done
+
+          echo "=== Sizes AFTER minify ==="
+          find .open-next -name "*.mjs" -exec du -sh {} \;
+
       - name: Deploy
         run: npx wrangler deploy
         env:
