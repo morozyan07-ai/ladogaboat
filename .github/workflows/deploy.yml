@@ -24,15 +24,20 @@ jobs:
 
       - name: Minify worker bundles
         run: |
-          echo "=== Sizes BEFORE minify ==="
+          echo "=== Sizes BEFORE ==="
           find .open-next -name "*.mjs" -exec du -sh {} \;
 
+          # Удаляем WASM base64 файлы — не нужны при PrismaNeonHttp (HTTP adapter)
+          echo "=== Removing wasm-base64 files ==="
+          find .open-next -name "*.wasm-base64.mjs" -print -delete
+
+          # Минифицируем whitespace+syntax (НЕ identifiers — сломает строковые патчи)
+          echo "=== Minifying ==="
           find .open-next -name "*.mjs" | while read f; do
-            echo "Minifying: $f"
-            npx esbuild "$f" --bundle=false --minify-whitespace --minify-syntax --outfile="$f"
+            npx esbuild "$f" --bundle=false --minify-whitespace --minify-syntax --allow-overwrite --outfile="$f"
           done
 
-          echo "=== Sizes AFTER minify ==="
+          echo "=== Sizes AFTER ==="
           find .open-next -name "*.mjs" -exec du -sh {} \;
 
       - name: Deploy
