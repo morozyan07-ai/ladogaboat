@@ -120,7 +120,7 @@ export default async function OwnerDashboard() {
                       <div>
                         <p className="font-medium text-slate-800">{bBoat.title as string}</p>
                         <p className="text-sm text-slate-500">
-                          Гость: {bGuest?.name ?? b.guestName ?? 'Гость'} · {new Date(b.startDate as string).toLocaleDateString('ru-RU')} — {new Date(b.endDate as string).toLocaleDateString('ru-RU')}
+                          Гость: {String(bGuest?.name ?? b.guestName ?? 'Гость')} · {new Date(b.startDate as string).toLocaleDateString('ru-RU')} — {new Date(b.endDate as string).toLocaleDateString('ru-RU')}
                         </p>
                       </div>
                       <div className="text-right">
