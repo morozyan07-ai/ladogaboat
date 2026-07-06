@@ -1,5 +1,16 @@
 import { neon } from '@neondatabase/serverless'
 
-// Прямой HTTP клиент к Neon без Prisma
-// Заменяет: @prisma/client, @prisma/adapter-neon, src/lib/prisma.ts
-export const sql = neon(process.env.DATABASE_URL!)
+// Lazy-инициализация: neon() НЕ вызывается при импорте модуля.
+// Это предотвращает ошибку "No database connection string" во время next build,
+// когда Next.js выполняет статическую генерацию без DATABASE_URL.
+let _sql: ReturnType<typeof neon> | undefined
+
+export const sql = new Proxy(
+  (() => {}) as unknown as ReturnType<typeof neon>,
+  {
+    apply(_target, _thisArg, args) {
+      if (!_sql) _sql = neon(process.env.DATABASE_URL!)
+      return Reflect.apply(_sql, undefined, args)
+    },
+  }
+)
