@@ -1,35 +1,32 @@
-
 import { NextRequest } from 'next/server'
-import { z } from 'zod'
-import prisma from '@/lib/prisma'
+import { sql } from '@/lib/db'
 import { getSession } from '@/lib/session'
-
-const schema = z.object({
-  bookingId: z.string(),
-  rating: z.number().int().min(1).max(5),
-  comment: z.string().min(3),
-})
 
 export async function POST(req: NextRequest) {
   const session = await getSession()
   if (!session) return Response.json({ error: 'Не авторизован' }, { status: 401 })
 
-  const body = await req.json()
-  const parsed = schema.safeParse(body)
-  if (!parsed.success) return Response.json({ error: 'Неверные данные' }, { status: 400 })
+  const body = await req.json() as { bookingId?: string; rating?: number; comment?: string }
+  const { bookingId, rating, comment } = body
+  if (!bookingId || !Number.isInteger(rating) || (rating as number) < 1 || (rating as number) > 5 || !comment || comment.length < 3) {
+    return Response.json({ error: 'Неверные данные' }, { status: 400 })
+  }
 
-  const { bookingId, rating, comment } = parsed.data
-  const booking = await prisma.booking.findUnique({ where: { id: bookingId } })
-  if (!booking) return Response.json({ error: 'Бронирование не найдено' }, { status: 404 })
+  const bRows = await sql`SELECT id, "guestId", "boatId", status FROM "Booking" WHERE id = ${bookingId} LIMIT 1`
+  if (!bRows.length) return Response.json({ error: 'Бронирование не найдено' }, { status: 404 })
+  const booking = bRows[0] as { id: string; guestId: string; boatId: string; status: string }
+
   if (booking.guestId !== session.userId) return Response.json({ error: 'Нет доступа' }, { status: 403 })
   if (booking.status !== 'COMPLETED') return Response.json({ error: 'Можно оставить отзыв только после завершения' }, { status: 400 })
 
-  const existing = await prisma.review.findUnique({ where: { bookingId } })
-  if (existing) return Response.json({ error: 'Отзыв уже оставлен' }, { status: 409 })
+  const existing = await sql`SELECT id FROM "Review" WHERE "bookingId" = ${bookingId} LIMIT 1`
+  if (existing.length) return Response.json({ error: 'Отзыв уже оставлен' }, { status: 409 })
 
-  const review = await prisma.review.create({
-    data: { bookingId, boatId: booking.boatId, guestId: session.userId, rating, comment },
-  })
+  const id = crypto.randomUUID()
+  const rows = await sql`
+    INSERT INTO "Review" (id, "bookingId", "boatId", "guestId", rating, comment, "createdAt")
+    VALUES (${id}, ${bookingId}, ${booking.boatId}, ${session.userId}, ${rating as number}, ${comment}, NOW())
+    RETURNING *`
 
-  return Response.json(review, { status: 201 })
+  return Response.json(rows[0], { status: 201 })
 }

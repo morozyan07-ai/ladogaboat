@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import prisma from '@/lib/prisma'
+import { sql } from '@/lib/db'
 
 export const metadata: Metadata = {
   title: 'Бронирование принято',
@@ -12,12 +12,14 @@ type Props = { searchParams: Promise<{ code?: string }> }
 export default async function BookingConfirmPage({ searchParams }: Props) {
   const { code } = await searchParams
 
-  let booking = null
+  let booking: Record<string, unknown> | null = null
   if (code) {
-    booking = await prisma.booking.findUnique({
-      where: { bookingCode: code },
-      include: { boat: { select: { title: true, location: true } } },
-    })
+    const rows = await sql`
+      SELECT bk.*, bo.title as "boatTitle", bo.location as "boatLocation"
+      FROM "Booking" bk
+      JOIN "Boat" bo ON bo.id = bk."boatId"
+      WHERE bk."bookingCode" = ${code} LIMIT 1`
+    booking = (rows[0] as Record<string, unknown>) ?? null
   }
 
   if (!booking) {
@@ -37,8 +39,8 @@ export default async function BookingConfirmPage({ searchParams }: Props) {
     )
   }
 
-  const startFmt = new Date(booking.startDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
-  const endFmt = new Date(booking.endDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+  const startFmt = new Date(booking.startDate as string).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+  const endFmt = new Date(booking.endDate as string).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
   const isPaid = booking.status === 'CONFIRMED' || !!booking.paidAt
 
   return (
@@ -58,15 +60,15 @@ export default async function BookingConfirmPage({ searchParams }: Props) {
           <div className="bg-slate-50 rounded-xl p-4 text-left space-y-2 mb-6">
             <div className="flex justify-between text-sm">
               <span className="text-slate-500">Код бронирования</span>
-              <span className="font-mono font-bold text-slate-900">{booking.bookingCode}</span>
+              <span className="font-mono font-bold text-slate-900">{booking.bookingCode as string}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-slate-500">Катер</span>
-              <span className="font-medium text-slate-800 text-right max-w-[60%]">{booking.boat.title}</span>
+              <span className="font-medium text-slate-800 text-right max-w-[60%]">{booking.boatTitle as string}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-slate-500">Место</span>
-              <span className="text-slate-700">{booking.boat.location}</span>
+              <span className="text-slate-700">{booking.boatLocation as string}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-slate-500">Даты</span>
