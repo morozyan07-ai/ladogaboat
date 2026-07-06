@@ -248,4 +248,12 @@ export interface PrismaClient<
     * Example usage:
     * ```ts
     * // Fetch zero or more Reviews
-    * const reviews = await prisma.review.find
+    * const reviews = await prisma.review.findMany()
+    * ```
+    */
+  get review(): Prisma.ReviewDelegate<ExtArgs, { omit: OmitOpts }>;
+}
+
+export function getPrismaClientClass(): PrismaClientConstructor {
+  return runtime.getPrismaClient(config) as unknown as PrismaClientConstructor
+}
