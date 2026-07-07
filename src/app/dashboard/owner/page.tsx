@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { verifyOwner } from '@/lib/dal'
 import { sql } from '@/lib/db'

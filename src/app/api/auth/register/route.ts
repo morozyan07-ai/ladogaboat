@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest } from 'next/server'
 import { hash } from 'bcrypt-ts/browser'
 import { sql } from '@/lib/db'

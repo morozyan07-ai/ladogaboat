@@ -1,16 +1,13 @@
 import { neon } from '@neondatabase/serverless'
 
-// Lazy-инициализация: neon() НЕ вызывается при импорте модуля.
-// Это предотвращает ошибку "No database connection string" во время next build,
-// когда Next.js выполняет статическую генерацию без DATABASE_URL.
-let _sql: ReturnType<typeof neon> | undefined
+type Sql = ReturnType<typeof neon>
+let _sql: Sql | undefined
 
-export const sql = new Proxy(
-  (() => {}) as unknown as ReturnType<typeof neon>,
-  {
-    apply(_target, _thisArg, args) {
-      if (!_sql) _sql = neon(process.env.DATABASE_URL!)
-      return Reflect.apply(_sql, undefined, args)
-    },
-  }
-)
+// Lazy-инициализация: neon() не вызывается при импорте модуля.
+// При next build DATABASE_URL недоступна — вызов произойдёт только при runtime.
+// Все routes/pages помечены как force-dynamic чтобы Next.js не выполнял их при build.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const sql = ((...args: Parameters<Sql>) => {
+  if (!_sql) _sql = neon(process.env.DATABASE_URL!)
+  return _sql(...args)
+}) as unknown as Sql
