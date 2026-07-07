@@ -15,13 +15,19 @@ export type SessionPayload = {
  * КРИТИЧНО для Cloudflare Workers: process.env.SESSION_SECRET не доступен
  * на уровне модуля. TextEncoder.encode(undefined) даёт пустой Uint8Array,
  * и crypto.subtle.importKey() с пустым ключом зависает в Edge Runtime.
+ * Null-guard: если SESSION_SECRET не задан — случайный ключ (сессии не
+ * переживут рестарт воркера, но сайт не зависнет).
  */
 let _key: Uint8Array | undefined
 
 function getKey(): Uint8Array {
   if (!_key) {
     const secret = process.env.SESSION_SECRET
-    _key = new TextEncoder().encode(secret)
+    if (!secret) {
+      _key = crypto.getRandomValues(new Uint8Array(32))
+    } else {
+      _key = new TextEncoder().encode(secret)
+    }
   }
   return _key
 }
