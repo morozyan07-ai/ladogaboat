@@ -1,13 +1,17 @@
 import { neon } from '@neondatabase/serverless'
 
-type Sql = ReturnType<typeof neon>
-let _sql: Sql | undefined
+type Row = Record<string, unknown>
 
-// Lazy-инициализация: neon() не вызывается при импорте модуля.
-// При next build DATABASE_URL недоступна — вызов произойдёт только при runtime.
-// Все routes/pages помечены как force-dynamic чтобы Next.js не выполнял их при build.
+let _sql: ReturnType<typeof neon> | undefined
+
+/**
+ * Lazy-инициализация neon().
+ * Возвращает Promise<Row[]> — TypeScript знает что это массив, .length/.map работают.
+ * При next build neon() не вызывается (все routes помечены force-dynamic).
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const sql = ((...args: Parameters<Sql>) => {
+export const sql = (strings: TemplateStringsArray, ...values: any[]): Promise<Row[]> => {
   if (!_sql) _sql = neon(process.env.DATABASE_URL!)
-  return _sql(...args)
-}) as unknown as Sql
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (_sql as any)(strings, ...values) as Promise<Row[]>
+}
