@@ -231,7 +231,7 @@ export default function LadogaPage() {
         {/* Когда ехать */}
         <section>
           <h2 className="text-3xl font-bold text-slate-900 mb-6">Когда ехать</h2>
-          <div className="grid sm:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
                 season: 'Июнь — август',
