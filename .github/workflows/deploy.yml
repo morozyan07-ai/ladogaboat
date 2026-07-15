@@ -17,28 +17,15 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DIRECT_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Build
         run: npm run pages:build
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - name: Minify worker bundles
-        run: |
-          echo "=== Sizes BEFORE ==="
-          find .open-next -name "*.mjs" -exec du -sh {} \;
-
-          # Удаляем WASM base64 файлы — не нужны при PrismaNeonHttp (HTTP adapter)
-          echo "=== Removing wasm-base64 files ==="
-          find .open-next -name "*.wasm-base64.mjs" -print -delete
-
-          # Минифицируем whitespace+syntax (НЕ identifiers — сломает строковые патчи)
-          echo "=== Minifying ==="
-          find .open-next -name "*.mjs" | while read f; do
-            npx esbuild "$f" --bundle=false --minify-whitespace --minify-syntax --allow-overwrite --outfile="$f"
-          done
-
-          echo "=== Sizes AFTER ==="
-          find .open-next -name "*.mjs" -exec du -sh {} \;
 
       - name: Deploy
         run: npx wrangler deploy

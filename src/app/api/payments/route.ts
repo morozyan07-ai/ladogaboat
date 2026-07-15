@@ -1,6 +1,9 @@
-export const dynamic = 'force-dynamic'
+
+// POST /api/payments — создаёт (или повторяет) ссылку на оплату для существующего PENDING-бронирования.
+// Используется кнопкой "Оплатить" в ЛК гостя.
+
 import { NextRequest } from 'next/server'
-import { sql } from '@/lib/db'
+import prisma from '@/lib/prisma'
 import { getSession } from '@/lib/session'
 import { createPayment, getPayment } from '@/lib/yookassa'
 
@@ -10,45 +13,50 @@ export async function POST(req: NextRequest) {
   const session = await getSession()
   if (!session) return Response.json({ error: 'Не авторизован' }, { status: 401 })
 
-  const body = await req.json().catch(() => ({})) as { bookingId?: string }
-  const { bookingId } = body
+  const body = await req.json().catch(() => ({}))
+  const { bookingId } = body as { bookingId?: string }
   if (!bookingId) return Response.json({ error: 'bookingId required' }, { status: 400 })
 
-  const rows = await sql`
-    SELECT bk.*, bo.title as "boatTitle"
-    FROM "Booking" bk
-    JOIN "Boat" bo ON bo.id = bk."boatId"
-    WHERE bk.id = ${bookingId} LIMIT 1`
-  if (!rows.length) return Response.json({ error: 'Бронирование не найдено' }, { status: 404 })
-  const booking = rows[0] as Record<string, unknown>
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: { boat: { select: { title: true } } },
+  })
 
+  if (!booking) return Response.json({ error: 'Бронирование не найдено' }, { status: 404 })
   if (booking.guestId !== session.userId) return Response.json({ error: 'Нет доступа' }, { status: 403 })
   if (booking.status !== 'PENDING') {
     return Response.json({ error: 'Бронирование уже подтверждено или отменено' }, { status: 400 })
   }
 
+  // Если у бронирования уже есть платёж — проверяем его статус прежде чем создавать новый
   if (booking.yookassaPaymentId) {
     try {
-      const existing = await getPayment(booking.yookassaPaymentId as string)
+      const existing = await getPayment(booking.yookassaPaymentId)
       if (existing.status === 'pending' && existing.confirmation?.confirmation_url) {
         return Response.json({ paymentUrl: existing.confirmation.confirmation_url })
       }
-    } catch { /* создадим новый */ }
+      // Платёж просрочен/отменён — создадим новый (idempotency key меняем добавив суффикс)
+    } catch {
+      // Не удалось получить статус — создаём новый
+    }
   }
 
   const days = Math.ceil(
-    (new Date(booking.endDate as string).getTime() - new Date(booking.startDate as string).getTime()) / 86400000
+    (new Date(booking.endDate).getTime() - new Date(booking.startDate).getTime()) / 86400000
   )
 
   const payment = await createPayment({
     amountRub: Number(booking.totalPrice),
-    description: `Аренда: ${booking.boatTitle ?? 'катер'} (${days} дн.)`,
-    bookingId: booking.yookassaPaymentId ? `${booking.id}-retry-${Date.now()}` : booking.id as string,
+    description: `Аренда: ${booking.boat?.title ?? 'катер'} (${days} дн.)`,
+    bookingId: booking.yookassaPaymentId ? `${booking.id}-retry-${Date.now()}` : booking.id,
     returnUrl: `${SITE_URL}/dashboard/guest?payment=done&booking=${booking.id}`,
   })
 
   if (payment.id) {
-    await sql`UPDATE "Booking" SET "yookassaPaymentId" = ${payment.id} WHERE id = ${bookingId}`
+    await prisma.booking.update({
+      where: { id: bookingId },
+      data: { yookassaPaymentId: payment.id },
+    })
   }
 
   return Response.json({ paymentUrl: payment.confirmation?.confirmation_url ?? null })

@@ -1,14 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" role="img" aria-label="Ladoga Boat">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 205" role="img" aria-label="Ladoga Boat">
   <!-- Mast -->
-  <line x1="57" y1="28" x2="59" y2="10" stroke="#1a2e4a" stroke-width="2" stroke-linecap="round"/>
-  <!-- Sail flag -->
-  <polygon points="59,10 59,24 69,17" fill="#3dbead" opacity="0.85"/>
+  <line x1="192" y1="42" x2="197" y2="15" stroke="#1a2e4a" stroke-width="2.5" stroke-linecap="round"/>
   <!-- Speedboat hull -->
-  <path fill="#1a2e4a" d="M 18,50 Q 60,58 100,47 L 101,40 Q 88,28 72,25 Q 67,24 65,20 Q 61,16 57,16 Q 52,16 49,20 Q 47,24 40,26 L 28,30 L 18,36 Z"/>
-  <!-- Windshield -->
-  <path fill="#3dbead" opacity="0.4" d="M 52,22 Q 57,16 62,22 L 65,26 Q 60,24 55,25 Z"/>
+  <path fill="#1a2e4a" d="M 78,107 Q 195,122 312,96 L 314,82 Q 284,60 248,55 Q 232,53 226,46 Q 217,38 202,38 Q 186,38 178,46 Q 172,53 158,56 L 115,64 L 78,76 Z"/>
   <!-- Wave 1 -->
-  <path fill="none" stroke="#3dbead" stroke-width="3" stroke-linecap="round" d="M 8,58 Q 30,52 52,58 Q 74,64 96,58 Q 104,56 112,58"/>
+  <path fill="none" stroke="#3dbead" stroke-width="5" stroke-linecap="round" d="M 52,120 Q 120,108 188,120 Q 256,132 324,120 Q 342,116 356,120"/>
   <!-- Wave 2 -->
-  <path fill="none" stroke="#3dbead" stroke-width="2" stroke-linecap="round" opacity="0.5" d="M 4,68 Q 28,62 52,68 Q 76,74 100,68 Q 108,66 116,68"/>
+  <path fill="none" stroke="#3dbead" stroke-width="3.5" stroke-linecap="round" opacity="0.65" d="M 42,135 Q 112,123 180,135 Q 248,147 316,135 Q 336,131 348,135"/>
+  <!-- LADOGA BOAT -->
+  <text x="200" y="195" font-family="'Arial Black',Arial,sans-serif" font-weight="900" font-size="44" letter-spacing="3" text-anchor="middle">
+    <tspan fill="#1a2e4a">LADOGA</tspan><tspan fill="#3dbead"> BOAT</tspan>
+  </text>
 </svg>

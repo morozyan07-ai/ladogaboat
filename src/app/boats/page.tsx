@@ -1,7 +1,6 @@
-export const dynamic = 'force-dynamic'
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { sql } from '@/lib/db'
+import prisma from '@/lib/prisma'
 import BoatCard from '@/components/boats/BoatCard'
 import SearchForm from '@/components/boats/SearchForm'
 import type { Boat, SearchParams } from '@/types'
@@ -15,6 +14,7 @@ export const metadata: Metadata = {
 
 async function searchBoats(params: SearchParams): Promise<Boat[]> {
   try {
+    // Таймаут 8 сек — если Neon не проснулся, возвращаем [] вместо 503
     const timeout = new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error('db_timeout')), 8000)
     )
@@ -26,91 +26,34 @@ async function searchBoats(params: SearchParams): Promise<Boat[]> {
 
 async function fetchBoats(params: SearchParams): Promise<Boat[]> {
   try {
-    const locations = params.location
-      ? params.location.split(',').map(s => s.trim()).filter(Boolean)
-      : []
-    const capacity = params.capacity ? Number(params.capacity) : null
-
-    let rows
-    if (locations.length === 1 && capacity) {
-      rows = await sql`
-        SELECT b.*, u.name as "ownerName",
-          COALESCE(AVG(r.rating), 0)::float as "avgRating",
-          COUNT(r.id)::int as "reviewCount"
-        FROM "Boat" b
-        LEFT JOIN "User" u ON u.id = b."ownerId"
-        LEFT JOIN "Review" r ON r."boatId" = b.id
-        WHERE b.status = 'ACTIVE'
-          AND LOWER(b.location) LIKE '%' || LOWER(${locations[0]}) || '%'
-          AND b.capacity >= ${capacity}
-        GROUP BY b.id, u.name ORDER BY b."createdAt" DESC`
-    } else if (locations.length === 1) {
-      rows = await sql`
-        SELECT b.*, u.name as "ownerName",
-          COALESCE(AVG(r.rating), 0)::float as "avgRating",
-          COUNT(r.id)::int as "reviewCount"
-        FROM "Boat" b
-        LEFT JOIN "User" u ON u.id = b."ownerId"
-        LEFT JOIN "Review" r ON r."boatId" = b.id
-        WHERE b.status = 'ACTIVE'
-          AND LOWER(b.location) LIKE '%' || LOWER(${locations[0]}) || '%'
-        GROUP BY b.id, u.name ORDER BY b."createdAt" DESC`
-    } else if (locations.length > 1 && capacity) {
-      // Для нескольких локаций используем ILIKE ANY
-      rows = await sql`
-        SELECT b.*, u.name as "ownerName",
-          COALESCE(AVG(r.rating), 0)::float as "avgRating",
-          COUNT(r.id)::int as "reviewCount"
-        FROM "Boat" b
-        LEFT JOIN "User" u ON u.id = b."ownerId"
-        LEFT JOIN "Review" r ON r."boatId" = b.id
-        WHERE b.status = 'ACTIVE'
-          AND b.location ILIKE ANY(${locations.map(l => `%${l}%`)})
-          AND b.capacity >= ${capacity}
-        GROUP BY b.id, u.name ORDER BY b."createdAt" DESC`
-    } else if (locations.length > 1) {
-      rows = await sql`
-        SELECT b.*, u.name as "ownerName",
-          COALESCE(AVG(r.rating), 0)::float as "avgRating",
-          COUNT(r.id)::int as "reviewCount"
-        FROM "Boat" b
-        LEFT JOIN "User" u ON u.id = b."ownerId"
-        LEFT JOIN "Review" r ON r."boatId" = b.id
-        WHERE b.status = 'ACTIVE'
-          AND b.location ILIKE ANY(${locations.map(l => `%${l}%`)})
-        GROUP BY b.id, u.name ORDER BY b."createdAt" DESC`
-    } else if (capacity) {
-      rows = await sql`
-        SELECT b.*, u.name as "ownerName",
-          COALESCE(AVG(r.rating), 0)::float as "avgRating",
-          COUNT(r.id)::int as "reviewCount"
-        FROM "Boat" b
-        LEFT JOIN "User" u ON u.id = b."ownerId"
-        LEFT JOIN "Review" r ON r."boatId" = b.id
-        WHERE b.status = 'ACTIVE' AND b.capacity >= ${capacity}
-        GROUP BY b.id, u.name ORDER BY b."createdAt" DESC`
-    } else {
-      rows = await sql`
-        SELECT b.*, u.name as "ownerName",
-          COALESCE(AVG(r.rating), 0)::float as "avgRating",
-          COUNT(r.id)::int as "reviewCount"
-        FROM "Boat" b
-        LEFT JOIN "User" u ON u.id = b."ownerId"
-        LEFT JOIN "Review" r ON r."boatId" = b.id
-        WHERE b.status = 'ACTIVE'
-        GROUP BY b.id, u.name ORDER BY b."createdAt" DESC`
+    const where: Record<string, unknown> = { status: 'ACTIVE' }
+    if (params.location) {
+      const locations = params.location.split(',').filter(Boolean)
+      if (locations.length) {
+        where.OR = locations.map((loc) => ({ location: { contains: loc, mode: 'insensitive' } }))
+      }
     }
+    if (params.capacity) where.capacity = { gte: Number(params.capacity) }
 
-    return rows.map((b: Record<string, unknown>) => ({
-      ...b,
-      pricePerDay: Number(b.pricePerDay),
-      avgRating: Number(b.avgRating) || 0,
-      owner: { name: b.ownerName },
-      _count: { reviews: b.reviewCount ?? 0 },
-      ownerName: undefined,
-      avgRating2: undefined,
-      reviewCount: undefined,
-    })) as unknown as Boat[]
+    const boats = await prisma.boat.findMany({
+      where,
+      include: {
+        owner: { select: { name: true } },
+        reviews: { select: { rating: true } },
+        _count: { select: { reviews: true } },
+      },
+    })
+    return boats.map((b) => {
+      const { reviews, ...rest } = b
+      return {
+        ...rest,
+        pricePerDay: Number(b.pricePerDay),
+        avgRating:
+          reviews.length > 0
+            ? reviews.reduce((s: number, r: { rating: number }) => s + r.rating, 0) / reviews.length
+            : 0,
+      }
+    })
   } catch {
     return []
   }

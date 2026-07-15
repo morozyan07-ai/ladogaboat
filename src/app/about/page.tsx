@@ -78,7 +78,9 @@ export default function AboutPage() {
           <div className="grid grid-cols-2 gap-4">
             {[
               { num: '1', label: 'место для поиска катеров на Ладоге' },
+              { num: '8%', label: 'комиссия сервиса — без скрытых сборов' },
               { num: '24/7', label: 'поддержка через Telegram и WhatsApp' },
+              { num: '0', label: 'регистрация не нужна для бронирования' },
             ].map((s) => (
               <div key={s.label} className="bg-slate-50 rounded-2xl p-5">
                 <div className="text-2xl font-bold text-blue-700 mb-1">{s.num}</div>
@@ -137,7 +139,11 @@ export default function AboutPage() {
               и термосом. Мы знаем эти места и знаем, как важно попасть на воду
               без лишней суеты.
             </p>
-
+            <p>
+              Ladoga Boat зарегистрирован как ИП Морозов Владимир Владимирович,
+              ИНН 110110795542. Мы работаем в соответствии с российским
+              законодательством и платим налоги в Республике Карелия.
+            </p>
           </div>
         </section>
 
