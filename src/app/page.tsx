@@ -26,7 +26,7 @@ export default function HomePage() {
           {/* Текст-маска */}
           <div className="flex-1 flex flex-col justify-center">
             <h1
-              className="bg-clip-text text-transparent select-none"
+              className="select-none"
               style={{
                 fontFamily: 'var(--font-display), Arial Black, sans-serif',
                 fontSize: 'clamp(80px, 22vw, 300px)',
@@ -36,7 +36,10 @@ export default function HomePage() {
                 backgroundImage: 'url(/hero/winter.jpg)',
                 backgroundSize: '130% auto',
                 backgroundPosition: 'center 40%',
-                filter: 'none',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent',
               }}
             >
               ЛАДОГА

@@ -1,6 +1,6 @@
 export const SITE_URL = 'https://www.ladogaboat.ru'
 export const SITE_NAME = 'Ladoga Boat'
-export const SITE_TITLE = 'Ladoga Boat — аренда катеров на Ладожском озере'
+export const SITE_TITLE = 'Аренда катеров и туры на Ладожском озере'
 export const SITE_DESCRIPTION =
   'Аренда катеров на Ладожском озере: Ладожские шхеры, остров Валаам, живописные заливы. ' +
   'Проверенные судовладельцы Карелии и Ленинградской области. Онлайн-бронирование, оплата картой и через СБП.'
