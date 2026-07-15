@@ -171,10 +171,14 @@ export default function IntroScreen({ onDone }: { onDone: () => void }) {
           }}>
             <p style={{
               fontFamily: "var(--font-display, 'Unbounded', sans-serif)",
-              color: '#4aa0af',
               fontSize: 'clamp(20px, 4vw, 44px)',
               fontWeight: 700,
               letterSpacing: '0.05em',
+              backgroundImage: 'linear-gradient(150deg, #d4b87a 0%, #6ab8cc 45%, #4a9eb8 70%, #c8a060 100%)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              color: 'transparent',
             }}>
               Готовы?&nbsp;Поплыли!
             </p>
