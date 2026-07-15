@@ -27,6 +27,22 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+      - name: Minify worker bundles
+        run: |
+          echo "=== Sizes BEFORE ==="
+          find .open-next -name "*.mjs" -exec du -sh {} \;
+
+          echo "=== Removing wasm-base64 files ==="
+          find .open-next -name "*.wasm-base64.mjs" -print -delete
+
+          echo "=== Minifying ==="
+          find .open-next -name "*.mjs" | while read f; do
+            npx esbuild "$f" --bundle=false --minify-whitespace --minify-syntax --allow-overwrite --outfile="$f"
+          done
+
+          echo "=== Sizes AFTER ==="
+          find .open-next -name "*.mjs" -exec du -sh {} \;
+
       - name: Deploy
         run: npx wrangler deploy
         env:
