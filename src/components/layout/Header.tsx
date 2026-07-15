@@ -12,9 +12,9 @@ export default async function Header() {
           <Link href="/" className="flex items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo-original.png"
+              src="/logo.svg"
               alt="Ladoga Boat"
-              style={{ height: '48px', width: 'auto' }}
+              style={{ height: "48px", width: "auto" }}
             />
           </Link>
           <HeaderNav role={session?.role ?? null} />
