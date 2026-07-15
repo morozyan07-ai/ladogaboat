@@ -20,8 +20,8 @@ export default function HeaderClient({ role }: { role: string | null }) {
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-white/90 backdrop-blur-md border-b border-slate-200/60 shadow-sm'
-          : 'bg-white/20 backdrop-blur-sm'
+          ? 'bg-slate-900/95 backdrop-blur-md border-b border-slate-800/50'
+          : 'bg-black/15 backdrop-blur-sm'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,14 +34,11 @@ export default function HeaderClient({ role }: { role: string | null }) {
               style={{
                 height: '52px',
                 width: 'auto',
-                filter: scrolled
-                  ? 'none'
-                  : 'drop-shadow(0 1px 4px rgba(255,255,255,0.9)) drop-shadow(0 0 10px rgba(255,255,255,0.6))',
-                transition: 'filter 0.3s',
+                filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.8)) drop-shadow(0 0 10px rgba(0,0,0,0.5))',
               }}
             />
           </Link>
-          <HeaderNav role={role} scrolled={scrolled} />
+          <HeaderNav role={role} />
         </div>
       </div>
     </header>
