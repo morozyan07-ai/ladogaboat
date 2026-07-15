@@ -1,24 +1,27 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { Suspense } from 'react'
-import SearchForm from '@/components/boats/SearchForm'
+import HeroSearch from '@/components/HeroSearch'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
 }
 
+const SEP: React.CSSProperties = { borderTop: '0.5px solid rgba(255,255,255,0.06)' }
+
 export default function HomePage() {
   return (
     <>
       {/* ─── Hero — ЛАДОГА текст-маска ─── */}
-      <section className="relative min-h-screen bg-[#06080f] flex flex-col overflow-hidden">
-        {/* Фоновый градиент */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#08101a] via-[#06080f] to-[#080610] pointer-events-none" />
+      <section className="relative min-h-screen flex flex-col overflow-hidden">
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(8,16,26,0.5) 0%, transparent 70%)' }} />
 
         <div className="relative z-10 max-w-7xl mx-auto w-full px-6 lg:px-14 flex flex-col min-h-screen py-8">
           {/* Подпись сверху */}
           <div className="pt-4">
-            <p className="text-[#4aa0af]/60 text-xs tracking-[0.22em] uppercase font-medium">
+            <p style={{ color: 'rgba(74,160,175,0.6)', fontSize: '11px', letterSpacing: '0.22em' }}
+              className="uppercase font-medium">
               Ладожское озеро&nbsp;·&nbsp;Шхеры&nbsp;·&nbsp;Карелия&nbsp;·&nbsp;Валаам
             </p>
           </div>
@@ -45,39 +48,29 @@ export default function HomePage() {
             >
               ЛАДОГА
             </h1>
-            <p className="text-white/20 text-sm tracking-[0.35em] uppercase ml-1 mt-6 font-medium">
+            <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: '13px', letterSpacing: '0.35em' }}
+              className="uppercase ml-1 mt-5 font-medium">
               — аренда катеров
             </p>
+
+            {/* Airbnb-стиль поиск */}
+            <div className="mt-7">
+              <HeroSearch />
+            </div>
           </div>
 
           {/* Нижняя панель */}
-          <div className="pb-10 flex flex-col sm:flex-row gap-6 items-start sm:items-end justify-between">
-            <div>
-              <p className="text-white/35 text-sm leading-relaxed max-w-xs">
-                Шхеры, Валаам, дикие острова —<br />
-                с проверенным капитаном или самостоятельно.
-              </p>
-              <div className="flex flex-wrap gap-x-5 gap-y-1 mt-4 text-xs text-white/20">
-                <span>★★★★★ Проверенные капитаны</span>
-                <span>· Оплата онлайн</span>
-                <span>· Мгновенное подтверждение</span>
-              </div>
-            </div>
-            <div className="flex gap-3 shrink-0">
-              <Link
-                href="/boats"
-                className="bg-[#c8965a] text-[#06080f] font-bold px-8 py-4 rounded-xl text-sm tracking-wide hover:bg-[#d4a568] transition-colors"
-                style={{ fontFamily: 'var(--font-sans)' }}
-              >
-                ЗАБРОНИРОВАТЬ
-              </Link>
-              <Link
-                href="/boats"
-                className="border border-white/15 text-white/50 hover:text-white hover:border-white/30 px-8 py-4 rounded-xl text-sm transition-colors"
-                style={{ fontFamily: 'var(--font-sans)' }}
-              >
-                Каталог →
-              </Link>
+          <div className="pb-10">
+            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', lineHeight: 1.7 }}
+              className="max-w-xs">
+              Шхеры, Валаам, дикие острова —<br />
+              с проверенным капитаном или самостоятельно.
+            </p>
+            <div className="flex flex-wrap gap-x-5 gap-y-1 mt-3"
+              style={{ fontSize: '11px', color: 'rgba(255,255,255,0.18)' }}>
+              <span>★★★★★ Проверенные капитаны</span>
+              <span>· Оплата онлайн</span>
+              <span>· Мгновенное подтверждение</span>
             </div>
           </div>
         </div>
@@ -88,22 +81,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── Форма поиска ─── */}
-      <section className="bg-[#080c14] py-12 px-6 border-y border-white/[0.04]">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-[#4aa0af]/60 text-xs tracking-[0.18em] uppercase mb-5">Найти катер</p>
-          <div className="bg-white rounded-2xl shadow-2xl p-5 sm:p-6">
-            <Suspense fallback={<div className="h-14 bg-slate-50 rounded-xl animate-pulse" />}>
-              <SearchForm />
-            </Suspense>
-          </div>
-        </div>
-      </section>
-
       {/* ─── Три шага ─── */}
-      <section className="py-20 sm:py-28 px-6 bg-[#06080f]">
+      <section className="py-20 sm:py-28 px-6" style={SEP}>
         <div className="max-w-7xl mx-auto">
-          <p className="text-[#4aa0af]/60 text-xs font-bold uppercase tracking-widest mb-4">
+          <p style={{ color: 'rgba(74,160,175,0.6)', fontSize: '11px', letterSpacing: '0.18em' }}
+            className="uppercase font-bold mb-4">
             Просто и понятно
           </p>
           <h2
@@ -126,7 +108,7 @@ export default function HomePage() {
                   {n}
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-3">{title}</h3>
-                <p className="text-white/30 leading-relaxed">{desc}</p>
+                <p style={{ color: 'rgba(255,255,255,0.3)' }} className="leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -134,9 +116,10 @@ export default function HomePage() {
       </section>
 
       {/* ─── Факты о Ладоге ─── */}
-      <section className="py-20 px-6 bg-[#080c14]">
+      <section className="py-20 px-6" style={SEP}>
         <div className="max-w-7xl mx-auto">
-          <p className="text-[#4aa0af]/60 text-xs font-bold uppercase tracking-widest mb-4">
+          <p style={{ color: 'rgba(74,160,175,0.6)', fontSize: '11px', letterSpacing: '0.18em' }}
+            className="uppercase font-bold mb-4">
             Почему Ладога
           </p>
           <h2
@@ -164,9 +147,9 @@ export default function HomePage() {
                   >
                     {stat}
                   </span>
-                  <span className="text-[#c8965a] font-semibold">{unit}</span>
+                  <span style={{ color: '#c8965a' }} className="font-semibold">{unit}</span>
                 </div>
-                <p className="text-white/30 text-sm leading-snug">{label}</p>
+                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px' }} className="leading-snug">{label}</p>
               </div>
             ))}
           </div>
@@ -174,14 +157,12 @@ export default function HomePage() {
       </section>
 
       {/* ─── CTA для судовладельцев ─── */}
-      <section
-        className="py-20 px-6"
-        style={{ background: '#06080f', borderTop: '0.5px solid rgba(255,255,255,0.04)' }}
-      >
+      <section className="py-20 px-6" style={SEP}>
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-10">
             <div className="flex-1">
-              <p className="text-[#4aa0af]/60 text-xs font-bold uppercase tracking-widest mb-4">
+              <p style={{ color: 'rgba(74,160,175,0.6)', fontSize: '11px', letterSpacing: '0.18em' }}
+                className="uppercase font-bold mb-4">
                 Для судовладельцев
               </p>
               <h2
@@ -190,7 +171,7 @@ export default function HomePage() {
               >
                 Зарабатывайте на Ладоге
               </h2>
-              <p className="text-white/30 text-lg max-w-lg leading-relaxed">
+              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '17px', lineHeight: 1.7 }} className="max-w-lg">
                 Разместите катер бесплатно и получайте заявки от тысяч туристов.
                 Онлайн-оплата, аналитика, поддержка 24/7.
               </p>
@@ -198,11 +179,7 @@ export default function HomePage() {
             <Link
               href="/auth/register?role=OWNER"
               className="shrink-0 inline-flex items-center gap-3 font-bold px-8 py-4 rounded-xl text-base transition-colors"
-              style={{
-                background: '#c8965a',
-                color: '#06080f',
-                fontFamily: 'var(--font-sans)',
-              }}
+              style={{ background: '#c8965a', color: '#06080f', fontFamily: 'var(--font-sans)' }}
             >
               Разместить катер →
             </Link>
