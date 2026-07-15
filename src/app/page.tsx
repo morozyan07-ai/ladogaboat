@@ -19,11 +19,20 @@ export default function HomePage() {
 
         <div className="relative z-10 max-w-7xl mx-auto w-full px-6 lg:px-14 flex flex-col min-h-screen py-8">
           {/* Подпись сверху */}
-          <div className="pt-4">
-            <p style={{ color: 'rgba(74,160,175,0.6)', fontSize: '11px', letterSpacing: '0.22em' }}
-              className="uppercase font-medium">
-              Ладожское озеро&nbsp;·&nbsp;Шхеры&nbsp;·&nbsp;Карелия&nbsp;·&nbsp;Валаам
-            </p>
+          <div className="pt-4 w-full">
+            <div style={{
+              display: 'flex', justifyContent: 'space-between',
+              color: 'rgba(74,160,175,0.65)', fontSize: '11px',
+              letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 500,
+            }}>
+              <span>Ладожское озеро</span>
+              <span style={{ opacity: 0.4 }}>·</span>
+              <span>Шхеры</span>
+              <span style={{ opacity: 0.4 }}>·</span>
+              <span>Карелия</span>
+              <span style={{ opacity: 0.4 }}>·</span>
+              <span>Валаам</span>
+            </div>
           </div>
 
           {/* Текст-маска */}
@@ -36,14 +45,13 @@ export default function HomePage() {
                 fontWeight: 900,
                 lineHeight: 0.88,
                 letterSpacing: '-0.04em',
-                backgroundImage: 'url(/hero/ladoga-summer.jpg)',
-                backgroundSize: '140% auto',
-                backgroundPosition: 'center 35%',
+                backgroundImage: "url('/hero/ladoga-summer.jpg'), linear-gradient(150deg, #d4b87a 0%, #6ab8cc 45%, #4a9eb8 70%, #c8a060 100%)",
+                backgroundSize: '140% auto, cover',
+                backgroundPosition: 'center 30%, center',
                 WebkitBackgroundClip: 'text',
                 backgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 color: 'transparent',
-                filter: 'brightness(1.15) saturate(1.2)',
               }}
             >
               ЛАДОГА
