@@ -137,15 +137,12 @@ export default function IntroScreen({ onDone }: { onDone: () => void }) {
           }}>
             <FuelGauge pct={fuelPct} />
             <p style={{
-              color: 'rgba(255,255,255,0.38)',
-              fontSize: 11,
-              letterSpacing: '0.24em',
+              color: 'rgba(200,150,90,0.75)',
+              fontSize: 15,
+              letterSpacing: '0.22em',
               textTransform: 'uppercase',
               fontWeight: 500,
-              marginTop: 6,
-              width: 'min(320px, 80vw)',
-              textAlign: 'justify',
-              textAlignLast: 'justify',
+              marginTop: 4,
             }}>
               Заправляем полный бак
             </p>
@@ -177,21 +174,16 @@ export default function IntroScreen({ onDone }: { onDone: () => void }) {
   )
 }
 
-// ── Fuel pump icon — stroke only, no fill ─────────
+// ── Fuel pump icon — stroke only, half size ───────
 function FuelPumpIcon() {
   return (
-    <svg width="44" height="56" viewBox="0 0 22 28" fill="none"
+    <svg width="22" height="28" viewBox="0 0 22 28" fill="none"
          stroke="rgba(255,255,255,0.6)" strokeWidth="1.3"
          strokeLinecap="round" strokeLinejoin="round">
-      {/* Main body */}
       <rect x="1" y="2" width="13" height="22" rx="1.5" />
-      {/* Display screen */}
       <rect x="3" y="5" width="9" height="5.5" rx="1" />
-      {/* Hose — goes right and curves to nozzle */}
       <path d="M14 8.5 L20 5.5 L20 16" />
-      {/* Nozzle */}
       <path d="M20 14.5 L20 19 Q20 21.5 17.5 21.5" />
-      {/* Base */}
       <line x1="0" y1="24" x2="14" y2="24" />
     </svg>
   )
@@ -210,7 +202,7 @@ function FuelGauge({ pct }: { pct: number }) {
         marginBottom: 14,
       }}>
         <span style={{ color: 'rgba(255,255,255,0.28)', fontSize: 11, letterSpacing: '0.2em' }}>E</span>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
           <FuelPumpIcon />
           <span style={{ color: '#c8965a', fontWeight: 600, fontSize: 12, letterSpacing: '0.12em' }}>
             {pct}%
