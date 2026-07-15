@@ -14,7 +14,19 @@ export default function LadogaPage() {
       {/* Hero */}
       <section className="relative h-[55vh] min-h-[380px] flex items-end overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-950 via-blue-900 to-teal-900" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 to-transparent" />
+        {/* Скальный силуэт шхер */}
+        <svg className="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 160"
+          preserveAspectRatio="none" aria-hidden="true">
+          <path fill="#020c1e" opacity="0.5"
+            d="M0,160 L0,120 Q50,95 110,108 Q170,122 240,88 Q310,54 390,75
+               Q460,92 530,62 Q600,32 680,55 Q755,78 830,48 Q905,18 985,42
+               Q1060,65 1135,38 Q1210,12 1290,32 Q1365,52 1440,35 L1440,160 Z"/>
+          <path fill="#020c1e" opacity="0.75"
+            d="M0,160 L0,135 Q45,118 105,128 Q160,138 225,115 Q290,92 365,110
+               Q435,126 505,105 Q575,84 650,100 Q722,116 798,95 Q872,74 948,92
+               Q1022,110 1098,88 Q1172,66 1248,85 Q1322,103 1440,82 L1440,160 Z"/>
+        </svg>
         <div className="relative z-10 max-w-4xl mx-auto px-6 pb-12 w-full">
           <p className="text-teal-300 text-sm font-semibold uppercase tracking-widest mb-3">
             Карелия · Ленинградская область

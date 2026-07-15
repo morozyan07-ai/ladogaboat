@@ -1,69 +1,170 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
+import SearchForm from '@/components/boats/SearchForm'
+import HeroBackground from '@/components/layout/HeroBackground'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
 }
 
-import { Suspense } from 'react'
-import SearchForm from '@/components/boats/SearchForm'
-import HeroBackground from '@/components/layout/HeroBackground'
-
 export default function HomePage() {
   return (
     <>
-      {/* Hero */}
-      <section className="relative text-white py-20 px-4">
+      {/* ─── Hero — left-aligned, atmospheric ─── */}
+      <section className="relative min-h-screen flex items-center overflow-hidden">
         <HeroBackground />
-        <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold mb-6 leading-tight">
-            Аренда катеров<br />
-            <span className="text-teal-300">на Ладожском озере</span>
-          </h1>
-          <p className="text-blue-100 text-lg sm:text-xl mb-10 max-w-2xl mx-auto">
-            Откройте для себя Ладожские шхеры, остров Валаам и живописные заливы.
-          </p>
-          <div className="max-w-4xl mx-auto">
-            <Suspense fallback={<div className="h-24 bg-white/10 rounded-2xl animate-pulse" />}>
-              <SearchForm />
-            </Suspense>
+        <div className="relative z-10 w-full py-20 sm:py-28">
+          <div className="max-w-7xl mx-auto px-6 lg:px-14">
+            <div className="max-w-xl lg:max-w-2xl">
+
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 mb-8 px-4 py-2
+                bg-teal-400/10 border border-teal-400/20 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+                <span className="text-teal-300 text-xs font-semibold uppercase tracking-widest">
+                  Ладожские шхеры · Карелия
+                </span>
+              </div>
+
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white
+                leading-[1.05] tracking-tight mb-6">
+                Аренда катеров<br />
+                <span className="text-teal-300">на Ладоге</span>
+              </h1>
+
+              <p className="text-slate-300 text-xl mb-10 max-w-md leading-relaxed">
+                Шхеры, Валаам, дикие острова — с проверенным
+                капитаном или самостоятельно.
+              </p>
+
+              {/* Search form */}
+              <div className="bg-white rounded-2xl shadow-2xl p-5 sm:p-6">
+                <Suspense
+                  fallback={
+                    <div className="h-16 bg-slate-50 rounded-xl animate-pulse" />
+                  }
+                >
+                  <SearchForm />
+                </Suspense>
+              </div>
+
+              {/* Trust row */}
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-7">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-yellow-400 text-sm">★★★★★</span>
+                  <span className="text-slate-400 text-sm">Проверенные капитаны</span>
+                </div>
+                <span className="hidden sm:block w-px h-3.5 bg-slate-700" />
+                <span className="text-slate-400 text-sm">Оплата онлайн</span>
+                <span className="hidden sm:block w-px h-3.5 bg-slate-700" />
+                <span className="text-slate-400 text-sm">Мгновенное подтверждение</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="py-16 px-4 bg-white">
+      {/* ─── How it works — dark ─── */}
+      <section className="py-20 sm:py-28 px-6 bg-slate-950">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-semibold text-slate-800 text-center mb-12">Как это работает</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <p className="text-teal-400 text-xs font-bold uppercase tracking-widest mb-4">
+            Просто и понятно
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-16 max-w-md">
+            Три шага до Ладоги
+          </h2>
+          <div className="grid md:grid-cols-3 gap-10 lg:gap-16">
             {[
-              { icon: '🔍', title: 'Найдите катер', desc: 'Выберите дату, время и подходящий катер из каталога' },
-              { icon: '📋', title: 'Забронируйте', desc: 'Оформите бронирование онлайн и оплатите картой или через СБП' },
-              { icon: '⛵', title: 'Отправляйтесь', desc: 'Свяжитесь с судовладельцем и отправляйтесь в путь' },
-            ].map(({ icon, title, desc }) => (
-              <div key={title} className="text-center">
-                <div className="text-5xl mb-4">{icon}</div>
-                <h3 className="font-semibold text-slate-800 text-lg mb-2">{title}</h3>
-                <p className="text-slate-500">{desc}</p>
+              {
+                n: '01',
+                title: 'Найдите катер',
+                desc: 'Выберите дату, время и подходящий катер из каталога. Фильтры по вместимости и маршруту.',
+              },
+              {
+                n: '02',
+                title: 'Забронируйте',
+                desc: 'Оформите онлайн — оплата картой или через СБП. Подтверждение придёт мгновенно.',
+              },
+              {
+                n: '03',
+                title: 'Отправляйтесь',
+                desc: 'Свяжитесь с капитаном и отправляйтесь. Поддержка работает 24/7.',
+              },
+            ].map(({ n, title, desc }) => (
+              <div key={n}>
+                <div className="text-7xl font-black text-teal-500/15 mb-5 leading-none">
+                  {n}
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-3">{title}</h3>
+                <p className="text-slate-400 leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA for owners */}
-      <section className="py-16 px-4 bg-blue-700 text-white">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-semibold mb-4">Вы судовладелец?</h2>
-          <p className="text-blue-100 mb-8 text-lg">
-            Разместите свой катер на платформе и получайте стабильный доход. Регистрация бесплатна.
+      {/* ─── Ladoga facts ─── */}
+      <section className="py-20 px-6 bg-slate-900">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-teal-400 text-xs font-bold uppercase tracking-widest mb-4">
+            Почему Ладога
           </p>
-          <Link
-            href="/auth/register?role=OWNER"
-            className="inline-block bg-white text-blue-700 font-semibold px-8 py-4 rounded-xl hover:bg-blue-50 transition-colors text-lg"
-          >
-            Разместить катер
-          </Link>
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-12 max-w-lg">
+            Крупнейшее озеро Европы — у вас за рулём
+          </h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[
+              { stat: '17 891', unit: 'км²', label: 'площадь воды — больше Израиля' },
+              { stat: '660', unit: '+', label: 'островов, включая Валаам' },
+              { stat: '230', unit: 'м', label: 'максимальная глубина' },
+              { stat: '4–5', unit: 'м', label: 'прозрачность воды в шхерах' },
+            ].map(({ stat, unit, label }) => (
+              <div
+                key={stat}
+                className="bg-slate-800/60 border border-slate-700/40 rounded-2xl p-6"
+              >
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className="text-3xl font-bold text-white">{stat}</span>
+                  <span className="text-teal-400 font-semibold">{unit}</span>
+                </div>
+                <p className="text-slate-400 text-sm leading-snug">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Owner CTA ─── */}
+      <section className="relative py-20 px-6 overflow-hidden
+        bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900">
+        <div className="absolute -right-32 -top-32 w-[500px] h-[500px]
+          bg-teal-600/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -left-20 bottom-0 w-80 h-80
+          bg-blue-600/6 rounded-full blur-3xl pointer-events-none" />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-10">
+            <div className="flex-1">
+              <p className="text-teal-400 text-xs font-bold uppercase tracking-widest mb-4">
+                Для судовладельцев
+              </p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                Зарабатывайте на Ладоге
+              </h2>
+              <p className="text-slate-300 text-lg max-w-lg leading-relaxed">
+                Разместите катер бесплатно и получайте заявки от тысяч туристов.
+                Онлайн‑оплата, аналитика, поддержка 24/7.
+              </p>
+            </div>
+            <Link
+              href="/auth/register?role=OWNER"
+              className="shrink-0 inline-flex items-center gap-3 bg-teal-400 text-slate-900
+                font-bold px-8 py-4 rounded-xl hover:bg-teal-300 transition-colors text-lg"
+            >
+              Разместить катер
+              <span aria-hidden="true">→</span>
+            </Link>
+          </div>
         </div>
       </section>
     </>
