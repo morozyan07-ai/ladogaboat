@@ -8,6 +8,33 @@ const TIME_OPTIONS = Array.from({ length: 14 }, (_, i) => {
   return `${String(h).padStart(2, '0')}:00`
 })
 
+const fieldStyle = {
+  flex: 1,
+  padding: '10px 16px',
+  borderRight: '0.5px solid rgba(255,255,255,0.08)',
+  minWidth: 0,
+} as const
+
+const labelStyle = {
+  fontSize: '10px',
+  color: 'rgba(74,160,175,0.8)',
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.12em',
+  marginBottom: '3px',
+  display: 'block',
+} as const
+
+const inputStyle = {
+  background: 'none',
+  border: 'none',
+  outline: 'none',
+  color: 'rgba(255,255,255,0.85)',
+  fontSize: '13px',
+  width: '100%',
+  fontFamily: 'inherit',
+  colorScheme: 'dark',
+} as const
+
 export default function HeroSearch() {
   const router = useRouter()
   const [date, setDate] = useState('')
@@ -20,31 +47,6 @@ export default function HeroSearch() {
     if (time) params.set('time', time)
     if (guests) params.set('capacity', guests)
     router.push(`/boats?${params.toString()}`)
-  }
-
-  const fieldStyle: React.CSSProperties = {
-    flex: 1,
-    padding: '10px 16px',
-    borderRight: '0.5px solid rgba(255,255,255,0.08)',
-    minWidth: 0,
-  }
-  const labelStyle: React.CSSProperties = {
-    fontSize: '10px',
-    color: 'rgba(74,160,175,0.8)',
-    textTransform: 'uppercase',
-    letterSpacing: '0.12em',
-    marginBottom: '3px',
-    display: 'block',
-  }
-  const inputStyle: React.CSSProperties = {
-    background: 'none',
-    border: 'none',
-    outline: 'none',
-    color: 'rgba(255,255,255,0.85)',
-    fontSize: '13px',
-    width: '100%',
-    fontFamily: 'inherit',
-    colorScheme: 'dark',
   }
 
   return (
@@ -93,7 +95,7 @@ export default function HeroSearch() {
           placeholder="Кол-во"
           value={guests}
           onChange={(e) => setGuests(e.target.value)}
-          style={{ ...inputStyle, '::placeholder': { color: 'rgba(255,255,255,0.2)' } } as React.CSSProperties}
+          style={inputStyle}
         />
       </div>
 

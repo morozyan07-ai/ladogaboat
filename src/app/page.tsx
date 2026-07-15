@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
 }
 
-const SEP: React.CSSProperties = { borderTop: '0.5px solid rgba(255,255,255,0.06)' }
+const SEP = { borderTop: '0.5px solid rgba(255,255,255,0.06)' }
 
 export default function HomePage() {
   return (
