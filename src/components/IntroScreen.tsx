@@ -11,7 +11,6 @@ export default function IntroScreen({ onDone }: { onDone: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rafRef = useRef(0)
 
-  // Prevent body scroll during intro
   useEffect(() => {
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -53,33 +52,24 @@ export default function IntroScreen({ onDone }: { onDone: () => void }) {
     const DURATION = 5200
     const start = performance.now()
 
-    // Match main page font size (22vw), cap to reasonable max
     const fontSize = Math.min(W * 0.22, 340)
-    // Scale needed to make letters cover entire viewport
     const maxScale = (H / (fontSize * 0.75)) * 1.9
 
     const render = (now: number) => {
       const prog = Math.min(1, (now - start) / DURATION)
-
-      // Ease in-out cubic — slow start, fast middle, smooth end
       const t = prog < 0.5
         ? 4 * prog * prog * prog
         : 1 - Math.pow(-2 * prog + 2, 3) / 2
 
       const scale = 0.004 + t * maxScale
-
-      // Fade canvas in last 30% so gradient fills everything cleanly
       const canvasAlpha = prog > 0.7 ? Math.max(0, 1 - (prog - 0.7) / 0.3) : 1
       canvas.style.opacity = String(canvasAlpha)
 
       const ctx = canvas.getContext('2d')!
-
-      // Reset to opaque dark background
       ctx.globalCompositeOperation = 'source-over'
       ctx.fillStyle = '#06080f'
       ctx.fillRect(0, 0, W, H)
 
-      // Punch transparent holes where letters are — gradient behind shines through
       ctx.save()
       ctx.translate(W / 2, H / 2)
       ctx.scale(scale, scale)
@@ -121,7 +111,6 @@ export default function IntroScreen({ onDone }: { onDone: () => void }) {
       opacity: screenOpacity,
       transition: screenOpacity < 1 ? 'opacity 1.1s ease-out' : undefined,
     }}>
-      {/* Gradient bg — visible through canvas holes during grow phase */}
       <div style={{
         position: 'absolute', inset: 0,
         background: showGrow
@@ -129,7 +118,6 @@ export default function IntroScreen({ onDone }: { onDone: () => void }) {
           : '#06080f',
       }} />
 
-      {/* Canvas overlay — dark mask with text cutouts */}
       {showGrow && (
         <canvas
           ref={canvasRef}
@@ -137,13 +125,11 @@ export default function IntroScreen({ onDone }: { onDone: () => void }) {
         />
       )}
 
-      {/* Fuel gauge + "Готовы? Поплыли!" */}
       {showFuelOrReady && (
         <div style={{
           position: 'absolute', inset: 0, display: 'flex',
           flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         }}>
-          {/* Gauge (fades out in ready phase) */}
           <div style={{
             opacity: phase === 'fuel' ? 1 : 0,
             transition: 'opacity 0.4s',
@@ -157,12 +143,14 @@ export default function IntroScreen({ onDone }: { onDone: () => void }) {
               textTransform: 'uppercase',
               fontWeight: 500,
               marginTop: 6,
+              width: 'min(320px, 80vw)',
+              textAlign: 'justify',
+              textAlignLast: 'justify',
             }}>
               Заправляем полный бак
             </p>
           </div>
 
-          {/* "Готовы? Поплыли!" */}
           <div style={{
             position: 'absolute',
             opacity: readyOpacity,
@@ -189,6 +177,26 @@ export default function IntroScreen({ onDone }: { onDone: () => void }) {
   )
 }
 
+// ── Fuel pump icon — stroke only, no fill ─────────
+function FuelPumpIcon() {
+  return (
+    <svg width="44" height="56" viewBox="0 0 22 28" fill="none"
+         stroke="rgba(255,255,255,0.6)" strokeWidth="1.3"
+         strokeLinecap="round" strokeLinejoin="round">
+      {/* Main body */}
+      <rect x="1" y="2" width="13" height="22" rx="1.5" />
+      {/* Display screen */}
+      <rect x="3" y="5" width="9" height="5.5" rx="1" />
+      {/* Hose — goes right and curves to nozzle */}
+      <path d="M14 8.5 L20 5.5 L20 16" />
+      {/* Nozzle */}
+      <path d="M20 14.5 L20 19 Q20 21.5 17.5 21.5" />
+      {/* Base */}
+      <line x1="0" y1="24" x2="14" y2="24" />
+    </svg>
+  )
+}
+
 // ── Fuel gauge component ───────────────────────────
 function FuelGauge({ pct }: { pct: number }) {
   const SEGS = 20
@@ -196,15 +204,18 @@ function FuelGauge({ pct }: { pct: number }) {
 
   return (
     <div style={{ width: 'min(320px, 80vw)', userSelect: 'none' }}>
-      {/* E / F / percent row */}
+      {/* E / pump icon+percent / F row */}
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 14,
       }}>
         <span style={{ color: 'rgba(255,255,255,0.28)', fontSize: 11, letterSpacing: '0.2em' }}>E</span>
-        <span style={{ color: '#c8965a', fontWeight: 600, fontSize: 11, letterSpacing: '0.12em' }}>
-          ⛽ {pct}%
-        </span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+          <FuelPumpIcon />
+          <span style={{ color: '#c8965a', fontWeight: 600, fontSize: 12, letterSpacing: '0.12em' }}>
+            {pct}%
+          </span>
+        </div>
         <span style={{ color: 'rgba(255,255,255,0.28)', fontSize: 11, letterSpacing: '0.2em' }}>F</span>
       </div>
 
