@@ -1,0 +1,49 @@
+'use client'
+
+import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import HeaderNav from '@/components/layout/HeaderNav'
+
+const LOGO_B64 = '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'
+
+export default function HeaderClient({ role }: { role: string | null }) {
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 60)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  return (
+    <header
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-white/90 backdrop-blur-md border-b border-slate-200/60 shadow-sm'
+          : 'bg-white/20 backdrop-blur-sm'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between py-1.5">
+          <Link href="/" className="flex items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`data:image/webp;base64,${LOGO_B64}`}
+              alt="Ladoga Boat"
+              style={{
+                height: '52px',
+                width: 'auto',
+                filter: scrolled
+                  ? 'none'
+                  : 'drop-shadow(0 1px 4px rgba(255,255,255,0.9)) drop-shadow(0 0 10px rgba(255,255,255,0.6))',
+                transition: 'filter 0.3s',
+              }}
+            />
+          </Link>
+          <HeaderNav role={role} scrolled={scrolled} />
+        </div>
+      </div>
+    </header>
+  )
+}
