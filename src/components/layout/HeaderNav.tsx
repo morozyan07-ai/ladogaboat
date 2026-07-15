@@ -26,18 +26,13 @@ export default function HeaderNav({ role }: Props) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const mobileLinkClass = 'block px-3 py-2 text-white/90 hover:text-white font-medium transition-colors'
+  const mobileLinkClass = 'nav-link-mobile'
 
   const navLinks = (
     <>
       {!isAuthPage && (
-        <Link href="/boats" onClick={() => setMenuOpen(false)} className={mobileLinkClass}>
-          Каталог катеров
-        </Link>
-      )}
-      {!isAuthPage && (
         <Link href="/ladoga" onClick={() => setMenuOpen(false)} className={mobileLinkClass}>
-          Ладога
+          Ладожское озеро
         </Link>
       )}
       {!isAuthPage && (
@@ -69,17 +64,12 @@ export default function HeaderNav({ role }: Props) {
       {/* Desktop nav */}
       <nav className="hidden md:flex items-center gap-6">
         {!isAuthPage && (
-          <Link href="/boats" className="text-white/90 hover:text-white font-medium transition-colors">
-            Каталог катеров
+          <Link href="/ladoga" className="nav-link-teal">
+            Ладожское озеро
           </Link>
         )}
         {!isAuthPage && (
-          <Link href="/ladoga" className="text-white/90 hover:text-white font-medium transition-colors">
-            Ладога
-          </Link>
-        )}
-        {!isAuthPage && (
-          <Link href="/about" className="text-white/90 hover:text-white font-medium transition-colors">
+          <Link href="/about" className="nav-link-teal">
             О нас
           </Link>
         )}

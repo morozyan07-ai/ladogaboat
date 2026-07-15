@@ -33,13 +33,14 @@ export default function HomePage() {
                 fontWeight: 900,
                 lineHeight: 0.88,
                 letterSpacing: '-0.04em',
-                backgroundImage: 'url(/hero/winter.jpg)',
-                backgroundSize: '130% auto',
-                backgroundPosition: 'center 40%',
+                backgroundImage: 'url(/hero/ladoga-summer.jpg)',
+                backgroundSize: '140% auto',
+                backgroundPosition: 'center 35%',
                 WebkitBackgroundClip: 'text',
                 backgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 color: 'transparent',
+                filter: 'brightness(1.15) saturate(1.2)',
               }}
             >
               ЛАДОГА
@@ -120,7 +121,7 @@ export default function HomePage() {
               <div key={n}>
                 <div
                   className="text-7xl font-black leading-none mb-5"
-                  style={{ color: 'rgba(200,150,90,0.12)', fontFamily: 'var(--font-display), sans-serif' }}
+                  style={{ color: 'rgba(200,150,90,0.7)', fontFamily: 'var(--font-display), sans-serif' }}
                 >
                   {n}
                 </div>
@@ -142,7 +143,7 @@ export default function HomePage() {
             className="text-3xl sm:text-4xl font-bold text-white mb-12 max-w-lg"
             style={{ fontFamily: 'var(--font-display), sans-serif' }}
           >
-            Крупнейшее озеро Европы — у вас за рулём
+            Крупнейшее озеро Европы — у вас за штурвалом
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
