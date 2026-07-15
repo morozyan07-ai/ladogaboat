@@ -1,33 +1,24 @@
 'use server'
 
-import { z } from 'zod'
 import { sendEmail } from '@/lib/email'
 import { CONTACTS } from '@/lib/contacts'
-
-const SupportSchema = z.object({
-  name: z.string().min(2, 'Введите ФИО').trim(),
-  email: z.email('Введите корректный email').trim(),
-  phone: z.string().min(5, 'Введите телефон').trim(),
-  subject: z.string().min(2, 'Укажите тему обращения').trim(),
-  message: z.string().min(10, 'Опишите проблему подробнее (минимум 10 символов)').trim(),
-})
 
 type FormState = { errors?: Record<string, string[]>; message?: string; success?: boolean } | undefined
 
 export async function submitSupportRequest(state: FormState, formData: FormData): Promise<FormState> {
-  const validated = SupportSchema.safeParse({
-    name: formData.get('name'),
-    email: formData.get('email'),
-    phone: formData.get('phone'),
-    subject: formData.get('subject'),
-    message: formData.get('message'),
-  })
+  const name = (formData.get('name') as string ?? '').trim()
+  const email = (formData.get('email') as string ?? '').trim().toLowerCase()
+  const phone = (formData.get('phone') as string ?? '').trim()
+  const subject = (formData.get('subject') as string ?? '').trim()
+  const message = (formData.get('message') as string ?? '').trim()
 
-  if (!validated.success) {
-    return { errors: validated.error.flatten().fieldErrors }
-  }
-
-  const { name, email, phone, subject, message } = validated.data
+  const errors: Record<string, string[]> = {}
+  if (name.length < 2) errors.name = ['Введите ФИО']
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = ['Введите корректный email']
+  if (phone.length < 5) errors.phone = ['Введите телефон']
+  if (subject.length < 2) errors.subject = ['Укажите тему обращения']
+  if (message.length < 10) errors.message = ['Опишите проблему подробнее (минимум 10 символов)']
+  if (Object.keys(errors).length) return { errors }
 
   const { ok } = await sendEmail({
     to: CONTACTS.supportEmail,

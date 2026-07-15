@@ -18,30 +18,10 @@
 
 body {
   font-family: var(--font-sans), system-ui, sans-serif;
-  background-color: #06080f;
-  color: #e2e8f0;
+  background-color: #f8fafc;
+  color: #1e293b;
 }
 
 h1, h2, h3, h4 {
   letter-spacing: -0.01em;
-}
-
-/* Nav teal links */
-.nav-link-teal {
-  color: #4aa0af;
-  font-weight: 500;
-  transition: color 0.15s;
-}
-.nav-link-teal:hover {
-  color: #ffffff;
-}
-.nav-link-mobile {
-  display: block;
-  padding: 0.5rem 0.75rem;
-  color: #4aa0af;
-  font-weight: 500;
-  transition: color 0.15s;
-}
-.nav-link-mobile:hover {
-  color: #ffffff;
 }

@@ -1,7 +1,6 @@
-
+export const dynamic = 'force-dynamic'
 import { NextRequest } from 'next/server'
-import { z } from 'zod'
-import prisma from '@/lib/prisma'
+import { sql } from '@/lib/db'
 import { getSession } from '@/lib/session'
 import { createPayment } from '@/lib/yookassa'
 import { sendEmail } from '@/lib/email'
@@ -15,40 +14,42 @@ function generateBookingCode(): string {
   return `LB-${part(4)}-${part(4)}`
 }
 
-const createSchema = z.object({
-  boatId: z.string(),
-  startDate: z.string(),
-  endDate: z.string(),
-  guestName: z.string().min(2).optional(),
-  guestPhone: z.string().min(7).optional(),
-  guestEmail: z.string().email().optional(),
-})
-
 export async function GET() {
   const session = await getSession()
   if (!session) return Response.json({ error: 'Не авторизован' }, { status: 401 })
 
-  const where = session.role === 'OWNER'
-    ? { boat: { ownerId: session.userId } }
-    : { guestId: session.userId }
+  let rows
+  if (session.role === 'OWNER') {
+    rows = await sql`
+      SELECT bk.*,
+        json_build_object('id', bo.id, 'title', bo.title, 'images', bo.images) as boat,
+        CASE WHEN g.id IS NOT NULL THEN json_build_object('id', g.id, 'name', g.name, 'email', g.email) ELSE NULL END as guest,
+        CASE WHEN r.id IS NOT NULL THEN row_to_json(r) ELSE NULL END as review
+      FROM "Booking" bk
+      JOIN "Boat" bo ON bo.id = bk."boatId"
+      LEFT JOIN "User" g ON g.id = bk."guestId"
+      LEFT JOIN "Review" r ON r."bookingId" = bk.id
+      WHERE bo."ownerId" = ${session.userId}
+      ORDER BY bk."createdAt" DESC`
+  } else {
+    rows = await sql`
+      SELECT bk.*,
+        json_build_object('id', bo.id, 'title', bo.title, 'images', bo.images) as boat,
+        CASE WHEN g.id IS NOT NULL THEN json_build_object('id', g.id, 'name', g.name, 'email', g.email) ELSE NULL END as guest,
+        CASE WHEN r.id IS NOT NULL THEN row_to_json(r) ELSE NULL END as review
+      FROM "Booking" bk
+      JOIN "Boat" bo ON bo.id = bk."boatId"
+      LEFT JOIN "User" g ON g.id = bk."guestId"
+      LEFT JOIN "Review" r ON r."bookingId" = bk.id
+      WHERE bk."guestId" = ${session.userId}
+      ORDER BY bk."createdAt" DESC`
+  }
 
-  const bookings = await prisma.booking.findMany({
-    where,
-    include: {
-      boat: { select: { id: true, title: true, images: true } },
-      guest: { select: { id: true, name: true, email: true } },
-      review: true,
-    },
-    orderBy: { createdAt: 'desc' },
-  })
-
-  return Response.json(
-    bookings.map((b: typeof bookings[number]) => ({
-      ...b,
-      totalPrice: Number(b.totalPrice),
-      commission: Number(b.commission),
-    }))
-  )
+  return Response.json(rows.map((b: Record<string, unknown>) => ({
+    ...b,
+    totalPrice: Number(b.totalPrice),
+    commission: Number(b.commission),
+  })))
 }
 
 export async function POST(req: NextRequest) {
@@ -58,11 +59,15 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: 'Судовладельцы не могут бронировать' }, { status: 403 })
   }
 
-  const body = await req.json()
-  const parsed = createSchema.safeParse(body)
-  if (!parsed.success) return Response.json({ error: 'Неверные данные' }, { status: 400 })
+  const body = await req.json() as Record<string, unknown>
+  const { boatId, startDate, endDate, guestName, guestPhone, guestEmail } = body as {
+    boatId?: string; startDate?: string; endDate?: string;
+    guestName?: string; guestPhone?: string; guestEmail?: string
+  }
 
-  const { boatId, startDate, endDate, guestName, guestPhone, guestEmail } = parsed.data
+  if (!boatId || !startDate || !endDate) {
+    return Response.json({ error: 'Неверные данные' }, { status: 400 })
+  }
 
   if (!session) {
     if (!guestName || !guestPhone || !guestEmail) {
@@ -74,49 +79,52 @@ export async function POST(req: NextRequest) {
   const end = new Date(endDate)
   if (start >= end) return Response.json({ error: 'Дата окончания должна быть позже начала' }, { status: 400 })
 
-  const boat = await prisma.boat.findUnique({
-    where: { id: boatId },
-    include: { owner: { select: { email: true, name: true } } },
-  })
-  if (!boat || boat.status !== 'ACTIVE') return Response.json({ error: 'Катер недоступен' }, { status: 404 })
+  const boatRows = await sql`
+    SELECT b.*, u.email as "ownerEmail", u.name as "ownerName"
+    FROM "Boat" b
+    LEFT JOIN "User" u ON u.id = b."ownerId"
+    WHERE b.id = ${boatId} LIMIT 1`
+  if (!boatRows.length || (boatRows[0] as Record<string, unknown>).status !== 'ACTIVE') {
+    return Response.json({ error: 'Катер недоступен' }, { status: 404 })
+  }
+  const boat = boatRows[0] as Record<string, unknown>
 
   const days = Math.ceil((end.getTime() - start.getTime()) / 86400000)
   const totalPrice = days * Number(boat.pricePerDay)
   const commission = Math.round(totalPrice * COMMISSION_RATE * 100) / 100
 
-  const conflict = await prisma.booking.findFirst({
-    where: {
-      boatId,
-      status: { in: ['PENDING', 'CONFIRMED'] },
-      AND: [{ startDate: { lt: end } }, { endDate: { gt: start } }],
-    },
-  })
-  if (conflict) return Response.json({ error: 'Катер занят на выбранные даты' }, { status: 409 })
+  const conflict = await sql`
+    SELECT id FROM "Booking"
+    WHERE "boatId" = ${boatId}
+      AND status IN ('PENDING', 'CONFIRMED')
+      AND "startDate" < ${end.toISOString()}::date
+      AND "endDate" > ${start.toISOString()}::date
+    LIMIT 1`
+  if (conflict.length > 0) return Response.json({ error: 'Катер занят на выбранные даты' }, { status: 409 })
 
   let bookingCode = generateBookingCode()
   for (let i = 0; i < 4; i++) {
-    const existing = await prisma.booking.findUnique({ where: { bookingCode } })
-    if (!existing) break
+    const ex = await sql`SELECT id FROM "Booking" WHERE "bookingCode" = ${bookingCode} LIMIT 1`
+    if (!ex.length) break
     bookingCode = generateBookingCode()
   }
 
   const startFmt = start.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
   const endFmt = end.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
 
-  const booking = await prisma.booking.create({
-    data: {
-      boatId,
-      guestId: session?.userId ?? undefined,
-      guestName: !session ? (guestName ?? null) : null,
-      guestPhone: !session ? (guestPhone ?? null) : null,
-      guestEmail: !session ? (guestEmail ?? null) : null,
-      bookingCode,
-      startDate: start,
-      endDate: end,
-      totalPrice,
-      commission,
-    },
-  })
+  const bookingId = crypto.randomUUID()
+  const bookingRows = await sql`
+    INSERT INTO "Booking" (
+      id, "boatId", "guestId", "guestName", "guestPhone", "guestEmail",
+      "bookingCode", "startDate", "endDate", "totalPrice", commission, status, "createdAt", "updatedAt"
+    ) VALUES (
+      ${bookingId}, ${boatId},
+      ${session?.userId ?? null}, ${!session ? (guestName ?? null) : null},
+      ${!session ? (guestPhone ?? null) : null}, ${!session ? (guestEmail ?? null) : null},
+      ${bookingCode}, ${start.toISOString()}::date, ${end.toISOString()}::date,
+      ${totalPrice}, ${commission}, 'PENDING', NOW(), NOW()
+    ) RETURNING *`
+  const booking = bookingRows[0] as Record<string, unknown>
 
   const returnUrl = session
     ? `${SITE_URL}/dashboard/guest?payment=done&booking=${booking.id}`
@@ -127,15 +135,12 @@ export async function POST(req: NextRequest) {
     const payment = await createPayment({
       amountRub: totalPrice,
       description: `Аренда: ${boat.title} (${days} дн.)`,
-      bookingId: booking.id,
+      bookingId: booking.id as string,
       returnUrl,
     })
     paymentUrl = payment.confirmation?.confirmation_url ?? null
     if (payment.id) {
-      await prisma.booking.update({
-        where: { id: booking.id },
-        data: { yookassaPaymentId: payment.id },
-      })
+      await sql`UPDATE "Booking" SET "yookassaPaymentId" = ${payment.id} WHERE id = ${booking.id as string}`
     }
   } catch (err) {
     console.error('YooKassa payment error:', err)
@@ -144,9 +149,11 @@ export async function POST(req: NextRequest) {
   let emailTo: string | null = null
   let emailName = 'Гость'
   if (session) {
-    const user = await prisma.user.findUnique({ where: { id: session.userId }, select: { email: true, name: true } })
-    emailTo = user?.email ?? null
-    emailName = user?.name ?? 'Гость'
+    const userRows = await sql`SELECT email, name FROM "User" WHERE id = ${session.userId} LIMIT 1`
+    if (userRows.length) {
+      emailTo = (userRows[0] as Record<string, unknown>).email as string
+      emailName = (userRows[0] as Record<string, unknown>).name as string
+    }
   } else {
     emailTo = guestEmail ?? null
     emailName = guestName ?? 'Гость'
@@ -157,56 +164,42 @@ export async function POST(req: NextRequest) {
       to: emailTo,
       subject: `Бронирование ${bookingCode} — ${boat.title}`,
       text: [
-        `Здравствуйте, ${emailName}!`,
-        '',
+        `Здравствуйте, ${emailName}!`, '',
         'Ваше бронирование принято.',
-        `Код бронирования: ${bookingCode}`,
-        '',
+        `Код бронирования: ${bookingCode}`, '',
         `Катер: ${boat.title}`,
         `Даты: ${startFmt} — ${endFmt} (${days} дн.)`,
-        `Сумма: ${totalPrice.toLocaleString('ru-RU')} ₽`,
-        '',
+        `Сумма: ${totalPrice.toLocaleString('ru-RU')} ₽`, '',
         paymentUrl
           ? `Для подтверждения оплатите бронирование:\n${paymentUrl}`
           : 'Менеджер свяжется с вами для уточнения деталей оплаты.',
-        '',
-        'Вопросы: support@ladogaboat.ru',
-        '',
-        'Ladoga Boat',
+        '', 'Вопросы: support@ladogaboat.ru', '', 'Ladoga Boat',
       ].join('\n'),
     })
   }
 
-  if (boat.owner?.email) {
+  if (boat.ownerEmail) {
     const contactInfo = session
       ? `Гость: ${emailName}`
       : `Гость: ${guestName}\nТелефон: ${guestPhone}\nEmail: ${guestEmail}`
-
     await sendEmail({
-      to: boat.owner.email,
+      to: boat.ownerEmail as string,
       subject: `Новое бронирование — ${boat.title} (${startFmt})`,
       text: [
-        `Новое бронирование на ваш катер "${boat.title}".`,
-        '',
+        `Новое бронирование на ваш катер "${boat.title}".`, '',
         `Код: ${bookingCode}`,
         `Даты: ${startFmt} — ${endFmt} (${days} дн.)`,
-        `К получению: ${(totalPrice - commission).toLocaleString('ru-RU')} ₽`,
-        '',
-        contactInfo,
-        '',
-        `ЛК: ${SITE_URL}/dashboard/owner`,
+        `К получению: ${(totalPrice - commission).toLocaleString('ru-RU')} ₽`, '',
+        contactInfo, '', `ЛК: ${SITE_URL}/dashboard/owner`,
       ].join('\n'),
     })
   }
 
-  return Response.json(
-    {
-      ...booking,
-      totalPrice: Number(booking.totalPrice),
-      commission: Number(booking.commission),
-      paymentUrl,
-      bookingCode,
-    },
-    { status: 201 }
-  )
+  return Response.json({
+    ...booking,
+    totalPrice: Number(booking.totalPrice),
+    commission: Number(booking.commission),
+    paymentUrl,
+    bookingCode,
+  }, { status: 201 })
 }

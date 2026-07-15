@@ -1,31 +1,20 @@
 'use server'
 
-import { z } from 'zod'
 import { sendEmail } from '@/lib/email'
 import { CONTACTS } from '@/lib/contacts'
-
-const ServiceCenterLeadSchema = z.object({
-  name: z.string().min(2, 'Введите имя').trim(),
-  phone: z.string().min(5, 'Введите телефон').trim(),
-  email: z.string().trim().optional(),
-  message: z.string().trim().optional(),
-})
 
 type FormState = { errors?: Record<string, string[]>; message?: string; success?: boolean } | undefined
 
 export async function submitServiceCenterLead(state: FormState, formData: FormData): Promise<FormState> {
-  const validated = ServiceCenterLeadSchema.safeParse({
-    name: formData.get('name'),
-    phone: formData.get('phone'),
-    email: formData.get('email') || undefined,
-    message: formData.get('message') || undefined,
-  })
+  const name = (formData.get('name') as string ?? '').trim()
+  const phone = (formData.get('phone') as string ?? '').trim()
+  const email = (formData.get('email') as string ?? '').trim() || undefined
+  const message = (formData.get('message') as string ?? '').trim() || undefined
 
-  if (!validated.success) {
-    return { errors: validated.error.flatten().fieldErrors }
-  }
-
-  const { name, phone, email, message } = validated.data
+  const errors: Record<string, string[]> = {}
+  if (name.length < 2) errors.name = ['Введите имя']
+  if (phone.length < 5) errors.phone = ['Введите телефон']
+  if (Object.keys(errors).length) return { errors }
 
   const { ok } = await sendEmail({
     to: CONTACTS.supportEmail,

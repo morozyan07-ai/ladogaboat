@@ -1,10 +1,8 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-// randomBytes replaced with Web Crypto API for Edge Runtime compatibility
 import { hash } from 'bcrypt-ts/browser'
-import { z } from 'zod'
-import prisma from '@/lib/prisma'
+import { sql } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
 
 const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.ladogaboat.ru'
@@ -12,33 +10,26 @@ const TOKEN_TTL_MS = 60 * 60 * 1000 // 1 час
 
 type FormState = { errors?: Record<string, string[]>; message?: string; ok?: boolean } | undefined
 
-// ─── Шаг 1: запросить сброс ────────────────────────────────────────────────
-
-const ForgotSchema = z.object({
-  email: z.email('Введите корректный email').trim(),
-})
-
 export async function requestPasswordReset(state: FormState, formData: FormData): Promise<FormState> {
-  const validated = ForgotSchema.safeParse({ email: formData.get('email') })
-  if (!validated.success) {
-    return { errors: validated.error.flatten().fieldErrors }
+  const email = (formData.get('email') as string ?? '').trim().toLowerCase()
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { errors: { email: ['Введите корректный email'] } }
   }
 
-  const { email } = validated.data
+  const rows = await sql`SELECT id, name FROM "User" WHERE email = ${email} LIMIT 1`
+  const user = rows[0] as { id: string; name: string } | undefined
 
-  // Намеренно не раскрываем, есть ли такой email (защита от перебора)
-  const user = await prisma.user.findUnique({ where: { email } })
   if (user) {
-    // Инвалидируем старые токены этого пользователя
-    await prisma.passwordResetToken.deleteMany({ where: { userId: user.id } })
+    await sql`DELETE FROM "PasswordResetToken" WHERE "userId" = ${user.id}`
 
     const bytes = crypto.getRandomValues(new Uint8Array(32))
     const token = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
     const expiresAt = new Date(Date.now() + TOKEN_TTL_MS)
+    const id = crypto.randomUUID()
 
-    await prisma.passwordResetToken.create({
-      data: { userId: user.id, token, expiresAt },
-    })
+    await sql`
+      INSERT INTO "PasswordResetToken" (id, "userId", token, "expiresAt", "createdAt")
+      VALUES (${id}, ${user.id}, ${token}, ${expiresAt.toISOString()}, NOW())`
 
     const resetUrl = `${SITE_URL}/auth/reset?token=${token}`
 
@@ -50,7 +41,7 @@ export async function requestPasswordReset(state: FormState, formData: FormData)
         '',
         'Мы получили запрос на сброс пароля вашего аккаунта на Ladoga Boat.',
         '',
-        `Перейдите по ссылке для создания нового пароля:`,
+        'Перейдите по ссылке для создания нового пароля:',
         resetUrl,
         '',
         'Ссылка действует 1 час. Если вы не запрашивали сброс — просто проигнорируйте это письмо.',
@@ -66,41 +57,28 @@ export async function requestPasswordReset(state: FormState, formData: FormData)
   }
 }
 
-// ─── Шаг 2: установить новый пароль ───────────────────────────────────────
-
-const ResetSchema = z.object({
-  token: z.string().min(1),
-  password: z.string().min(6, 'Пароль должен содержать минимум 6 символов'),
-  passwordConfirm: z.string(),
-}).refine((d) => d.password === d.passwordConfirm, {
-  message: 'Пароли не совпадают',
-  path: ['passwordConfirm'],
-})
-
 export async function resetPassword(state: FormState, formData: FormData): Promise<FormState> {
-  const validated = ResetSchema.safeParse({
-    token: formData.get('token'),
-    password: formData.get('password'),
-    passwordConfirm: formData.get('passwordConfirm'),
-  })
-  if (!validated.success) {
-    return { errors: validated.error.flatten().fieldErrors }
-  }
+  const token = formData.get('token') as string ?? ''
+  const password = formData.get('password') as string ?? ''
+  const passwordConfirm = formData.get('passwordConfirm') as string ?? ''
 
-  const { token, password } = validated.data
+  const errors: Record<string, string[]> = {}
+  if (!token) errors.token = ['Токен отсутствует']
+  if (password.length < 6) errors.password = ['Пароль должен содержать минимум 6 символов']
+  if (password !== passwordConfirm) errors.passwordConfirm = ['Пароли не совпадают']
+  if (Object.keys(errors).length) return { errors }
 
-  const record = await prisma.passwordResetToken.findUnique({ where: { token } })
+  const rows = await sql`SELECT id, "userId", "usedAt", "expiresAt" FROM "PasswordResetToken" WHERE token = ${token} LIMIT 1`
+  const record = rows[0] as { id: string; userId: string; usedAt: string | null; expiresAt: string } | undefined
 
-  if (!record || record.usedAt || record.expiresAt < new Date()) {
+  if (!record || record.usedAt || new Date(record.expiresAt) < new Date()) {
     return { message: 'Ссылка недействительна или устарела. Запросите новую.' }
   }
 
   const passwordHash = await hash(password, 10)
 
-  await prisma.$transaction(async (tx) => {
-    await tx.user.update({ where: { id: record.userId }, data: { passwordHash } })
-    await tx.passwordResetToken.update({ where: { id: record.id }, data: { usedAt: new Date() } })
-  })
+  await sql`UPDATE "User" SET "passwordHash" = ${passwordHash}, "updatedAt" = NOW() WHERE id = ${record.userId}`
+  await sql`UPDATE "PasswordResetToken" SET "usedAt" = NOW() WHERE id = ${record.id}`
 
   redirect('/auth/login?reset=done')
 }

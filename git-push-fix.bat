@@ -7,6 +7,7 @@ echo.
 echo Removing stale git lock files...
 if exist ".git\HEAD.lock" del /f ".git\HEAD.lock" && echo  HEAD.lock removed
 if exist ".git\index.lock" del /f ".git\index.lock" && echo  index.lock removed
+if exist ".git\refs\heads\main.lock" del /f ".git\refs\heads\main.lock" && echo  refs/heads/main.lock removed
 if exist ".git\objects\maintenance.lock" del /f ".git\objects\maintenance.lock" && echo  maintenance.lock removed
 echo.
 

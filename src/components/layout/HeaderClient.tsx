@@ -21,9 +21,8 @@ export default function HeaderClient({ role }: { role: string | null }) {
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled
           ? 'bg-slate-900/95 backdrop-blur-md border-b border-slate-800/50'
-          : 'backdrop-blur-sm'
+          : 'bg-black/15 backdrop-blur-sm'
       }`}
-      style={scrolled ? undefined : { background: 'rgba(0,0,0,0.07)' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-1.5">

@@ -1,6 +1,36 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { decrypt } from '@/lib/session'
+import { jwtVerify } from 'jose'
+
+type SessionPayload = {
+  userId: string
+  role: string
+  name: string
+  email: string
+  expiresAt: Date
+}
+
+let _key: Uint8Array | undefined
+function getKey(): Uint8Array {
+  if (!_key) {
+    const secret = process.env.SESSION_SECRET
+    if (!secret) {
+      _key = crypto.getRandomValues(new Uint8Array(32))
+    } else {
+      _key = new TextEncoder().encode(secret)
+    }
+  }
+  return _key
+}
+
+async function decrypt(token: string | undefined = ''): Promise<SessionPayload | null> {
+  try {
+    const { payload } = await jwtVerify(token, getKey(), { algorithms: ['HS256'] })
+    return payload as unknown as SessionPayload
+  } catch {
+    return null
+  }
+}
 
 const protectedRoutes = ['/dashboard']
 const ownerRoutes = ['/dashboard/owner']
@@ -11,7 +41,6 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get('session')?.value
   const session = await decrypt(token)
 
-  // Auth routing
   const isProtected = protectedRoutes.some((r) => path.startsWith(r))
   if (isProtected && !session?.userId) {
     return NextResponse.redirect(new URL('/auth/login', req.nextUrl))
@@ -26,8 +55,6 @@ export async function middleware(req: NextRequest) {
   }
 
   const response = NextResponse.next()
-
-  // Security headers
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-XSS-Protection', '1; mode=block')

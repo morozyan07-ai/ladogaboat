@@ -10,19 +10,39 @@ export type SessionPayload = {
   expiresAt: Date
 }
 
-const key = new TextEncoder().encode(process.env.SESSION_SECRET)
+/**
+ * Lazy-инициализация ключа.
+ * КРИТИЧНО для Cloudflare Workers: process.env.SESSION_SECRET не доступен
+ * на уровне модуля. TextEncoder.encode(undefined) даёт пустой Uint8Array,
+ * и crypto.subtle.importKey() с пустым ключом зависает в Edge Runtime.
+ * Null-guard: если SESSION_SECRET не задан — случайный ключ (сессии не
+ * переживут рестарт воркера, но сайт не зависнет).
+ */
+let _key: Uint8Array | undefined
+
+function getKey(): Uint8Array {
+  if (!_key) {
+    const secret = process.env.SESSION_SECRET
+    if (!secret) {
+      _key = crypto.getRandomValues(new Uint8Array(32))
+    } else {
+      _key = new TextEncoder().encode(secret)
+    }
+  }
+  return _key
+}
 
 export async function encrypt(payload: SessionPayload) {
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
-    .sign(key)
+    .sign(getKey())
 }
 
 export async function decrypt(token: string | undefined = '') {
   try {
-    const { payload } = await jwtVerify(token, key, { algorithms: ['HS256'] })
+    const { payload } = await jwtVerify(token, getKey(), { algorithms: ['HS256'] })
     return payload as unknown as SessionPayload
   } catch {
     return null

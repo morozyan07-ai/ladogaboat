@@ -1,10 +1,6 @@
-
-// Webhook от ЮKassa — вызывается при изменении статуса платежа.
-// Настройте URL в ЮKassa → Интеграция → HTTP-уведомления:
-//   https://www.ladogaboat.ru/api/payments/webhook
-
+export const dynamic = 'force-dynamic'
 import { NextRequest } from 'next/server'
-import prisma from '@/lib/prisma'
+import { sql } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
 
 const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.ladogaboat.ru'
@@ -12,79 +8,64 @@ const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.ladogaboat.ru'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
+    if (body.event !== 'payment.succeeded') return Response.json({ ok: true })
 
-    if (body.event !== 'payment.succeeded') {
-      return Response.json({ ok: true })
-    }
-
-    const payment = body.object as {
-      id: string
-      status: string
-      metadata?: { bookingId?: string }
-    }
-
+    const payment = body.object as { id: string; status: string; metadata?: { bookingId?: string } }
     const bookingId = payment?.metadata?.bookingId
     if (!bookingId) {
       console.error('Webhook: no bookingId in metadata', body)
       return Response.json({ error: 'no bookingId' }, { status: 400 })
     }
 
-    const booking = await prisma.booking.findUnique({
-      where: { id: bookingId },
-      include: {
-        boat: { select: { title: true, location: true } },
-        guest: { select: { name: true, email: true } },
-      },
-    })
-    if (!booking) {
+    const rows = await sql`
+      SELECT bk.*,
+        bo.title as "boatTitle", bo.location as "boatLocation",
+        g.name as "guestName2", g.email as "guestEmail2"
+      FROM "Booking" bk
+      JOIN "Boat" bo ON bo.id = bk."boatId"
+      LEFT JOIN "User" g ON g.id = bk."guestId"
+      WHERE bk.id = ${bookingId} LIMIT 1`
+    if (!rows.length) {
       console.error('Webhook: booking not found', bookingId)
       return Response.json({ error: 'booking not found' }, { status: 404 })
     }
+    const booking = rows[0] as Record<string, unknown>
 
-    if (booking.status === 'CONFIRMED') {
-      return Response.json({ ok: true })
-    }
+    if (booking.status === 'CONFIRMED') return Response.json({ ok: true })
 
-    await prisma.booking.update({
-      where: { id: bookingId },
-      data: {
-        status: 'CONFIRMED',
-        yookassaPaymentId: payment.id,
-        paidAt: new Date(),
-      },
-    })
+    await sql`
+      UPDATE "Booking" SET
+        status = 'CONFIRMED'::"BookingStatus",
+        "yookassaPaymentId" = ${payment.id},
+        "paidAt" = NOW(),
+        "updatedAt" = NOW()
+      WHERE id = ${bookingId}`
 
     console.log(`Booking ${bookingId} confirmed via YooKassa payment ${payment.id}`)
 
-    const guestEmail = booking.guest?.email ?? booking.guestEmail
-    const guestName = booking.guest?.name ?? booking.guestName ?? 'Гость'
+    const guestEmail = (booking.guestEmail2 ?? booking.guestEmail) as string | null
+    const guestName = ((booking.guestName2 ?? booking.guestName ?? 'Гость') as string)
 
     if (guestEmail) {
-      const startFmt = new Date(booking.startDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
-      const endFmt = new Date(booking.endDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+      const startFmt = new Date(booking.startDate as string).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+      const endFmt = new Date(booking.endDate as string).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
       const confirmUrl = booking.bookingCode
         ? `${SITE_URL}/booking/confirm?code=${booking.bookingCode}`
         : `${SITE_URL}/dashboard/guest`
 
       await sendEmail({
         to: guestEmail,
-        subject: `Оплата подтверждена — ${booking.boat.title} (${startFmt})`,
+        subject: `Оплата подтверждена — ${booking.boatTitle} (${startFmt})`,
         text: [
-          `Здравствуйте, ${guestName}!`,
-          '',
-          'Оплата прошла успешно. Бронирование подтверждено.',
-          '',
+          `Здравствуйте, ${guestName}!`, '',
+          'Оплата прошла успешно. Бронирование подтверждено.', '',
           `Код бронирования: ${booking.bookingCode ?? bookingId}`,
-          `Катер: ${booking.boat.title}`,
-          `Место: ${booking.boat.location}`,
+          `Катер: ${booking.boatTitle}`,
+          `Место: ${booking.boatLocation}`,
           `Даты: ${startFmt} — ${endFmt}`,
-          `Сумма: ${Number(booking.totalPrice).toLocaleString('ru-RU')} ₽`,
-          '',
-          `Детали: ${confirmUrl}`,
-          '',
-          'Ждём вас на Ладоге! Вопросы: support@ladogaboat.ru',
-          '',
-          'Ladoga Boat',
+          `Сумма: ${Number(booking.totalPrice).toLocaleString('ru-RU')} ₽`, '',
+          `Детали: ${confirmUrl}`, '',
+          'Ждём вас на Ладоге! Вопросы: support@ladogaboat.ru', '', 'Ladoga Boat',
         ].join('\n'),
       })
     }
