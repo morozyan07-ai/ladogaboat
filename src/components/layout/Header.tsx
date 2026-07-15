@@ -12,7 +12,7 @@ export default async function Header() {
           <Link href="/" className="flex items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo.svg"
+              src="/logo-original.png"
               alt="Ladoga Boat"
               style={{ height: "48px", width: "auto" }}
             />

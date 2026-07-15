@@ -13,13 +13,8 @@ export default function LadogaPage() {
     <div className="bg-white">
       {/* Hero */}
       <section className="relative h-[55vh] min-h-[380px] flex items-end overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/hero/ladoga-summer.jpg"
-          alt="Ладожские шхеры — скалистые острова Карелии"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-950 via-blue-900 to-teal-900" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
         <div className="relative z-10 max-w-4xl mx-auto px-6 pb-12 w-full">
           <p className="text-teal-300 text-sm font-semibold uppercase tracking-widest mb-3">
             Карелия · Ленинградская область
