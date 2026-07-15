@@ -38,13 +38,20 @@ export default function HomePage() {
           {/* Текст-маска */}
           <div className="flex-1 flex flex-col justify-center">
             <h1
-              className="select-none ladoga-text-mask"
+              className="select-none"
               style={{
                 fontFamily: 'var(--font-display), Arial Black, sans-serif',
                 fontSize: 'clamp(80px, 22vw, 300px)',
                 fontWeight: 900,
                 lineHeight: 0.88,
                 letterSpacing: '-0.04em',
+                backgroundImage: "url('/hero/ladoga-summer.jpg'), linear-gradient(150deg, #d4b87a 0%, #6ab8cc 45%, #4a9eb8 70%, #c8a060 100%)",
+                backgroundSize: '140% auto, cover',
+                backgroundPosition: 'center 30%, center',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent',
               }}
             >
               ЛАДОГА
@@ -72,22 +79,6 @@ export default function HomePage() {
               <span>★★★★★ Проверенные капитаны</span>
               <span>· Оплата онлайн</span>
               <span>· Мгновенное подтверждение</span>
-            </div>
-            <div className="flex gap-3 mt-6">
-              <Link
-                href="/boats"
-                className="inline-flex items-center gap-2 font-bold px-6 py-3 rounded-xl text-sm transition-colors"
-                style={{ background: '#c8965a', color: '#06080f', fontFamily: 'var(--font-sans)' }}
-              >
-                ЗАБРОНИРОВАТЬ
-              </Link>
-              <Link
-                href="/boats"
-                className="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-xl text-sm transition-colors"
-                style={{ border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-sans)' }}
-              >
-                Каталог →
-              </Link>
             </div>
           </div>
         </div>
