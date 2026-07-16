@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import webpack from "webpack";
 
 const nextConfig: NextConfig = {
   typescript: {
@@ -9,13 +8,13 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   webpack(config, { isServer }) {
-    // Только клиентский бандл: добавляем баннер-комментарий в каждый чанк.
-    // Это меняет content-hash → новые имена файлов → CF загружает свежие копии
-    // вместо corrupt-версий из assets store. Серверный бандл не трогаем.
     if (!isServer) {
-      config.plugins.push(
-        new webpack.BannerPlugin({ banner: "/* ladogaboat-v2 */", raw: true, entryOnly: false })
-      );
+      // hashSalt меняет contenthash ВСЕХ клиентских чанков.
+      // isServer=false → ТОЛЬКО клиентский бандл.
+      // Edge Runtime (middleware) имеет isServer=true → не затрагивается.
+      // Это форсирует свежую загрузку всех чанков в CF assets store,
+      // минуя deduplication-кэш wrangler для старых corrupt файлов.
+      config.output.hashSalt = "ladoga-v3";
     }
     return config;
   },
