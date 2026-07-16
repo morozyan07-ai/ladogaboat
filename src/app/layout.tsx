@@ -1,10 +1,14 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import Header from '@/components/layout/Header'
+import dynamic from 'next/dynamic'
 import Footer from '@/components/layout/Footer'
-import CookieBanner from '@/components/CookieBanner'
 import { CONTACTS } from '@/lib/contacts'
 import { SEO_KEYWORDS, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/seo'
+
+// Dynamic imports изолируют ChunkLoadError — если чанк Header/CookieBanner
+// не загрузится из CF, React не крашит весь дерево → анимация работает
+const Header = dynamic(() => import('@/components/layout/Header'))
+const CookieBanner = dynamic(() => import('@/components/CookieBanner'), { ssr: false })
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -66,3 +70,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   )
 }
+
