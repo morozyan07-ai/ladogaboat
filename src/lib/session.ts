@@ -68,7 +68,18 @@ export async function deleteSession() {
 }
 
 export async function getSession(): Promise<SessionPayload | null> {
-  const cookieStore = await cookies()
-  const token = cookieStore.get('session')?.value
-  return decrypt(token)
+  try {
+    // Timeout guard: cookies() может зависнуть в CF Workers Edge Runtime.
+    // Если не резолвится за 1.5 сек — возвращаем null (не авторизован).
+    const cookieStore = await Promise.race([
+      cookies(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('cookies() timeout in CF Workers')), 1500)
+      ),
+    ])
+    const token = cookieStore.get('session')?.value
+    return decrypt(token)
+  } catch {
+    return null
+  }
 }
