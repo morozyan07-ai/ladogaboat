@@ -1,15 +1,9 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import dynamic from 'next/dynamic'
+import ClientShell from '@/components/ClientShell'
 import Footer from '@/components/layout/Footer'
 import { CONTACTS } from '@/lib/contacts'
 import { SEO_KEYWORDS, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/seo'
-
-// Dynamic imports изолируют ChunkLoadError — если чанк Header/CookieBanner
-// не загрузится из CF, React не крашит весь дерево → анимация работает
-// CookieBanner SSR-safe: initial state=false, localStorage только в useEffect
-const Header = dynamic(() => import('@/components/layout/Header'))
-const CookieBanner = dynamic(() => import('@/components/CookieBanner'))
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -63,10 +57,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen flex flex-col">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-        <Header />
-        <main className="flex-1">{children}</main>
+        <ClientShell>{children}</ClientShell>
         <Footer />
-        <CookieBanner />
       </body>
     </html>
   )
