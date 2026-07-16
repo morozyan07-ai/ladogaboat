@@ -7,8 +7,9 @@ import { SEO_KEYWORDS, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from 
 
 // Dynamic imports изолируют ChunkLoadError — если чанк Header/CookieBanner
 // не загрузится из CF, React не крашит весь дерево → анимация работает
+// CookieBanner SSR-safe: initial state=false, localStorage только в useEffect
 const Header = dynamic(() => import('@/components/layout/Header'))
-const CookieBanner = dynamic(() => import('@/components/CookieBanner'), { ssr: false })
+const CookieBanner = dynamic(() => import('@/components/CookieBanner'))
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -70,4 +71,3 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   )
 }
-
