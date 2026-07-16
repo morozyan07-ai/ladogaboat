@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import webpack from "webpack";
 
 const nextConfig: NextConfig = {
   typescript: {
@@ -7,10 +8,15 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  webpack(config) {
-    // Принудительно меняем hashSalt — все чанки получают новые имена.
-    // Нужно чтобы CF Worker Assets Store загрузил свежие файлы вместо corrupt-версий.
-    config.output.hashSalt = "v2";
+  webpack(config, { isServer }) {
+    // Только клиентский бандл: добавляем баннер-комментарий в каждый чанк.
+    // Это меняет content-hash → новые имена файлов → CF загружает свежие копии
+    // вместо corrupt-версий из assets store. Серверный бандл не трогаем.
+    if (!isServer) {
+      config.plugins.push(
+        new webpack.BannerPlugin({ banner: "/* ladogaboat-v2 */", raw: true, entryOnly: false })
+      );
+    }
     return config;
   },
 };
