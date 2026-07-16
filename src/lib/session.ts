@@ -12,11 +12,8 @@ export type SessionPayload = {
 
 /**
  * Lazy-инициализация ключа.
- * КРИТИЧНО для Cloudflare Workers: process.env.SESSION_SECRET не доступен
- * на уровне модуля. TextEncoder.encode(undefined) даёт пустой Uint8Array,
- * и crypto.subtle.importKey() с пустым ключом зависает в Edge Runtime.
- * Null-guard: если SESSION_SECRET не задан — случайный ключ (сессии не
- * переживут рестарт воркера, но сайт не зависнет).
+ * КРИТИЧНО для CF Workers: crypto.subtle.importKey() с пустым ключом зависает.
+ * Null-guard: если SESSION_SECRET не задан — случайный ключ.
  */
 let _key: Uint8Array | undefined
 
@@ -67,19 +64,25 @@ export async function deleteSession() {
   cookieStore.delete('session')
 }
 
-export async function getSession(): Promise<SessionPayload | null> {
+async function _getSessionImpl(): Promise<SessionPayload | null> {
   try {
-    // Timeout guard: cookies() может зависнуть в CF Workers Edge Runtime.
-    // Если не резолвится за 1.5 сек — возвращаем null (не авторизован).
-    const cookieStore = await Promise.race([
-      cookies(),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('cookies() timeout in CF Workers')), 1500)
-      ),
-    ])
+    const cookieStore = await cookies()
     const token = cookieStore.get('session')?.value
     return decrypt(token)
   } catch {
     return null
   }
+}
+
+/**
+ * getSession — обёртка с таймаутом 1.5s.
+ * КРИТИЧНО: cookies() и crypto.subtle.importKey() могут зависать в CF Workers
+ * Edge Runtime (SSR). Promise.race гарантирует возврат null через 1.5s вместо
+ * бесконечного ожидания, которое убивает SSR-стрим и даёт 503.
+ */
+export async function getSession(): Promise<SessionPayload | null> {
+  return Promise.race([
+    _getSessionImpl(),
+    new Promise<null>(resolve => setTimeout(() => resolve(null), 1500)),
+  ])
 }
