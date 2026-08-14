@@ -77,6 +77,7 @@ model Boat {
   description  String
   capacity     Int
   pricePerDay  Decimal        @db.Decimal(10, 2)
+  priceUnit   String         @default("SUTKI")
   location     String
   routes       String[]
   images       String[]
