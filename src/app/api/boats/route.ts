@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { title, description, capacity, pricePerDay, location, routes = [], images = [] } = body as Record<string, unknown>
+  const { title, description, capacity, pricePerDay, priceUnit = 'SUTKI', location, routes = [], images = [] } = body as Record<string, unknown>
 
   if (!title || String(title).length < 3) return Response.json({ error: 'Неверные данные', details: { title: ['Минимум 3 символа'] } }, { status: 400 })
   if (!description || String(description).length < 10) return Response.json({ error: 'Неверные данные', details: { description: ['Минимум 10 символов'] } }, { status: 400 })
@@ -79,8 +79,8 @@ export async function POST(req: NextRequest) {
 
   const id = crypto.randomUUID()
   const rows = await sql`
-    INSERT INTO "Boat" (id, "ownerId", title, description, capacity, "pricePerDay", location, routes, images, status, "createdAt", "updatedAt")
-    VALUES (${id}, ${session.userId}, ${String(title)}, ${String(description)}, ${Number(capacity)}, ${Number(pricePerDay)}, ${String(location)}, ${routes as string[]}, ${images as string[]}, 'ACTIVE', NOW(), NOW())
+    INSERT INTO "Boat" (id, "ownerId", title, description, capacity, "pricePerDay", "priceUnit", location, routes, images, status, "createdAt", "updatedAt")
+    VALUES (${id}, ${session.userId}, ${String(title)}, ${String(description)}, ${Number(capacity)}, ${Number(pricePerDay)}, ${String(priceUnit as string)}, ${String(location)}, ${routes as string[]}, ${images as string[]}, 'ACTIVE', NOW(), NOW())
     RETURNING *`
 
   const boat = rows[0] as Record<string, unknown>
