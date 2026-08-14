@@ -97,7 +97,7 @@ export default function HomePage() {
             Почему Ладога
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-12 max-w-lg">
-            Крупнейшее озеро Европы — у вас за рулём
+            Крупнейшее озеро Европы — красота и величие
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
