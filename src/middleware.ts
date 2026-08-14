@@ -64,6 +64,18 @@ export async function middleware(req: NextRequest) {
     response.headers.set('X-Robots-Tag', 'noindex, nofollow')
   }
 
+  if (session?.role) {
+    response.cookies.set('user-role', session.role, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60,
+    })
+  } else {
+    response.cookies.set('user-role', '', { maxAge: 0, path: '/' })
+  }
+
   return response
 }
 
