@@ -8,25 +8,20 @@ export const metadata: Metadata = {
   alternates: { canonical: '/ladoga' },
 }
 
+const SEP = { borderTop: '0.5px solid rgba(255,255,255,0.07)' }
+
 export default function LadogaPage() {
   return (
-    <div className="bg-white">
+    <>
       {/* Hero */}
       <section className="relative h-[55vh] min-h-[380px] flex items-end overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-950 via-blue-900 to-teal-900" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 to-transparent" />
-        {/* Скальный силуэт шхер */}
-        <svg className="absolute bottom-0 left-0 w-full" viewBox="0 0 1440 160"
-          preserveAspectRatio="none" aria-hidden="true">
-          <path fill="#020c1e" opacity="0.5"
-            d="M0,160 L0,120 Q50,95 110,108 Q170,122 240,88 Q310,54 390,75
-               Q460,92 530,62 Q600,32 680,55 Q755,78 830,48 Q905,18 985,42
-               Q1060,65 1135,38 Q1210,12 1290,32 Q1365,52 1440,35 L1440,160 Z"/>
-          <path fill="#020c1e" opacity="0.75"
-            d="M0,160 L0,135 Q45,118 105,128 Q160,138 225,115 Q290,92 365,110
-               Q435,126 505,105 Q575,84 650,100 Q722,116 798,95 Q872,74 948,92
-               Q1022,110 1098,88 Q1172,66 1248,85 Q1322,103 1440,82 L1440,160 Z"/>
-        </svg>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/hero/ladoga-summer.jpg"
+          alt="Ладожское озеро — шхеры Карелии"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
         <div className="relative z-10 max-w-4xl mx-auto px-6 pb-12 w-full">
           <p className="text-teal-300 text-sm font-semibold uppercase tracking-widest mb-3">
             Карелия · Ленинградская область
@@ -46,8 +41,8 @@ export default function LadogaPage() {
 
         {/* Озеро */}
         <section>
-          <h2 className="text-3xl font-bold text-slate-900 mb-6">Ладожское озеро</h2>
-          <div className="prose prose-lg text-slate-600 space-y-4">
+          <h2 className="text-3xl font-bold text-white mb-6">Ладожское озеро</h2>
+          <div className="space-y-4 text-slate-300 text-lg leading-relaxed">
             <p>
               Ладога — крупнейшее пресноводное озеро Европы и одно из крупнейших в мире.
               Площадь водной поверхности — 17 891 км², что больше, чем площадь Израиля
@@ -64,16 +59,16 @@ export default function LadogaPage() {
               Южная — глубокая, открытая, с волнами, как в море. В шторм высота волн
               на открытой воде достигает 4–5 метров: Ладога способна удивить даже опытных моряков.
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 not-prose">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
               {[
                 { num: '17 891', label: 'км² площадь' },
                 { num: '230 м', label: 'максимальная глубина' },
                 { num: '660', label: 'островов' },
                 { num: '500 км', label: 'береговая линия' },
               ].map((s) => (
-                <div key={s.label} className="bg-slate-50 rounded-2xl p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-700">{s.num}</div>
-                  <div className="text-sm text-slate-500 mt-1">{s.label}</div>
+                <div key={s.label} style={{ borderTop: '1px solid rgba(200,150,90,0.25)', paddingTop: '16px' }}>
+                  <div className="text-2xl font-bold text-white">{s.num}</div>
+                  <div className="text-sm text-slate-400 mt-1">{s.label}</div>
                 </div>
               ))}
             </div>
@@ -81,9 +76,9 @@ export default function LadogaPage() {
         </section>
 
         {/* Фауна */}
-        <section>
-          <h2 className="text-3xl font-bold text-slate-900 mb-6">Природа и обитатели</h2>
-          <div className="prose prose-lg text-slate-600 space-y-4">
+        <section style={SEP}>
+          <h2 className="text-3xl font-bold text-white mb-6 pt-16">Природа и обитатели</h2>
+          <div className="space-y-4 text-slate-300 text-lg leading-relaxed">
             <p>
               Ладога — дом для уникальных видов, нигде больше не встречающихся.
               Ладожская кольчатая нерпа (<em>Pusa hispida ladogensis</em>) — подвид кольчатого
@@ -106,9 +101,9 @@ export default function LadogaPage() {
         </section>
 
         {/* Шхеры */}
-        <section>
-          <h2 className="text-3xl font-bold text-slate-900 mb-6">Ладожские шхеры</h2>
-          <div className="prose prose-lg text-slate-600 space-y-4">
+        <section style={SEP}>
+          <h2 className="text-3xl font-bold text-white mb-6 pt-16">Ладожские шхеры</h2>
+          <div className="space-y-4 text-slate-300 text-lg leading-relaxed">
             <p>
               Шхеры — архипелаг из сотен скалистых островов вдоль северного берега Ладоги.
               Гранитные скалы Балтийского щита, которым 1,5–2 миллиарда лет, — одни
@@ -135,10 +130,10 @@ export default function LadogaPage() {
           </div>
         </section>
 
-        {/* Путь из варяг в греки */}
-        <section>
-          <h2 className="text-3xl font-bold text-slate-900 mb-6">Путь из варяг в греки</h2>
-          <div className="prose prose-lg text-slate-600 space-y-4">
+        {/* Путь из варяг */}
+        <section style={SEP}>
+          <h2 className="text-3xl font-bold text-white mb-6 pt-16">Путь из варяг в греки</h2>
+          <div className="space-y-4 text-slate-300 text-lg leading-relaxed">
             <p>
               С IX по XI век Ладога была ключевым узлом главного торгового маршрута
               средневековой Европы. Путь «из варяг в греки» соединял Скандинавию
@@ -160,9 +155,9 @@ export default function LadogaPage() {
         </section>
 
         {/* Валаам */}
-        <section>
-          <h2 className="text-3xl font-bold text-slate-900 mb-6">Остров Валаам</h2>
-          <div className="prose prose-lg text-slate-600 space-y-4">
+        <section style={SEP}>
+          <h2 className="text-3xl font-bold text-white mb-6 pt-16">Остров Валаам</h2>
+          <div className="space-y-4 text-slate-300 text-lg leading-relaxed">
             <p>
               Валаам стоит в открытой части Ладоги, в 22 км от берега. Площадь острова —
               28 км², высота гранитных скал достигает 40 метров. Это место, где
@@ -203,9 +198,9 @@ export default function LadogaPage() {
         </section>
 
         {/* Дорога жизни */}
-        <section>
-          <h2 className="text-3xl font-bold text-slate-900 mb-6">Дорога жизни</h2>
-          <div className="prose prose-lg text-slate-600 space-y-4">
+        <section style={SEP}>
+          <h2 className="text-3xl font-bold text-white mb-6 pt-16">Дорога жизни</h2>
+          <div className="space-y-4 text-slate-300 text-lg leading-relaxed">
             <p>
               8 сентября 1941 года немецкие войска замкнули кольцо блокады вокруг
               Ленинграда. Почти три миллиона человек оказались отрезаны от остального
@@ -241,8 +236,8 @@ export default function LadogaPage() {
         </section>
 
         {/* Когда ехать */}
-        <section>
-          <h2 className="text-3xl font-bold text-slate-900 mb-6">Когда ехать</h2>
+        <section style={SEP}>
+          <h2 className="text-3xl font-bold text-white mb-8 pt-16">Когда ехать</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
@@ -270,32 +265,40 @@ export default function LadogaPage() {
                 desc: 'Аэролодки скользят над льдом со скоростью 100 км/ч. Ледяные торосы, заснеженные острова, морозный воздух. Лёд на южной Ладоге встаёт в январе. Уникальный опыт — озеро в другом измерении.',
               },
             ].map((s) => (
-              <div key={s.season} className="bg-slate-50 rounded-2xl p-6">
+              <div key={s.season} style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px' }}>
                 <div className="text-3xl mb-3">{s.emoji}</div>
-                <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">{s.season}</div>
-                <h3 className="font-semibold text-slate-900 text-lg mb-2">{s.title}</h3>
-                <p className="text-slate-600 text-sm leading-relaxed">{s.desc}</p>
+                <div className="text-xs text-teal-400/70 uppercase tracking-widest mb-1">{s.season}</div>
+                <h3 className="font-semibold text-white text-lg mb-2">{s.title}</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* CTA */}
-        <section className="bg-blue-700 rounded-3xl p-10 text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
-            Отправляйтесь на Ладогу
-          </h2>
-          <p className="text-blue-100 mb-8 max-w-xl mx-auto">
-            Выберите катер и маршрут — мы организуем остальное.
-          </p>
-          <Link
-            href="/boats"
-            className="inline-block bg-white text-blue-700 font-semibold px-8 py-3 rounded-xl hover:bg-blue-50 transition-colors">
-            Смотреть катера
-          </Link>
+        <section style={SEP} className="pt-16">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-10">
+            <div className="flex-1">
+              <p className="text-teal-400 text-xs font-bold uppercase tracking-widest mb-4">
+                Отправляйтесь на Ладогу
+              </p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                Выберите катер и маршрут
+              </h2>
+              <p className="text-slate-300 text-lg max-w-lg leading-relaxed">
+                Мы организуем остальное — бронирование, оплата онлайн, поддержка 24/7.
+              </p>
+            </div>
+            <Link
+              href="/boats"
+              className="shrink-0 inline-flex items-center gap-3 bg-teal-400 text-slate-900 font-bold px-8 py-4 rounded-xl hover:bg-teal-300 transition-colors text-lg"
+            >
+              Смотреть катера →
+            </Link>
+          </div>
         </section>
 
       </div>
-    </div>
+    </>
   )
 }
