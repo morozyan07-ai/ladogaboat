@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="bg-white">
+    <>
       {/* Hero */}
       <section className="relative h-[50vh] min-h-[360px] flex items-end overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -36,8 +36,8 @@ export default function AboutPage() {
 
         {/* Идея */}
         <section>
-          <h2 className="text-3xl font-bold text-slate-900 mb-6">Как это началось</h2>
-          <div className="prose prose-lg text-slate-600 space-y-4">
+          <h2 className="text-3xl font-bold text-white mb-6">Как это началось</h2>
+          <div className="space-y-4 text-slate-300 text-lg leading-relaxed">
             <p>
               До Ladoga Boat поиск катера на Ладоге выглядел так:
               открываешь Instagram, ВКонтакте, листаешь группы, пишешь в личку десяткам людей,
@@ -59,8 +59,8 @@ export default function AboutPage() {
         {/* Миссия */}
         <section className="grid sm:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 mb-6">Наша миссия</h2>
-            <div className="prose prose-lg text-slate-600 space-y-4">
+            <h2 className="text-3xl font-bold text-white mb-6">Наша миссия</h2>
+            <div className="space-y-4 text-slate-300 text-lg leading-relaxed">
               <p>
                 Сделать путешествие по Ладоге простым и доступным для каждого.
               </p>
@@ -78,11 +78,13 @@ export default function AboutPage() {
           <div className="grid grid-cols-2 gap-4">
             {[
               { num: '1', label: 'место для поиска катеров на Ладоге' },
+              { num: '8%', label: 'комиссия сервиса — без скрытых сборов' },
               { num: '24/7', label: 'поддержка через Telegram и WhatsApp' },
+              { num: '0', label: 'регистрация не нужна для бронирования' },
             ].map((s) => (
-              <div key={s.label} className="bg-slate-50 rounded-2xl p-5">
-                <div className="text-2xl font-bold text-blue-700 mb-1">{s.num}</div>
-                <div className="text-sm text-slate-500 leading-snug">{s.label}</div>
+              <div key={s.label} className="border border-white/10 rounded-2xl p-5 bg-white/5">
+                <div className="text-2xl font-bold text-teal-400 mb-1">{s.num}</div>
+                <div className="text-sm text-slate-400 leading-snug">{s.label}</div>
               </div>
             ))}
           </div>
@@ -90,7 +92,7 @@ export default function AboutPage() {
 
         {/* Как мы работаем */}
         <section>
-          <h2 className="text-3xl font-bold text-slate-900 mb-8">Как это работает</h2>
+          <h2 className="text-3xl font-bold text-white mb-8">Как это работает</h2>
           <div className="space-y-6">
             {[
               {
@@ -106,7 +108,7 @@ export default function AboutPage() {
               {
                 step: '03',
                 title: 'Оплачиваете онлайн',
-                desc: 'Картой или СБП через ЮKassa. Деньги зачисляются судовладельцу за вычетом комиссии сервиса 8%.',
+                desc: 'Картой или СБП.',
               },
               {
                 step: '04',
@@ -115,12 +117,12 @@ export default function AboutPage() {
               },
             ].map((s) => (
               <div key={s.step} className="flex gap-6 items-start">
-                <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-blue-700 font-bold text-sm">{s.step}</span>
+                <div className="flex-shrink-0 w-12 h-12 bg-teal-400/10 border border-teal-400/20 rounded-full flex items-center justify-center">
+                  <span className="text-teal-300 font-bold text-sm">{s.step}</span>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-slate-900 text-lg mb-1">{s.title}</h3>
-                  <p className="text-slate-600">{s.desc}</p>
+                  <h3 className="font-semibold text-white text-lg mb-1">{s.title}</h3>
+                  <p className="text-slate-300">{s.desc}</p>
                 </div>
               </div>
             ))}
@@ -129,42 +131,45 @@ export default function AboutPage() {
 
         {/* Команда */}
         <section>
-          <h2 className="text-3xl font-bold text-slate-900 mb-6">Команда</h2>
-          <div className="prose prose-lg text-slate-600 space-y-4">
+          <h2 className="text-3xl font-bold text-white mb-6">Команда</h2>
+          <div className="space-y-4 text-slate-300 text-lg leading-relaxed">
             <p>
               Нас сделали люди, влюблённые в Карелию.
               Мы проводим здесь каждое лето — в шхерах, на островах, с удочкой
               и термосом. Мы знаем эти места и знаем, как важно попасть на воду
               без лишней суеты.
             </p>
-
+            <p>
+              Ladoga Boat зарегистрирован как ИП Морозов Владимир Владимирович,
+              ИНН 110110795542. Мы работаем в соответствии с российским
+              законодательством и платим налоги в Республике Карелия.
+            </p>
           </div>
         </section>
 
         {/* CTA */}
-        <section className="bg-gradient-to-br from-blue-700 to-teal-700 rounded-3xl p-10 text-center">
+        <section className="border border-white/10 rounded-3xl p-10 text-center bg-white/5">
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
             Хотите разместить катер?
           </h2>
-          <p className="text-blue-100 mb-8 max-w-xl mx-auto">
+          <p className="text-slate-300 mb-8 max-w-xl mx-auto">
             Зарегистрируйтесь как судовладелец — бесплатно и без бумажной волокиты.
-            Мы помогаем с первым размещением.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/auth/register?role=OWNER"
-              className="inline-block bg-white text-blue-700 font-semibold px-8 py-3 rounded-xl hover:bg-blue-50 transition-colors">
+              className="inline-block bg-teal-400 text-slate-900 font-bold px-8 py-3 rounded-xl hover:bg-teal-300 transition-colors">
               Разместить катер
             </Link>
             <Link
               href="/boats"
-              className="inline-block border border-white/40 text-white font-semibold px-8 py-3 rounded-xl hover:bg-white/10 transition-colors">
+              className="inline-block border border-white/20 text-white font-semibold px-8 py-3 rounded-xl hover:bg-white/5 transition-colors">
               Смотреть катера
             </Link>
           </div>
         </section>
 
       </div>
-    </div>
+    </>
   )
 }
