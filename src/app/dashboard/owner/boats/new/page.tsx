@@ -15,6 +15,7 @@ export default function NewBoatPage() {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
+  const [priceUnit, setPriceUnit] = useState('SUTKI')
   const [routeInput, setRouteInput] = useState('')
   const [routes, setRoutes] = useState<string[]>([])
   const [imageInput, setImageInput] = useState('')
@@ -40,6 +41,7 @@ export default function NewBoatPage() {
       description: fd.get('description'),
       capacity: Number(fd.get('capacity')),
       pricePerDay: Number(fd.get('pricePerDay')),
+      priceUnit,
       location: fd.get('location'),
       routes,
       images,
@@ -71,12 +73,19 @@ export default function NewBoatPage() {
             <Field label="Описание">
               <textarea name="description" required rows={4} placeholder="Опишите катер, его характеристики, оснащение..." className={inputCls} />
             </Field>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <Field label="Вместимость (чел.)">
                 <input name="capacity" type="number" required min="1" max="50" placeholder="6" className={inputCls} />
               </Field>
-              <Field label="Цена за день (₽)">
+              <Field label="Цена (₽)">
                 <input name="pricePerDay" type="number" required min="1" placeholder="5000" className={inputCls} />
+              </Field>
+              <Field label="Кратность">
+                <select value={priceUnit} onChange={e => setPriceUnit(e.target.value)} className={inputCls}>
+                  <option value="HOUR">час</option>
+                  <option value="TOUR">тур</option>
+                  <option value="SUTKI">сутки</option>
+                </select>
               </Field>
             </div>
             <Field label="Место базирования">
