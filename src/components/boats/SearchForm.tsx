@@ -4,9 +4,12 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import Button from '@/components/ui/Button'
 
-// TODO: заполнить реальным списком точек отправления (адреса/названия причалов),
-// когда они будут уточнены. Пока список пуст — поле работает, но без вариантов.
-const DEPARTURE_LOCATIONS: string[] = []
+const DEPARTURE_LOCATIONS = [
+  'Набережная Ладожской Флотилии, 5А',
+  'Причал Маяк/Сердоболь, Ленина, 1',
+  'Валаамский причал, Валаамская, 1',
+  'Причал Фанерный тупик',
+]
 
 const MAX_GUESTS_PER_BOAT = 11
 
@@ -60,7 +63,7 @@ export default function SearchForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 text-slate-800">
+    <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div ref={locationRef} className="relative">
           <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
@@ -71,28 +74,24 @@ export default function SearchForm() {
             onClick={() => setLocationOpen((v) => !v)}
             className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-left focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white truncate"
           >
-            {locations.length > 0 ? locations.join(', ') : 'Уточняется'}
+            {locations.length > 0 ? locations.join(', ') : 'Все причалы'}
           </button>
           {locationOpen && (
             <div className="absolute z-20 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg p-2 max-h-56 overflow-auto">
-              {DEPARTURE_LOCATIONS.length === 0 ? (
-                <p className="text-xs text-slate-400 px-2 py-1.5">Список адресов скоро появится</p>
-              ) : (
-                DEPARTURE_LOCATIONS.map((loc) => (
-                  <label
-                    key={loc}
-                    className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-slate-50 cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={locations.includes(loc)}
-                      onChange={() => toggleLocation(loc)}
-                      className="rounded border-slate-300"
-                    />
-                    {loc}
-                  </label>
-                ))
-              )}
+              {DEPARTURE_LOCATIONS.map((loc) => (
+                <label
+                  key={loc}
+                  className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-slate-50 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={locations.includes(loc)}
+                    onChange={() => toggleLocation(loc)}
+                    className="rounded border-slate-300"
+                  />
+                  {loc}
+                </label>
+              ))}
             </div>
           )}
         </div>
