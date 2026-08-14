@@ -37,7 +37,7 @@ export default function AboutPage() {
         {/* Идея */}
         <section>
           <h2 className="text-3xl font-bold text-white mb-6">Как это началось</h2>
-          <div className="space-y-4 text-slate-300 text-lg leading-relaxed">
+          <div className="space-y-4 text-slate-100 text-lg leading-relaxed">
             <p>
               До Ladoga Boat поиск катера на Ладоге выглядел так:
               открываешь Instagram, ВКонтакте, листаешь группы, пишешь в личку десяткам людей,
@@ -60,7 +60,7 @@ export default function AboutPage() {
         <section className="grid sm:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="text-3xl font-bold text-white mb-6">Наша миссия</h2>
-            <div className="space-y-4 text-slate-300 text-lg leading-relaxed">
+            <div className="space-y-4 text-slate-100 text-lg leading-relaxed">
               <p>
                 Сделать путешествие по Ладоге простым и доступным для каждого.
               </p>
@@ -84,7 +84,7 @@ export default function AboutPage() {
             ].map((s) => (
               <div key={s.label} className="border border-white/10 rounded-2xl p-5 bg-white/5">
                 <div className="text-2xl font-bold text-teal-400 mb-1">{s.num}</div>
-                <div className="text-sm text-slate-400 leading-snug">{s.label}</div>
+                <div className="text-sm text-slate-200 leading-snug">{s.label}</div>
               </div>
             ))}
           </div>
@@ -122,7 +122,7 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-white text-lg mb-1">{s.title}</h3>
-                  <p className="text-slate-300">{s.desc}</p>
+                  <p className="text-slate-100">{s.desc}</p>
                 </div>
               </div>
             ))}
@@ -132,7 +132,7 @@ export default function AboutPage() {
         {/* Команда */}
         <section>
           <h2 className="text-3xl font-bold text-white mb-6">Команда</h2>
-          <div className="space-y-4 text-slate-300 text-lg leading-relaxed">
+          <div className="space-y-4 text-slate-100 text-lg leading-relaxed">
             <p>
               Нас сделали люди, влюблённые в Карелию.
               Мы проводим здесь каждое лето — в шхерах, на островах, с удочкой
@@ -152,7 +152,7 @@ export default function AboutPage() {
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
             Хотите разместить катер?
           </h2>
-          <p className="text-slate-300 mb-8 max-w-xl mx-auto">
+          <p className="text-slate-100 mb-8 max-w-xl mx-auto">
             Зарегистрируйтесь как судовладелец — бесплатно и без бумажной волокиты.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
