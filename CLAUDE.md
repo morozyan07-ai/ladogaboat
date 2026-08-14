@@ -122,3 +122,12 @@ done
 - Middleware читает `req.cookies` (синхронно, до SSR) → ставит **non-httpOnly** cookie `user-role` после JWT-верификации
 - `HeaderClient` читает `document.cookie` в `useEffect` → ноль SSR-вызовов `cookies()`
 - httpOnly cookie `session` (JWT) остаётся безопасной — только middleware и API-роуты её читают
+
+### cookies() из next/headers в CF Workers SSR — КРИТИЧНО
+
+- `cookies()` из `next/headers` **блокирует V8 event loop целиком** в CF Workers — не просто pending Promise
+- `setTimeout` НИКОГДА не сработает пока блокировка активна → `Promise.race` с таймаутом бесполезен
+- **Решение**: убрать ВСЕ серверные вызовы `cookies()` из SSR-пути (homepage, layout)
+- Middleware читает `req.cookies` (синхронно, до SSR) → ставит **non-httpOnly** cookie `user-role` после JWT-верификации
+- `HeaderClient` читает `document.cookie` в `useEffect` → ноль SSR-вызовов `cookies()`
+- httpOnly cookie `session` (JWT) остаётся безопасной — только middleware и API-роуты её читают
