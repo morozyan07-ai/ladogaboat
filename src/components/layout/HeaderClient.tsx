@@ -8,6 +8,7 @@ const LOGO_B64 = 'UklGRqgTAABXRUJQVlA4WAoAAAAQAAAAewAAMwAAQUxQSEAHAAABsIZt2zE50v
 
 export default function HeaderClient({ role }: { role: string | null }) {
   const [scrolled, setScrolled] = useState(false)
+  const [clientRole, setClientRole] = useState<string | null>(role)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60)
@@ -16,14 +17,20 @@ export default function HeaderClient({ role }: { role: string | null }) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Read role from non-httpOnly 'user-role' cookie set by middleware.
+  // Header cannot call getSession() server-side because cookies() hangs in CF Workers SSR.
+  useEffect(() => {
+    try {
+      const match = document.cookie.match(/(?:^|; )user-role=([^;]*)/)
+      const cookieRole = match ? decodeURIComponent(match[1]) : null
+      if (cookieRole) setClientRole(cookieRole)
+    } catch {}
+  }, [])
+
   return (
-    <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-slate-900/95 backdrop-blur-md border-b border-slate-800/50'
-          : 'bg-black/15 backdrop-blur-sm'
-      }`}
-    >
+    <header className={`sticky top-0 z-50 transition-all duration-300 ${
+      scrolled ? 'bg-slate-900/95 backdrop-blur-md border-b border-slate-800/50' : 'bg-black/15 backdrop-blur-sm'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-1.5">
           <Link href="/" className="flex items-center">
@@ -31,14 +38,10 @@ export default function HeaderClient({ role }: { role: string | null }) {
             <img
               src={`data:image/webp;base64,${LOGO_B64}`}
               alt="Ladoga Boat"
-              style={{
-                height: '52px',
-                width: 'auto',
-                filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.8)) drop-shadow(0 0 10px rgba(0,0,0,0.5))',
-              }}
+              style={{ height: '52px', width: 'auto', filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.8)) drop-shadow(0 0 10px rgba(0,0,0,0.5))' }}
             />
           </Link>
-          <HeaderNav role={role} />
+          <HeaderNav role={clientRole} />
         </div>
       </div>
     </header>
