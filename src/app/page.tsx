@@ -125,7 +125,8 @@ export default function HomePage() {
             ].map(({ stat, unit, label }) => (
               <div
                 key={stat}
-                className="bg-slate-800/60 border border-slate-700/40 rounded-2xl p-6"
+                className="rounded-none"
+                style={{ borderTop: '1px solid rgba(200,150,90,0.25)', paddingTop: '20px' }}
               >
                 <div className="flex items-baseline gap-1 mb-2">
                   <span className="text-3xl font-bold text-white">{stat}</span>
