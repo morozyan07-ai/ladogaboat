@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
 
   const start = new Date(startDate)
   const end = new Date(endDate)
-  if (start >= end) return Response.json({ error: 'Дата окончания должна быть позже начала' }, { status: 400 })
+  if (end < start) return Response.json({ error: 'Дата окончания не может быть раньше начала' }, { status: 400 })
 
   const boatRows = await sql`
     SELECT b.*, u.email as "ownerEmail", u.name as "ownerName"
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
   }
   const boat = boatRows[0] as Record<string, unknown>
 
-  const days = Math.ceil((end.getTime() - start.getTime()) / 86400000)
+  const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / 86400000))
   const totalPrice = days * Number(boat.pricePerDay)
   const commission = Math.round(totalPrice * COMMISSION_RATE * 100) / 100
 
