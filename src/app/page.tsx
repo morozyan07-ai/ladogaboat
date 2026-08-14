@@ -31,7 +31,7 @@ export default function HomePage() {
                 <span className="text-teal-300">на Ладоге</span>
               </h1>
 
-              <p className="text-slate-300 text-xl mb-10 max-w-md leading-relaxed">
+              <p className="text-slate-100 text-xl mb-10 max-w-md leading-relaxed">
                 Шхеры, Валаам, дикие острова — с проверенным капитаном или самостоятельно.
               </p>
 
@@ -53,12 +53,12 @@ export default function HomePage() {
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-8">
                 <div className="flex items-center gap-1.5">
                   <span className="text-yellow-400 text-sm">★★★★★</span>
-                  <span className="text-slate-300 text-sm">Проверенные капитаны</span>
+                  <span className="text-slate-100 text-sm">Проверенные капитаны</span>
                 </div>
                 <span className="hidden sm:block w-px h-3.5 bg-slate-600" />
-                <span className="text-slate-300 text-sm">Оплата онлайн</span>
+                <span className="text-slate-100 text-sm">Оплата онлайн</span>
                 <span className="hidden sm:block w-px h-3.5 bg-slate-600" />
-                <span className="text-slate-300 text-sm">Мгновенное подтверждение</span>
+                <span className="text-slate-100 text-sm">Мгновенное подтверждение</span>
               </div>
             </div>
           </div>
@@ -83,7 +83,7 @@ export default function HomePage() {
               <div key={n}>
                 <div className="text-7xl font-black text-teal-500/20 mb-5 leading-none">{n}</div>
                 <h3 className="text-xl font-semibold text-white mb-3">{title}</h3>
-                <p className="text-slate-300 leading-relaxed">{desc}</p>
+                <p className="text-slate-100 leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -111,7 +111,7 @@ export default function HomePage() {
                   <span className="text-3xl font-bold text-white">{stat}</span>
                   <span className="text-teal-400 font-semibold">{unit}</span>
                 </div>
-                <p className="text-slate-300 text-sm leading-snug">{label}</p>
+                <p className="text-slate-100 text-sm leading-snug">{label}</p>
               </div>
             ))}
           </div>
@@ -129,7 +129,7 @@ export default function HomePage() {
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                 Зарабатывайте на Ладоге
               </h2>
-              <p className="text-slate-300 text-lg max-w-lg leading-relaxed">
+              <p className="text-slate-100 text-lg max-w-lg leading-relaxed">
                 Разместите катер бесплатно и получайте заявки от тысяч туристов.
                 Онлайн‑оплата, аналитика, поддержка 24/7.
               </p>
