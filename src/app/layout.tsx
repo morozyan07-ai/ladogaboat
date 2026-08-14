@@ -57,11 +57,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/favicon-light.png" />
       </head>
       <body className="min-h-screen flex flex-col">
+        <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 0, backgroundImage: "url('/hero/ladoga-summer.jpg')", backgroundSize: 'cover', backgroundPosition: 'center top', opacity: 0.22, pointerEvents: 'none' }} />
+        <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 0, background: 'linear-gradient(to bottom, rgba(6,8,15,0.55) 0%, rgba(6,8,15,0.78) 60%, rgba(6,8,15,0.92) 100%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
         <CookieBanner />
+        </div>
       </body>
     </html>
   )
