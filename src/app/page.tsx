@@ -1,7 +1,5 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { Suspense } from 'react'
-import SearchForm from '@/components/boats/SearchForm'
 import IntroOverlay from '@/components/IntroOverlay'
 
 export const metadata: Metadata = {
@@ -37,13 +35,22 @@ export default function HomePage() {
                 Шхеры, Валаам, дикие острова — с проверенным капитаном или самостоятельно.
               </p>
 
-              <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-5 sm:p-6">
-                <Suspense fallback={<div className="h-16 bg-slate-50 rounded-xl animate-pulse" />}>
-                  <SearchForm />
-                </Suspense>
+              <div className="flex flex-wrap gap-4">
+                <Link
+                  href="/boats"
+                  className="inline-flex items-center gap-2 bg-teal-400 text-slate-900 font-bold px-8 py-4 rounded-xl hover:bg-teal-300 transition-colors text-base"
+                >
+                  Смотреть катера →
+                </Link>
+                <Link
+                  href="/auth/register?role=OWNER"
+                  className="inline-flex items-center gap-2 border border-white/20 text-white font-medium px-8 py-4 rounded-xl hover:bg-white/5 transition-colors text-base"
+                >
+                  Разместить катер
+                </Link>
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-7">
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-8">
                 <div className="flex items-center gap-1.5">
                   <span className="text-yellow-400 text-sm">★★★★★</span>
                   <span className="text-slate-300 text-sm">Проверенные капитаны</span>
@@ -99,7 +106,7 @@ export default function HomePage() {
               { stat: '230', unit: 'м', label: 'максимальная глубина' },
               { stat: '4–5', unit: 'м', label: 'прозрачность воды в шхерах' },
             ].map(({ stat, unit, label }) => (
-              <div key={stat} className="rounded-none" style={{ borderTop: '1px solid rgba(200,150,90,0.25)', paddingTop: '20px' }}>
+              <div key={stat} style={{ borderTop: '1px solid rgba(200,150,90,0.25)', paddingTop: '20px' }}>
                 <div className="flex items-baseline gap-1 mb-2">
                   <span className="text-3xl font-bold text-white">{stat}</span>
                   <span className="text-teal-400 font-semibold">{unit}</span>
