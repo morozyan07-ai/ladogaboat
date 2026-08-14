@@ -4,6 +4,13 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
 
+const DEPARTURE_LOCATIONS = [
+  'Набережная Ладожской Флотилии, 5А',
+  'Причал Маяк/Сердоболь, Ленина, 1',
+  'Валаамский причал, Валаамская, 1',
+  'Причал Фанерный тупик',
+]
+
 export default function NewBoatPage() {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -72,8 +79,13 @@ export default function NewBoatPage() {
                 <input name="pricePerDay" type="number" required min="1" placeholder="5000" className={inputCls} />
               </Field>
             </div>
-            <Field label="Место отправления">
-              <input name="location" required placeholder="Сортавала" className={inputCls} />
+            <Field label="Место базирования">
+              <select name="location" required defaultValue="" className={inputCls}>
+                <option value="" disabled>Выберите причал...</option>
+                {DEPARTURE_LOCATIONS.map((loc) => (
+                  <option key={loc} value={loc}>{loc}</option>
+                ))}
+              </select>
             </Field>
             <Field label="Маршруты">
               <div className="flex gap-2 mb-2">
@@ -130,7 +142,7 @@ export default function NewBoatPage() {
   )
 }
 
-const inputCls = 'w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none'
+const inputCls = 'w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
