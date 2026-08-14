@@ -17,8 +17,8 @@ export default function LadogaPage() {
       <section className="relative h-[55vh] min-h-[380px] flex items-end overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/hero/ladoga-summer.jpg"
-          alt="Ладожское озеро — шхеры Карелии"
+          src="/hero/winter.jpg"
+          alt="Ладожское озеро — закат над шхерами Карелии"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
