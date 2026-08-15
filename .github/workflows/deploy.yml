@@ -17,11 +17,6 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Apply database migrations
-        run: node scripts/neon-migrate.js
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
       - name: Generate Prisma Client
         run: npx prisma generate
 
