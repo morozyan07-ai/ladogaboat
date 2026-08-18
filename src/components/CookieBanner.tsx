@@ -30,12 +30,14 @@ export default function CookieBanner() {
         <p className="text-slate-300 text-sm leading-relaxed flex-1">
           Мы используем файлы&nbsp;cookie для улучшения работы сайта и анализа трафика. Продолжая использовать&nbsp;сайт, вы&nbsp;соглашаетесь с&nbsp;их&nbsp;использованием.
         </p>
-        <button
-          onClick={accept}
-          className="shrink-0 bg-teal-500 hover:bg-teal-400 active:bg-teal-600 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-colors whitespace-nowrap"
-        >
-          Хорошо
-        </button>
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <button onClick={accept} aria-label="Закрыть" className="text-slate-400 hover:text-white transition-colors leading-none">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="12" y1="4" x2="4" y2="12"/><line x1="4" y1="4" x2="12" y2="12"/>
+            </svg>
+          </button>
+          <button onClick={accept} className="bg-teal-500 hover:bg-teal-400 active:bg-teal-600 text-white font-semibold text-sm px-4 py-2 rounded-xl transition-colors whitespace-nowrap">Хорошо</button>
+        </div>
       </div>
     </div>
   )

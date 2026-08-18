@@ -4,6 +4,7 @@ import { verifyOwner } from '@/lib/dal'
 import { sql } from '@/lib/db'
 import OwnerPayoutForm from '@/components/dashboard/OwnerPayoutForm'
 import RefundDecisionButtons from '@/components/dashboard/RefundDecisionButtons'
+import DeleteBoatButton from '@/components/dashboard/DeleteBoatButton'
 
 export default async function OwnerDashboard() {
   const session = await verifyOwner()
@@ -97,6 +98,7 @@ export default async function OwnerDashboard() {
                       {boat.status === 'ACTIVE' ? 'Активен' : 'Неактивен'}
                     </span>
                     <Link href={`/boats/${boat.id}`} className="text-sm text-blue-600 hover:underline">Просмотр</Link>
+                    <DeleteBoatButton boatId={boat.id as string} />
                   </div>
                 </div>
               ))}

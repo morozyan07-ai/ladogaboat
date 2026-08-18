@@ -111,6 +111,21 @@ export default function IntroScreen({ onDone }: { onDone: () => void }) {
       opacity: screenOpacity,
       transition: screenOpacity < 1 ? 'opacity 1.1s ease-out' : undefined,
     }}>
+      {/* Skip button */}
+      <button
+        onClick={onDone}
+        style={{
+          position: 'absolute', top: 16, right: 16, zIndex: 10,
+          background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
+          color: 'rgba(255,255,255,0.75)', cursor: 'pointer',
+          borderRadius: 8, padding: '4px 12px',
+          fontSize: 13, letterSpacing: '0.04em',
+          fontFamily: 'inherit',
+        }}
+      >
+        Пропустить ×
+      </button>
+
       <div style={{
         position: 'absolute', inset: 0,
         background: showGrow

@@ -23,7 +23,14 @@ function ReviewModal({ booking, onClose, onSubmit }: {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold text-slate-800 mb-4">Оставить отзыв</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-slate-800">Оставить отзыв</h3>
+          <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="15" y1="5" x2="5" y2="15"/><line x1="5" y1="5" x2="15" y2="15"/>
+            </svg>
+          </button>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Оценка</label>
@@ -82,7 +89,14 @@ function RefundModal({ booking, onClose, onSubmit }: {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-        <h3 className="text-lg font-semibold text-slate-800 mb-4">Запрос возврата</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-slate-800">Запрос возврата</h3>
+          <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="15" y1="5" x2="5" y2="15"/><line x1="5" y1="5" x2="15" y2="15"/>
+            </svg>
+          </button>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Причина</label>
