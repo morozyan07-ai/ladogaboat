@@ -241,6 +241,12 @@ export default function LadogaPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
+                season: 'Май',
+                emoji: '🌿',
+                title: 'Открытие сезона',
+                desc: 'Прохладно, но шхеры дикие и пустые. Лёд сходит в конце апреля. Перелётные птицы возвращаются. Воздух прозрачный, горизонт бесконечный.',
+              },
+              {
                 season: 'Июнь — август',
                 emoji: '☀️',
                 title: 'Белые ночи',
@@ -253,12 +259,6 @@ export default function LadogaPage() {
                 desc: 'Карельская осень — красно-золотая, с туманами над шхерами по утрам. Туристов почти нет. По словам местных — самое красивое время на Ладоге.',
               },
               {
-                season: 'Май',
-                emoji: '🌿',
-                title: 'Открытие сезона',
-                desc: 'Прохладно, но шхеры дикие и пустые. Лёд сходит в конце апреля. Перелётные птицы возвращаются. Воздух прозрачный, горизонт бесконечный.',
-              },
-              {
                 season: 'Декабрь — март',
                 emoji: '❄️',
                 title: 'Зимняя Ладога',
@@ -267,9 +267,9 @@ export default function LadogaPage() {
             ].map((s) => (
               <div key={s.season} style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px' }}>
                 <div className="text-3xl mb-3">{s.emoji}</div>
-                <div className="text-xs text-teal-400/70 uppercase tracking-widest mb-1">{s.season}</div>
+                <div className="text-xs text-teal-400 uppercase tracking-widest mb-1">{s.season}</div>
                 <h3 className="font-semibold text-white text-lg mb-2">{s.title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{s.desc}</p>
+                <p className="text-slate-200 text-sm leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
