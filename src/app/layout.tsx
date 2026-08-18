@@ -45,7 +45,7 @@ const structuredData = {
     { '@type': 'AdministrativeArea', name: 'Ленинградская область' },
   ],
   address: { '@type': 'PostalAddress', addressCountry: 'RU' },
-  sameAs: [CONTACTS.telegram, CONTACTS.whatsapp, CONTACTS.instagram].filter(Boolean),
+  sameAs: [CONTACTS.telegram, CONTACTS.whatsapp].filter(Boolean),
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
