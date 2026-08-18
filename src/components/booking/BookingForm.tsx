@@ -94,17 +94,17 @@ export default function BookingForm({ boatId, pricePerDay, isLoggedIn }: Props) 
             </p>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">ФИО</label>
-              <input type="text" placeholder="Иванов Иван Иванович"
+              <input type="text" required placeholder="Иванов Иван Иванович"
                 value={guestName} onChange={(e) => setGuestName(e.target.value)} className={inputCls} />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Телефон</label>
-              <input type="tel" placeholder="+7 900 000 00 00"
+              <input type="tel" required placeholder="+7 900 000 00 00"
                 value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} className={inputCls} />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-              <input type="email" placeholder="your@email.com"
+              <input type="email" required placeholder="your@email.com"
                 value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} className={inputCls} />
             </div>
           </div>

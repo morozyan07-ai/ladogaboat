@@ -97,10 +97,10 @@ export default async function BoatDetailPage({ params }: Props) {
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8 rounded-2xl overflow-hidden">
           {!(boat.images as string[]).length ? (
-            <div className="col-span-2 h-64 bg-slate-200 flex items-center justify-center text-6xl">⛵</div>
+            <div className="col-span-2 h-64 bg-white/10 flex items-center justify-center text-6xl">⛵</div>
           ) : (
             (boat.images as string[]).slice(0, 4).map((img, i) => (
-              <div key={i} className={`${i === 0 ? 'md:col-span-2 h-72' : 'h-48'} bg-slate-100 overflow-hidden`}>
+              <div key={i} className={`${i === 0 ? 'md:col-span-2 h-72' : 'h-48'} bg-white/10 overflow-hidden`}>
                 <img src={img} alt={`${boat!.title} фото ${i + 1}`} className="w-full h-full object-cover" />
               </div>
             ))
@@ -110,28 +110,28 @@ export default async function BoatDetailPage({ params }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="flex items-start justify-between mb-2">
-              <h1 className="text-3xl font-semibold text-slate-800">{boat.title as string}</h1>
+              <h1 className="text-3xl font-semibold text-white">{boat.title as string}</h1>
               {avgRating > 0 && (
-                <span className="flex items-center gap-1 text-amber-500 font-semibold text-lg ml-4 shrink-0">
+                <span className="flex items-center gap-1 text-amber-400 font-semibold text-lg ml-4 shrink-0">
                   ★ {avgRating.toFixed(1)}
-                  <span className="text-slate-400 font-normal text-sm">({boat.reviewCount as number})</span>
+                  <span className="text-slate-300 font-normal text-sm">({boat.reviewCount as number})</span>
                 </span>
               )}
             </div>
-            <p className="text-slate-500 mb-1">📍 {boat.location as string}</p>
-            <p className="text-slate-500 mb-6">👥 до {boat.capacity as number} человек</p>
+            <p className="text-slate-200 mb-1">📍 {boat.location as string}</p>
+            <p className="text-slate-200 mb-6">👥 до {boat.capacity as number} человек</p>
 
-            <div className="border-t border-slate-100 pt-6 mb-6">
-              <h2 className="text-xl font-semibold text-slate-800 mb-3">О катере</h2>
-              <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">{boat.description as string}</p>
+            <div className="border-t border-white/10 pt-6 mb-6">
+              <h2 className="text-xl font-semibold text-white mb-3">О катере</h2>
+              <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">{boat.description as string}</p>
             </div>
 
             {(boat.routes as string[]).length > 0 && (
-              <div className="border-t border-slate-100 pt-6 mb-6">
-                <h2 className="text-xl font-semibold text-slate-800 mb-3">Маршруты</h2>
+              <div className="border-t border-white/10 pt-6 mb-6">
+                <h2 className="text-xl font-semibold text-white mb-3">Маршруты</h2>
                 <div className="flex flex-wrap gap-2">
                   {(boat.routes as string[]).map((r) => (
-                    <span key={r} className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                    <span key={r} className="px-3 py-1.5 bg-teal-400/20 text-teal-200 rounded-full text-sm font-medium">
                       🗺️ {r}
                     </span>
                   ))}
@@ -139,29 +139,29 @@ export default async function BoatDetailPage({ params }: Props) {
               </div>
             )}
 
-            <div className="border-t border-slate-100 pt-6 mb-6">
-              <h2 className="text-xl font-semibold text-slate-800 mb-2">Судовладелец</h2>
-              <p className="text-slate-600">👤 {boat.ownerName as string}</p>
+            <div className="border-t border-white/10 pt-6 mb-6">
+              <h2 className="text-xl font-semibold text-white mb-2">Судовладелец</h2>
+              <p className="text-slate-200">👤 {boat.ownerName as string}</p>
             </div>
 
-            <div className="border-t border-slate-100 pt-6">
-              <h2 className="text-xl font-semibold text-slate-800 mb-4">
+            <div className="border-t border-white/10 pt-6">
+              <h2 className="text-xl font-semibold text-white mb-4">
                 Отзывы {reviews.length > 0 && `(${reviews.length})`}
               </h2>
               {reviews.length === 0 ? (
-                <p className="text-slate-400">Отзывов пока нет. Будьте первым!</p>
+                <p className="text-slate-300">Отзывов пока нет. Будьте первым!</p>
               ) : (
                 <div className="space-y-4">
                   {reviews.map((review) => (
-                    <div key={review.id as string} className="bg-slate-50 rounded-xl p-4">
+                    <div key={review.id as string} className="bg-white/10 rounded-xl p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-slate-800">{(review.guestName as string) ?? 'Гость'}</span>
-                        <span className="text-amber-500 font-semibold">
+                        <span className="font-medium text-white">{(review.guestName as string) ?? 'Гость'}</span>
+                        <span className="text-amber-400 font-semibold">
                           {'★'.repeat(review.rating as number)}{'☆'.repeat(5 - (review.rating as number))}
                         </span>
                       </div>
-                      <p className="text-slate-600 text-sm">{review.comment as string}</p>
-                      <p className="text-slate-400 text-xs mt-2">
+                      <p className="text-slate-200 text-sm">{review.comment as string}</p>
+                      <p className="text-slate-300 text-xs mt-2">
                         {new Date(review.createdAt as string).toLocaleDateString('ru-RU')}
                       </p>
                     </div>
@@ -173,11 +173,11 @@ export default async function BoatDetailPage({ params }: Props) {
 
           <div>
             <div className="sticky top-24">
-              <div className="text-2xl font-semibold text-slate-800 mb-1">
+              <div className="text-2xl font-semibold text-white mb-1">
                 {Number(boat.pricePerDay).toLocaleString('ru-RU')} ₽
-                <span className="text-base font-normal text-slate-500"> / день</span>
+                <span className="text-base font-normal text-slate-300"> / день</span>
               </div>
-              <p className="text-slate-400 text-sm mb-4">Оплата картой или через СБП</p>
+              <p className="text-slate-300 text-sm mb-4">Оплата картой или через СБП</p>
               <BookingForm
                 boatId={boat.id as string}
                 pricePerDay={Number(boat.pricePerDay)}
