@@ -36,25 +36,16 @@ function ReviewModal({ booking, onClose, onSubmit }: {
             <label className="block text-sm font-medium text-slate-700 mb-2">Оценка</label>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => setRating(n)}
-                  className={`text-2xl transition-transform hover:scale-110 ${n <= rating ? 'text-amber-400' : 'text-slate-200'}`}
-                >★</button>
+                <button key={n} type="button" onClick={() => setRating(n)}
+                  className={`text-2xl transition-transform hover:scale-110 ${n <= rating ? 'text-amber-400' : 'text-slate-200'}`}>★</button>
               ))}
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Комментарий</label>
-            <textarea
-              required
-              rows={4}
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
+            <textarea required rows={4} value={comment} onChange={(e) => setComment(e.target.value)}
               placeholder="Поделитесь впечатлениями..."
-              className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            />
+              className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
           </div>
           <div className="flex gap-3">
             <button type="button" onClick={onClose} className="flex-1 py-2.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">Отмена</button>
@@ -100,14 +91,9 @@ function RefundModal({ booking, onClose, onSubmit }: {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Причина</label>
-            <textarea
-              required
-              rows={4}
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
+            <textarea required rows={4} value={reason} onChange={(e) => setReason(e.target.value)}
               placeholder="Опишите причину возврата..."
-              className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            />
+              className="w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
           </div>
           {error && <p className="text-red-500 text-sm bg-red-50 rounded-lg px-4 py-3">{error}</p>}
           <div className="flex gap-3">
@@ -207,7 +193,10 @@ function GuestDashboardContent() {
   return (
     <div className="py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-semibold text-slate-800 mb-2">Мои бронирования</h1>
+        <Link href="/" className="inline-flex items-center gap-1 text-white/60 hover:text-white transition-colors text-sm mb-4">
+          ← Главная
+        </Link>
+        <h1 className="text-3xl font-semibold text-white mb-2">Мои бронирования</h1>
         <Suspense fallback={null}>
           <JustBookedBanner />
         </Suspense>
@@ -250,11 +239,8 @@ function GuestDashboardContent() {
                       )}
                       {b.status === 'PENDING' && (
                         <>
-                          <button
-                            onClick={() => handlePay(b.id)}
-                            disabled={payPending === b.id}
-                            className="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                          >
+                          <button onClick={() => handlePay(b.id)} disabled={payPending === b.id}
+                            className="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">
                             {payPending === b.id ? 'Загрузка...' : '💳 Оплатить'}
                           </button>
                           <button onClick={() => cancelBooking(b.id)} className="text-xs text-red-500 hover:underline">

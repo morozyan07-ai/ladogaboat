@@ -48,7 +48,7 @@ export default async function BookingConfirmPage({ searchParams }: Props) {
     <div className="min-h-[60vh] flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
-          <div className="text-5xl mb-4">{isPaid ? 'OK' : '...'}</div>
+          <div className="text-5xl mb-4">{isPaid ? '✅' : '⏳'}</div>
           <h1 className="text-2xl font-semibold text-slate-800 mb-2">
             {isPaid ? 'Бронирование подтверждено!' : 'Бронирование принято'}
           </h1>
@@ -59,10 +59,12 @@ export default async function BookingConfirmPage({ searchParams }: Props) {
           </p>
 
           <div className="bg-slate-50 rounded-xl p-4 text-left space-y-2 mb-6">
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-500">Код бронирования</span>
-              <span className="font-mono font-bold text-slate-900">{booking.bookingCode as string}</span>
-            </div>
+            {isPaid && (
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Код бронирования</span>
+                <span className="font-mono font-bold text-slate-900">{booking.bookingCode as string}</span>
+              </div>
+            )}
             <div className="flex justify-between text-sm">
               <span className="text-slate-500">Катер</span>
               <span className="font-medium text-slate-800 text-right max-w-[60%]">{booking.boatTitle as string}</span>
@@ -83,7 +85,7 @@ export default async function BookingConfirmPage({ searchParams }: Props) {
 
           {!isPaid && (
             <p className="text-xs text-slate-400 mb-4">
-              Судовладелец получил уведомление и свяжется с вами.
+              Код бронирования придёт на email после оплаты. Судовладелец получил уведомление и свяжется с вами.
             </p>
           )}
 

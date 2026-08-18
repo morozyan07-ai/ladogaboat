@@ -42,10 +42,13 @@ export default async function OwnerDashboard() {
   return (
     <div className="py-8 px-4">
       <div className="max-w-7xl mx-auto">
+        <Link href="/" className="inline-flex items-center gap-1 text-white/60 hover:text-white transition-colors text-sm mb-6">
+          ← Главная
+        </Link>
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-semibold text-slate-800">Кабинет судовладельца</h1>
-            <p className="text-slate-500 mt-1">Привет, {session.name}!</p>
+            <h1 className="text-3xl font-semibold text-white">Кабинет судовладельца</h1>
+            <p className="text-white/70 mt-1">Привет, {session.name}!</p>
           </div>
           <Link href="/dashboard/owner/boats/new"
             className="bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors font-medium">
@@ -65,6 +68,18 @@ export default async function OwnerDashboard() {
               <div className="text-slate-500 text-sm">{label}</div>
             </div>
           ))}
+        </div>
+
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-8">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">💡</span>
+            <div>
+              <p className="font-semibold text-amber-800 mb-1">Комиссия площадки</p>
+              <p className="text-amber-700 text-sm">
+                С каждого подтверждённого бронирования платформа взимает комиссию <strong>8%</strong> от суммы аренды. Доход выше рассчитан уже за вычетом комиссии.
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="mb-8">

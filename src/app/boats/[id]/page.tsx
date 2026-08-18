@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { sql } from '@/lib/db'
 import { getSession } from '@/lib/session'
 import BookingForm from '@/components/booking/BookingForm'
@@ -95,6 +96,9 @@ export default async function BoatDetailPage({ params }: Props) {
     <div className="py-8 px-4">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <div className="max-w-7xl mx-auto">
+        <Link href="/boats" className="inline-flex items-center gap-1 text-slate-300 hover:text-white transition-colors text-sm mb-6">
+          ← Каталог катеров
+        </Link>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8 rounded-2xl overflow-hidden">
           {!(boat.images as string[]).length ? (
             <div className="col-span-2 h-64 bg-white/10 flex items-center justify-center text-6xl">⛵</div>
