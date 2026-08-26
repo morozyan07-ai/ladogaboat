@@ -1,15 +1,13 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
-type Phase = 'fuel' | 'ready' | 'grow' | 'fade'
+type Phase = 'fuel' | 'ready' | 'fade'
 
 export default function IntroScreen({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<Phase>('fuel')
   const [fuelPct, setFuelPct] = useState(0)
   const [readyOpacity, setReadyOpacity] = useState(0)
   const [screenOpacity, setScreenOpacity] = useState(1)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const rafRef = useRef(0)
 
   useEffect(() => {
     const prev = document.body.style.overflow
@@ -17,101 +15,46 @@ export default function IntroScreen({ onDone }: { onDone: () => void }) {
     return () => { document.body.style.overflow = prev }
   }, [])
 
-  // ── Phase 1: Fuel gauge fills ────────────────────
+  // Phase 1: Fuel gauge fills (1500ms)
   useEffect(() => {
     if (phase !== 'fuel') return
-    const DURATION = 3000
+    const DURATION = 1500
     const start = performance.now()
+    let raf = 0
     const tick = (now: number) => {
       const p = Math.min(1, (now - start) / DURATION)
       setFuelPct(Math.round(p * 100))
-      if (p < 1) { rafRef.current = requestAnimationFrame(tick) }
-      else { setTimeout(() => setPhase('ready'), 350) }
+      if (p < 1) { raf = requestAnimationFrame(tick) }
+      else { setTimeout(() => setPhase('ready'), 200) }
     }
-    rafRef.current = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafRef.current)
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
   }, [phase])
 
-  // ── Phase 2: "Готовы? Поплыли!" ─────────────────
+  // Phase 2: "Готовы? Поплыли!" (600ms visible)
   useEffect(() => {
     if (phase !== 'ready') return
     const t1 = setTimeout(() => setReadyOpacity(1), 50)
-    const t2 = setTimeout(() => setReadyOpacity(0), 2100)
-    const t3 = setTimeout(() => setPhase('grow'), 2700)
+    const t2 = setTimeout(() => setReadyOpacity(0), 650)
+    const t3 = setTimeout(() => setPhase('fade'), 1000)
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [phase])
 
-  // ── Phase 3: ЛАДОГА canvas grow ─────────────────
-  useEffect(() => {
-    if (phase !== 'grow') return
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const W = canvas.width = window.innerWidth
-    const H = canvas.height = window.innerHeight
-    const DURATION = 5200
-    const start = performance.now()
-
-    const fontSize = Math.min(W * 0.22, 340)
-    const maxScale = (H / (fontSize * 0.75)) * 1.9
-
-    const render = (now: number) => {
-      const prog = Math.min(1, (now - start) / DURATION)
-      const t = prog < 0.5
-        ? 4 * prog * prog * prog
-        : 1 - Math.pow(-2 * prog + 2, 3) / 2
-
-      const scale = 0.004 + t * maxScale
-      const canvasAlpha = prog > 0.7 ? Math.max(0, 1 - (prog - 0.7) / 0.3) : 1
-      canvas.style.opacity = String(canvasAlpha)
-
-      const ctx = canvas.getContext('2d')!
-      ctx.globalCompositeOperation = 'source-over'
-      ctx.fillStyle = '#06080f'
-      ctx.fillRect(0, 0, W, H)
-
-      ctx.save()
-      ctx.translate(W / 2, H / 2)
-      ctx.scale(scale, scale)
-      ctx.translate(-W / 2, -H / 2)
-      ctx.globalCompositeOperation = 'destination-out'
-      ctx.font = `900 ${fontSize}px Unbounded, 'Arial Black', sans-serif`
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      ctx.fillStyle = 'rgba(255,255,255,1)'
-      ctx.fillText('ЛАДОГА', W / 2, H / 2)
-      ctx.restore()
-      ctx.globalCompositeOperation = 'source-over'
-
-      if (prog < 1) {
-        rafRef.current = requestAnimationFrame(render)
-      } else {
-        setTimeout(() => setPhase('fade'), 80)
-      }
-    }
-
-    rafRef.current = requestAnimationFrame(render)
-    return () => cancelAnimationFrame(rafRef.current)
-  }, [phase])
-
-  // ── Phase 4: Fade entire overlay to 0 ───────────
+  // Phase 3: Fade out (450ms)
   useEffect(() => {
     if (phase !== 'fade') return
     const t1 = setTimeout(() => setScreenOpacity(0), 50)
-    const t2 = setTimeout(onDone, 1150)
+    const t2 = setTimeout(onDone, 500)
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [phase, onDone])
-
-  const showFuelOrReady = phase === 'fuel' || phase === 'ready'
-  const showGrow = phase === 'grow' || phase === 'fade'
 
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 9999, overflow: 'hidden',
+      background: '#06080f',
       opacity: screenOpacity,
-      transition: screenOpacity < 1 ? 'opacity 1.1s ease-out' : undefined,
+      transition: screenOpacity < 1 ? 'opacity 0.45s ease-out' : undefined,
     }}>
-      {/* Skip button */}
       <button
         onClick={onDone}
         style={{
@@ -127,69 +70,52 @@ export default function IntroScreen({ onDone }: { onDone: () => void }) {
       </button>
 
       <div style={{
-        position: 'absolute', inset: 0,
-        background: showGrow
-          ? 'linear-gradient(150deg, #d4b87a 0%, #6ab8cc 45%, #4a9eb8 70%, #c8a060 100%)'
-          : '#06080f',
-      }} />
-
-      {showGrow && (
-        <canvas
-          ref={canvasRef}
-          style={{ position: 'absolute', inset: 0, display: 'block' }}
-        />
-      )}
-
-      {showFuelOrReady && (
+        position: 'absolute', inset: 0, display: 'flex',
+        flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      }}>
         <div style={{
-          position: 'absolute', inset: 0, display: 'flex',
-          flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          opacity: phase === 'fuel' ? 1 : 0,
+          transition: 'opacity 0.3s',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20,
         }}>
-          <div style={{
-            opacity: phase === 'fuel' ? 1 : 0,
-            transition: 'opacity 0.4s',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20,
+          <FuelGauge pct={fuelPct} />
+          <p style={{
+            color: 'rgba(200,150,90,0.75)',
+            fontSize: 15,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            fontWeight: 500,
+            marginTop: 4,
           }}>
-            <FuelGauge pct={fuelPct} />
-            <p style={{
-              color: 'rgba(200,150,90,0.75)',
-              fontSize: 15,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              fontWeight: 500,
-              marginTop: 4,
-            }}>
-              Заправляем полный бак
-            </p>
-          </div>
-
-          <div style={{
-            position: 'absolute',
-            opacity: readyOpacity,
-            transition: 'opacity 0.55s ease-in-out',
-            textAlign: 'center',
-          }}>
-            <p style={{
-              fontFamily: "var(--font-display, 'Unbounded', sans-serif)",
-              fontSize: 'clamp(20px, 4vw, 44px)',
-              fontWeight: 700,
-              letterSpacing: '0.05em',
-              backgroundImage: 'linear-gradient(150deg, #d4b87a 0%, #6ab8cc 45%, #4a9eb8 70%, #c8a060 100%)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              color: 'transparent',
-            }}>
-              Готовы?&nbsp;Поплыли!
-            </p>
-          </div>
+            Заправляем полный бак
+          </p>
         </div>
-      )}
+
+        <div style={{
+          position: 'absolute',
+          opacity: readyOpacity,
+          transition: 'opacity 0.4s ease-in-out',
+          textAlign: 'center',
+        }}>
+          <p style={{
+            fontFamily: "var(--font-display, 'Unbounded', sans-serif)",
+            fontSize: 'clamp(20px, 4vw, 44px)',
+            fontWeight: 700,
+            letterSpacing: '0.05em',
+            backgroundImage: 'linear-gradient(150deg, #d4b87a 0%, #6ab8cc 45%, #4a9eb8 70%, #c8a060 100%)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            color: 'transparent',
+          }}>
+            Готовы?&nbsp;Поплыли!
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
 
-// ── Fuel pump icon — stroke only, half size ───────
 function FuelPumpIcon() {
   return (
     <svg width="22" height="28" viewBox="0 0 22 28" fill="none"
@@ -204,14 +130,12 @@ function FuelPumpIcon() {
   )
 }
 
-// ── Fuel gauge component ───────────────────────────
 function FuelGauge({ pct }: { pct: number }) {
   const SEGS = 20
   const filled = Math.round(pct / 100 * SEGS)
 
   return (
     <div style={{ width: 'min(320px, 80vw)', userSelect: 'none' }}>
-      {/* E / pump icon+percent / F row */}
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         marginBottom: 14,
@@ -226,7 +150,6 @@ function FuelGauge({ pct }: { pct: number }) {
         <span style={{ color: 'rgba(255,255,255,0.28)', fontSize: 11, letterSpacing: '0.2em' }}>F</span>
       </div>
 
-      {/* Segmented fill bar */}
       <div style={{ display: 'flex', gap: 4, height: 22 }}>
         {Array.from({ length: SEGS }, (_, i) => (
           <div key={i} style={{
@@ -241,7 +164,6 @@ function FuelGauge({ pct }: { pct: number }) {
         ))}
       </div>
 
-      {/* Tick marks */}
       <div style={{
         display: 'flex', justifyContent: 'space-between',
         marginTop: 5, padding: '0 1px',
