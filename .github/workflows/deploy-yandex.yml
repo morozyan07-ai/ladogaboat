@@ -1,0 +1,63 @@
+name: Deploy to Yandex Cloud
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Yandex Cloud CLI
+        run: |
+          curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i /home/runner/yc -n
+          echo "/home/runner/yc/bin" >> $GITHUB_PATH
+
+      - name: Authenticate yc CLI (service account key)
+        run: |
+          echo '${{ secrets.YC_SA_JSON_CREDENTIALS }}' > /tmp/sa-key.json
+          yc config set service-account-key /tmp/sa-key.json
+          yc config set cloud-id ${{ secrets.YC_CLOUD_ID }}
+          yc config set folder-id ${{ secrets.YC_FOLDER_ID }}
+
+      - name: Login to Yandex Container Registry
+        run: |
+          yc iam create-token > /tmp/iam-token.txt
+          docker login --username iam --password "$(cat /tmp/iam-token.txt)" cr.yandex
+
+      - name: Build and push Docker image
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          IMAGE="cr.yandex/${{ secrets.YC_REGISTRY_ID }}/ladogaboat:${{ github.sha }}"
+          docker build \
+            --build-arg DATABASE_URL="$DATABASE_URL" \
+            -t "$IMAGE" \
+            -t "cr.yandex/${{ secrets.YC_REGISTRY_ID }}/ladogaboat:latest" \
+            .
+          docker push "$IMAGE"
+          docker push "cr.yandex/${{ secrets.YC_REGISTRY_ID }}/ladogaboat:latest"
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+      - name: Deploy new revision to Serverless Container
+        run: |
+          yc serverless container revision deploy \
+            --container-id ${{ secrets.YC_CONTAINER_ID }} \
+            --image "$IMAGE" \
+            --cores 1 \
+            --memory 512MB \
+            --concurrency 8 \
+            --execution-timeout 30s \
+            --service-account-id ${{ secrets.YC_CONTAINER_SA_ID }} \
+            --environment DATABASE_URL="${{ secrets.DATABASE_URL }}" \
+            --environment SESSION_SECRET="${{ secrets.SESSION_SECRET }}" \
+            --environment NODE_ENV=production \
+            --environment YOOKASSA_SHOP_ID="${{ secrets.YOOKASSA_SHOP_ID }}" \
+            --environment YOOKASSA_SECRET_KEY="${{ secrets.YOOKASSA_SECRET_KEY }}"
+
+      - name: Cleanup
+        if: always()
+        run: rm -f /tmp/sa-key.json /tmp/iam-token.txt
