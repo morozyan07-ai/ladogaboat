@@ -46,7 +46,7 @@ model User {
   reviews      Review[]
 
   // Платёжные реквизиты судовладельца для выплат (ИП/ООО) — нужны для сплитования
-  // платежей через ЮKassa и/или прямых выплат на расчётный счёт.
+  // платежей через CloudPayments и/или прямых выплат на расчётный счёт.
   payoutLegalName   String? // Полное наименование: ИП Иванов И.И. / ООО "Компания"
   payoutInn         String?
   payoutOgrn        String? // ОГРНИП или ОГРН
@@ -122,15 +122,16 @@ model Booking {
   bookingCode String?  @unique // Уникальный код для получения статуса по email/SMS
 
   // Запрос на возврат средств от Гостя (см. оферту п.4) — заявка фиксируется здесь,
-  // фактический возврат денег выполняется Оператором вручную (до интеграции возвратов в ЮKassa).
+  // фактический возврат денег выполняется Оператором вручную (до интеграции возвратов в CloudPayments).
   refundStatus      RefundStatus @default(NONE)
   refundReason      String?
   refundRequestedAt DateTime?
   refundDecidedAt   DateTime?
 
-  // ЮKassa
-  yookassaPaymentId String?
-  paidAt            DateTime?
+  // CloudPayments
+  cloudPaymentsInvoiceId     String? // Id платёжной ссылки (Orders API, создаётся при оплате)
+  cloudPaymentsTransactionId String? // TransactionId фактической успешной транзакции (из вебхука Pay)
+  paidAt                     DateTime?
 }
 
 model Review {

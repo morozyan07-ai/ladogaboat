@@ -2,19 +2,55 @@ export const dynamic = 'force-dynamic'
 import { NextRequest } from 'next/server'
 import { sql } from '@/lib/db'
 import { sendEmail } from '@/lib/email'
+import { verifyWebhookSignature } from '@/lib/cloudpayments'
 
 const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.ladogaboat.ru'
 
+// Единый обработчик уведомлений CloudPayments (Pay и Fail можно указать на один URL —
+// событие различается по полю Status). Тело может прийти как application/x-www-form-urlencoded
+// (по умолчанию) или application/json (если так настроено в ЛК CloudPayments).
+function parseBody(raw: string, contentType: string): Record<string, string> {
+  if (contentType.includes('application/json')) {
+    try {
+      return JSON.parse(raw)
+    } catch {
+      return {}
+    }
+  }
+  const params = new URLSearchParams(raw)
+  const obj: Record<string, string> = {}
+  for (const [k, v] of params) obj[k] = v
+  return obj
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    if (body.event !== 'payment.succeeded') return Response.json({ ok: true })
+    const raw = await req.text()
+    const signature = req.headers.get('Content-HMAC')
+    const validSignature = await verifyWebhookSignature(raw, signature)
+    if (!validSignature) {
+      console.error('CloudPayments webhook: неверная подпись Content-HMAC')
+      // код != 0 — CloudPayments повторит попытку; на случай, если ключ ещё не обновлён в CF Secrets
+      return Response.json({ code: 13 })
+    }
 
-    const payment = body.object as { id: string; status: string; metadata?: { bookingId?: string } }
-    const bookingId = payment?.metadata?.bookingId
+    const contentType = req.headers.get('content-type') ?? ''
+    const data = parseBody(raw, contentType)
+
+    const bookingId = data.InvoiceId
+    const transactionId = data.TransactionId
+    const status = data.Status // 'Completed' — успешная оплата (уведомление Pay)
+
     if (!bookingId) {
-      console.error('Webhook: no bookingId in metadata', body)
-      return Response.json({ error: 'no bookingId' }, { status: 400 })
+      console.error('CloudPayments webhook: нет InvoiceId', data)
+      return Response.json({ code: 0 })
+    }
+
+    if (status !== 'Completed') {
+      // Уведомление Fail (или иной незавершённый статус) — бронирование остаётся PENDING,
+      // гость может повторить оплату из личного кабинета.
+      console.log(`CloudPayments: платёж по бронированию ${bookingId} не завершён (status=${status})`)
+      return Response.json({ code: 0 })
     }
 
     const rows = await sql`
@@ -26,22 +62,22 @@ export async function POST(req: NextRequest) {
       LEFT JOIN "User" g ON g.id = bk."guestId"
       WHERE bk.id = ${bookingId} LIMIT 1`
     if (!rows.length) {
-      console.error('Webhook: booking not found', bookingId)
-      return Response.json({ error: 'booking not found' }, { status: 404 })
+      console.error('CloudPayments webhook: бронирование не найдено', bookingId)
+      return Response.json({ code: 0 })
     }
     const booking = rows[0] as Record<string, unknown>
 
-    if (booking.status === 'CONFIRMED') return Response.json({ ok: true })
+    if (booking.status === 'CONFIRMED') return Response.json({ code: 0 })
 
     await sql`
       UPDATE "Booking" SET
         status = 'CONFIRMED'::"BookingStatus",
-        "yookassaPaymentId" = ${payment.id},
+        "cloudPaymentsTransactionId" = ${transactionId ?? null},
         "paidAt" = NOW(),
         "updatedAt" = NOW()
       WHERE id = ${bookingId}`
 
-    console.log(`Booking ${bookingId} confirmed via YooKassa payment ${payment.id}`)
+    console.log(`Booking ${bookingId} confirmed via CloudPayments transaction ${transactionId}`)
 
     const guestEmail = (booking.guestEmail2 ?? booking.guestEmail) as string | null
     const guestName = ((booking.guestName2 ?? booking.guestName ?? 'Гость') as string)
@@ -70,9 +106,10 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    return Response.json({ ok: true })
+    return Response.json({ code: 0 })
   } catch (err) {
-    console.error('Webhook error:', err)
-    return Response.json({ error: 'internal' }, { status: 500 })
+    console.error('CloudPayments webhook error:', err)
+    // код != 0 — пусть CloudPayments повторит попытку, возможно сбой был временным (БД/сеть)
+    return Response.json({ code: 13 })
   }
 }

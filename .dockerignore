@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.github
+.open-next
+.wrangler
+*.md
+*.docx
+*.pptx
+.env
+.env.local
+.env*.local
+npm-debug.log*
+.DS_Store
+prisma/migrations
+scripts/*.bat

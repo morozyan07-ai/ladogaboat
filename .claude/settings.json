@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc --noEmit)",
+      "Bash(npx prisma validate)",
+      "Bash(npm run lint)",
+      "PowerShell(Set-Location *)",
+      "PowerShell(Get-Content *)",
+      "mcp__visualize__show_widget",
+      "mcp__visualize__read_me",
+      "mcp__Claude_Browser__read_page",
+      "mcp__Claude_Browser__read_console_messages",
+      "mcp__Claude_Browser__read_network_requests",
+      "mcp__Claude_Browser__get_page_text"
+    ]
+  }
+}

@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextRequest } from 'next/server'
 import { sql } from '@/lib/db'
 import { getSession } from '@/lib/session'
-import { createPayment } from '@/lib/yookassa'
+import { createPayment } from '@/lib/cloudpayments'
 import { sendEmail } from '@/lib/email'
 
 const COMMISSION_RATE = 0.08
@@ -129,21 +129,26 @@ export async function POST(req: NextRequest) {
   const returnUrl = session
     ? `${SITE_URL}/dashboard/guest?payment=done&booking=${booking.id}`
     : `${SITE_URL}/booking/confirm?code=${bookingCode}`
+  const failUrl = session
+    ? `${SITE_URL}/dashboard/guest?payment=failed&booking=${booking.id}`
+    : `${SITE_URL}/booking/confirm?code=${bookingCode}`
 
   let paymentUrl: string | null = null
   try {
-    const payment = await createPayment({
+    const order = await createPayment({
       amountRub: totalPrice,
       description: `Аренда: ${boat.title} (${days} дн.)`,
       bookingId: booking.id as string,
-      returnUrl,
+      email: !session ? (guestEmail ?? undefined) : undefined,
+      successUrl: returnUrl,
+      failUrl,
     })
-    paymentUrl = payment.confirmation?.confirmation_url ?? null
-    if (payment.id) {
-      await sql`UPDATE "Booking" SET "yookassaPaymentId" = ${payment.id} WHERE id = ${booking.id as string}`
+    paymentUrl = order.Url ?? null
+    if (order.Id) {
+      await sql`UPDATE "Booking" SET "cloudPaymentsInvoiceId" = ${order.Id} WHERE id = ${booking.id as string}`
     }
   } catch (err) {
-    console.error('YooKassa payment error:', err)
+    console.error('CloudPayments payment error:', err)
   }
 
   let emailTo: string | null = null

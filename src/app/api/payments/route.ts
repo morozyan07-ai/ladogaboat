@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 import { NextRequest } from 'next/server'
 import { sql } from '@/lib/db'
 import { getSession } from '@/lib/session'
-import { createPayment, getPayment } from '@/lib/yookassa'
+import { createPayment } from '@/lib/cloudpayments'
 
 const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.ladogaboat.ru'
 
@@ -27,29 +27,27 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: 'Бронирование уже подтверждено или отменено' }, { status: 400 })
   }
 
-  if (booking.yookassaPaymentId) {
-    try {
-      const existing = await getPayment(booking.yookassaPaymentId as string)
-      if (existing.status === 'pending' && existing.confirmation?.confirmation_url) {
-        return Response.json({ paymentUrl: existing.confirmation.confirmation_url })
-      }
-    } catch { /* создадим новый */ }
-  }
-
   const days = Math.ceil(
     (new Date(booking.endDate as string).getTime() - new Date(booking.startDate as string).getTime()) / 86400000
   )
 
-  const payment = await createPayment({
-    amountRub: Number(booking.totalPrice),
-    description: `Аренда: ${booking.boatTitle ?? 'катер'} (${days} дн.)`,
-    bookingId: booking.yookassaPaymentId ? `${booking.id}-retry-${Date.now()}` : booking.id as string,
-    returnUrl: `${SITE_URL}/dashboard/guest?payment=done&booking=${booking.id}`,
-  })
-
-  if (payment.id) {
-    await sql`UPDATE "Booking" SET "yookassaPaymentId" = ${payment.id} WHERE id = ${bookingId}`
+  let order
+  try {
+    order = await createPayment({
+      amountRub: Number(booking.totalPrice),
+      description: `Аренда: ${booking.boatTitle ?? 'катер'} (${days} дн.)`,
+      bookingId: booking.id as string,
+      successUrl: `${SITE_URL}/dashboard/guest?payment=done&booking=${booking.id}`,
+      failUrl: `${SITE_URL}/dashboard/guest?payment=failed&booking=${booking.id}`,
+    })
+  } catch (err) {
+    console.error('CloudPayments createPayment error:', err)
+    return Response.json({ error: 'Не удалось создать платёж' }, { status: 502 })
   }
 
-  return Response.json({ paymentUrl: payment.confirmation?.confirmation_url ?? null })
+  if (order.Id) {
+    await sql`UPDATE "Booking" SET "cloudPaymentsInvoiceId" = ${order.Id} WHERE id = ${bookingId}`
+  }
+
+  return Response.json({ paymentUrl: order.Url ?? null })
 }

@@ -15,7 +15,7 @@
 - `jose` + JWT cookies (next-auth удалён, ручная авторизация)
 - Cloudflare Workers через @opennextjs/cloudflare
 - База данных: Neon PostgreSQL
-- Платежи: ЮKassa (договор подписан, нужно подключить live credentials)
+- Платежи: CloudPayments (Orders API — платёжная ссылка; вебхук Pay/Fail с подписью Content-HMAC, HMAC-SHA256). Замена ЮKassa, миграция БД `20260911000000_cloudpayments_migration`
 
 ## Важные особенности разработки
 - **Windows FUSE filesystem**: Edit/Write инструменты добавляют null-bytes в файлы → коррапт
@@ -79,11 +79,22 @@
 3. ✅ CF Cache Rule для статики создана
 4. ✅ CF Response Header Transform Rules созданы
 5. ✅ wrangler.toml: `run_worker_first = true` (в коммите, после push активируется)
-6. ⏳ Подключить YooKassa live credentials (договор подписан):
-   - YOOKASSA_SHOP_ID и YOOKASSA_SECRET_KEY → в CF Workers Secrets
+6. ⏳ Подключить CloudPayments live credentials:
+   - CLOUDPAYMENTS_PUBLIC_ID и CLOUDPAYMENTS_API_SECRET → в CF Workers Secrets (и в GitHub Secrets для deploy-yandex.yml)
+   - В личном кабинете CloudPayments указать URL вебхука (Pay и Fail) → `${NEXT_PUBLIC_BASE_URL}/api/payments/webhook`
+   - Применить миграцию `20260911000000_cloudpayments_migration` к БД (rename yookassaPaymentId → cloudPaymentsInvoiceId + новая колонка cloudPaymentsTransactionId)
 7. ⏳ Перенести env vars из plain text в CF Secrets
 8. ⏳ Удалить git-push-fix.bat из корня проекта
 9. ⏳ Отключить/удалить autopush.ps1 — корраптит файлы null-bytes
+
+## Миграция ЮKassa → CloudPayments (сентябрь 2026)
+
+- `src/lib/yookassa.ts` удалён, заменён на `src/lib/cloudpayments.ts` (Orders API вместо Payments API)
+- Архитектура сохранена: сервер создаёт платёжную ссылку → редирект гостя → подтверждение по вебхуку
+- Отличие от ЮKassa: нет polling статуса по id — при повторной оплате всегда создаётся новая ссылка (Orders API это не поддерживает)
+- Вебхук `/api/payments/webhook` теперь единый для событий Pay и Fail CloudPayments (различаются по полю `Status`), проверяет подпись `Content-HMAC` (HMAC-SHA256 на `CLOUDPAYMENTS_API_SECRET`)
+- Поле `Booking.yookassaPaymentId` переименовано в `Booking.cloudPaymentsInvoiceId` (Id платёжной ссылки); добавлено `Booking.cloudPaymentsTransactionId` (TransactionId из вебхука Pay)
+- ⚠️ Перед продакшеном проверить в ЛК CloudPayments: настройки Pay/Fail webhook URL, формат тела (form-urlencoded по умолчанию — обработчик поддерживает оба варианта), и что `RequireConfirmation: false` не требует отдельного Check-вебхука
 
 ### Порядок диагностики ошибок деплоя
 1. GitHub Actions → последний run → job "deploy" → шаг "Deploy"
