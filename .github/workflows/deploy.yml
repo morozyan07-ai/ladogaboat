@@ -17,9 +17,6 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Generate Prisma Client
-        run: npx prisma generate
-
       - name: Build
         run: npm run pages:build
         env:
@@ -30,7 +27,7 @@ jobs:
           echo "=== Sizes BEFORE ==="
           find .open-next -name "*.mjs" -exec du -sh {} \;
 
-          # Удаляем WASM base64 файлы — не нужны при PrismaNeonHttp (HTTP adapter)
+          # Удаляем WASM base64 файлы — не нужны при neon() (HTTP adapter)
           echo "=== Removing wasm-base64 files ==="
           find .open-next -name "*.wasm-base64.mjs" -print -delete
 
