@@ -184,18 +184,19 @@ export async function POST(req: NextRequest) {
   }
 
   if (boat.ownerEmail) {
-    const contactInfo = session
-      ? `Гость: ${emailName}`
-      : `Гость: ${guestName}\nТелефон: ${guestPhone}\nEmail: ${guestEmail}`
+    // Контакты гостя владельцу НЕ отправляем здесь — только после подтверждения оплаты
+    // (см. webhook/route.ts). Иначе владелец может списаться с гостем напрямую и
+    // договориться об аренде в обход площадки, пока гость ещё не заплатил.
     await sendEmail({
       to: boat.ownerEmail as string,
       subject: `Новое бронирование — ${boat.title} (${startFmt})`,
       text: [
-        `Новое бронирование на ваш катер "${boat.title}".`, '',
+        `Новое бронирование на ваш катер "${boat.title}", ожидает оплаты гостем.`, '',
         `Код: ${bookingCode}`,
         `Даты: ${startFmt} — ${endFmt} (${days} дн.)`,
         `К получению: ${(totalPrice - commission).toLocaleString('ru-RU')} ₽`, '',
-        contactInfo, '', `ЛК: ${SITE_URL}/dashboard/owner`,
+        'Контакты гостя придут отдельным письмом сразу после подтверждения оплаты.', '',
+        `ЛК: ${SITE_URL}/dashboard/owner`,
       ].join('\n'),
     })
   }

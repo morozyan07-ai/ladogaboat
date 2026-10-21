@@ -56,9 +56,11 @@ export async function POST(req: NextRequest) {
     const rows = await sql`
       SELECT bk.*,
         bo.title as "boatTitle", bo.location as "boatLocation",
-        g.name as "guestName2", g.email as "guestEmail2"
+        own.email as "ownerEmail",
+        g.name as "guestName2", g.email as "guestEmail2", g.phone as "guestPhone2"
       FROM "Booking" bk
       JOIN "Boat" bo ON bo.id = bk."boatId"
+      LEFT JOIN "User" own ON own.id = bo."ownerId"
       LEFT JOIN "User" g ON g.id = bk."guestId"
       WHERE bk.id = ${bookingId} LIMIT 1`
     if (!rows.length) {
@@ -81,6 +83,7 @@ export async function POST(req: NextRequest) {
 
     const guestEmail = (booking.guestEmail2 ?? booking.guestEmail) as string | null
     const guestName = ((booking.guestName2 ?? booking.guestName ?? 'Гость') as string)
+    const guestPhone = (booking.guestPhone2 ?? booking.guestPhone) as string | null
 
     if (guestEmail) {
       const startFmt = new Date(booking.startDate as string).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
@@ -102,6 +105,26 @@ export async function POST(req: NextRequest) {
           `Сумма: ${Number(booking.totalPrice).toLocaleString('ru-RU')} ₽`, '',
           `Детали: ${confirmUrl}`, '',
           'Ждём вас на Ладоге! Вопросы: support@ladogaboat.ru', '', 'Ladoga Boat',
+        ].join('\n'),
+      })
+    }
+
+    if (booking.ownerEmail) {
+      // Контакты гостя владельцу — только теперь, после подтверждённой оплаты
+      // (см. комментарий в app/api/bookings/route.ts о рисках обхода площадки).
+      const ownerStartFmt = new Date(booking.startDate as string).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+      const ownerEndFmt = new Date(booking.endDate as string).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+      await sendEmail({
+        to: booking.ownerEmail as string,
+        subject: `Оплата получена — ${booking.boatTitle} (${ownerStartFmt})`,
+        text: [
+          `Оплата по бронированию "${booking.boatTitle}" подтверждена.`, '',
+          `Код: ${booking.bookingCode ?? bookingId}`,
+          `Даты: ${ownerStartFmt} — ${ownerEndFmt}`, '',
+          `Гость: ${guestName}`,
+          `Телефон: ${guestPhone ?? 'не указан'}`,
+          `Email: ${guestEmail ?? 'не указан'}`, '',
+          `ЛК: ${SITE_URL}/dashboard/owner`,
         ].join('\n'),
       })
     }
