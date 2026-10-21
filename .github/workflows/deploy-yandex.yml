@@ -55,8 +55,8 @@ jobs:
             --environment DATABASE_URL="${{ secrets.DATABASE_URL }}" \
             --environment SESSION_SECRET="${{ secrets.SESSION_SECRET }}" \
             --environment NODE_ENV=production \
-            --environment YOOKASSA_SHOP_ID="${{ secrets.YOOKASSA_SHOP_ID }}" \
-            --environment YOOKASSA_SECRET_KEY="${{ secrets.YOOKASSA_SECRET_KEY }}"
+            --environment CLOUDPAYMENTS_PUBLIC_ID="${{ secrets.CLOUDPAYMENTS_PUBLIC_ID }}" \
+            --environment CLOUDPAYMENTS_API_SECRET="${{ secrets.CLOUDPAYMENTS_API_SECRET }}"
 
       - name: Cleanup
         if: always()
