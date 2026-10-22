@@ -61,6 +61,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       description = COALESCE(${t('description')}, description),
       capacity    = COALESCE(${n('capacity')}::int, capacity),
       "pricePerDay" = COALESCE(${n('pricePerDay')}::numeric, "pricePerDay"),
+      "priceUnit"   = COALESCE(${t('priceUnit')}, "priceUnit"),
       location    = COALESCE(${t('location')}, location),
       routes      = COALESCE(${a('routes') as string[]}, routes),
       images      = COALESCE(${a('images') as string[]}, images),
