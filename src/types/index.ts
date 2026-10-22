@@ -28,6 +28,7 @@ export type Boat = {
   description: string
   capacity: number
   pricePerDay: number
+  priceUnit?: string
   location: string
   routes: string[]
   images: string[]

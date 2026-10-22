@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Boat } from '@/types'
+import { priceUnitLabel } from '@/lib/price'
 
 type Props = { boat: Boat }
 
@@ -20,7 +21,7 @@ export default function BoatCard({ boat }: Props) {
           <div className="w-full h-full flex items-center justify-center text-6xl text-slate-300">⛵</div>
         )}
         <div className="absolute top-3 right-3 bg-white rounded-lg px-2 py-1 text-sm font-semibold text-blue-700 shadow">
-          {Number(boat.pricePerDay).toLocaleString('ru-RU')} ₽/день
+          {Number(boat.pricePerDay).toLocaleString('ru-RU')} ₽/{priceUnitLabel(boat.priceUnit)}
         </div>
       </div>
       <div className="p-4">

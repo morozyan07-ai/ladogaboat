@@ -3,17 +3,19 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
+import { priceUnitLabel } from '@/lib/price'
 
 type Props = {
   boatId: string
   pricePerDay: number
+  priceUnit?: string
   isLoggedIn: boolean
 }
 
 const TIME_OPTIONS: string[] = []
 for (let h = 8; h <= 23; h++) TIME_OPTIONS.push(String(h).padStart(2, '0') + ':00')
 
-export default function BookingForm({ boatId, pricePerDay, isLoggedIn }: Props) {
+export default function BookingForm({ boatId, pricePerDay, priceUnit, isLoggedIn }: Props) {
   const router = useRouter()
   const [startDate, setStartDate] = useState('')
   const [startTime, setStartTime] = useState('')
@@ -113,7 +115,7 @@ export default function BookingForm({ boatId, pricePerDay, isLoggedIn }: Props) 
         {startDate && (
           <div className="bg-blue-50 rounded-xl p-4 space-y-1 text-sm">
             <div className="flex justify-between text-slate-600">
-              <span>Аренда на день</span>
+              <span>Аренда на {priceUnitLabel(priceUnit)}</span>
               <span>{pricePerDay.toLocaleString('ru-RU')} ₽</span>
             </div>
             <div className="flex justify-between font-semibold text-slate-800 pt-2 border-t border-blue-100">
