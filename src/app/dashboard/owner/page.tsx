@@ -7,6 +7,7 @@ import ProfileForm from '@/components/dashboard/ProfileForm'
 import RefundDecisionButtons from '@/components/dashboard/RefundDecisionButtons'
 import DeleteBoatButton from '@/components/dashboard/DeleteBoatButton'
 import RoleSwitcher from '@/components/dashboard/RoleSwitcher'
+import { formatOwnerNumber, formatBoatNumber } from '@/lib/numbering'
 
 export default async function OwnerDashboard() {
   const session = await verifyOwner()
@@ -33,7 +34,7 @@ export default async function OwnerDashboard() {
       SELECT "payoutLegalName", "payoutInn", "payoutOgrn", "payoutBankName",
              "payoutBik", "payoutAccount", "payoutCorrAccount", "payoutUpdatedAt"
       FROM "User" WHERE id = ${session.userId} LIMIT 1`,
-    sql`SELECT name, email, phone FROM "User" WHERE id = ${session.userId} LIMIT 1`,
+    sql`SELECT name, email, phone, "ownerNumber" FROM "User" WHERE id = ${session.userId} LIMIT 1`,
   ])
 
   const payoutUser = (payoutRows[0] ?? {}) as Record<string, unknown>
@@ -53,7 +54,10 @@ export default async function OwnerDashboard() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-semibold text-white">Кабинет судовладельца</h1>
-            <p className="text-white/70 mt-1">Привет, {session.name}!</p>
+            <p className="text-white/70 mt-1">
+              Привет, {session.name}!{' '}
+              <span className="text-white/50">Судовладелец №{formatOwnerNumber(profileUser.ownerNumber as number | null)}</span>
+            </p>
           </div>
           <Link href="/dashboard/owner/boats/new"
             className="bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors font-medium">
@@ -118,7 +122,10 @@ export default async function OwnerDashboard() {
               {(boats as Record<string, unknown>[]).map((boat) => (
                 <div key={boat.id as string} className="p-4 flex items-center justify-between hover:bg-slate-50">
                   <div>
-                    <p className="font-medium text-slate-800">{boat.title as string}</p>
+                    <p className="font-medium text-slate-800">
+                      {boat.title as string}{' '}
+                      <span className="text-slate-400 font-normal">№{formatBoatNumber(boat.boatNumber as number | null)}</span>
+                    </p>
                     <p className="text-sm text-slate-500">
                       {boat.bookingCount as number} бронирований · {boat.reviewCount as number} отзывов
                     </p>

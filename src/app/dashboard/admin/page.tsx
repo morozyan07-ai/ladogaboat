@@ -4,6 +4,7 @@ import { verifyAdmin } from '@/lib/dal'
 import { sql } from '@/lib/db'
 import MiniBarChart from '@/components/dashboard/MiniBarChart'
 import RoleSwitcher from '@/components/dashboard/RoleSwitcher'
+import { formatOwnerNumber, formatBoatNumber } from '@/lib/numbering'
 
 const PAID_STATUSES = ['CONFIRMED', 'COMPLETED']
 
@@ -27,14 +28,14 @@ export default async function AdminDashboard() {
       FROM "Boat"
       GROUP BY status`,
     sql`
-      SELECT bo.id, bo.title, u.name as "ownerName", u.email as "ownerEmail",
+      SELECT bo.id, bo.title, bo."boatNumber", u.name as "ownerName", u.email as "ownerEmail", u."ownerNumber",
         COUNT(bk.id) FILTER (WHERE bk.status = ANY(${PAID_STATUSES}))::int as "paidBookings",
         COALESCE(SUM(bk."totalPrice") FILTER (WHERE bk.status = ANY(${PAID_STATUSES})), 0) as revenue,
         COALESCE(SUM(bk.commission) FILTER (WHERE bk.status = ANY(${PAID_STATUSES})), 0) as commission
       FROM "Boat" bo
       JOIN "User" u ON u.id = bo."ownerId"
       LEFT JOIN "Booking" bk ON bk."boatId" = bo.id
-      GROUP BY bo.id, bo.title, u.name, u.email
+      GROUP BY bo.id, bo.title, bo."boatNumber", u.name, u.email, u."ownerNumber"
       ORDER BY revenue DESC`,
     sql`
       SELECT to_char(date_trunc('month', "createdAt"), 'YYYY-MM') as month,
@@ -166,7 +167,9 @@ export default async function AdminDashboard() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-slate-400 border-b border-slate-100">
+                    <th className="px-6 py-3 font-medium">№ катера</th>
                     <th className="px-6 py-3 font-medium">Катер</th>
+                    <th className="px-6 py-3 font-medium">№ владельца</th>
                     <th className="px-6 py-3 font-medium">Владелец</th>
                     <th className="px-6 py-3 font-medium text-right">Броней</th>
                     <th className="px-6 py-3 font-medium text-right">Выручка</th>
@@ -176,9 +179,11 @@ export default async function AdminDashboard() {
                 <tbody className="divide-y divide-slate-100">
                   {(byBoatRows as Record<string, unknown>[]).map((row) => (
                     <tr key={row.id as string} className="hover:bg-slate-50">
+                      <td className="px-6 py-3 text-slate-500">№{formatBoatNumber(row.boatNumber as number | null)}</td>
                       <td className="px-6 py-3 font-medium text-slate-800">
                         <Link href={`/boats/${row.id}`} className="hover:underline">{row.title as string}</Link>
                       </td>
+                      <td className="px-6 py-3 text-slate-500">№{formatOwnerNumber(row.ownerNumber as number | null)}</td>
                       <td className="px-6 py-3 text-slate-500">
                         {row.ownerName as string}
                         <span className="block text-xs text-slate-400">{row.ownerEmail as string}</span>

@@ -39,6 +39,9 @@ model User {
   name         String
   role         Role      @default(GUEST)
   phone        String?
+  // Внутренний номер судовладельца для дашборда (0001, 0002, ...).
+  // Присваивается автоматически при регистрации (DEFAULT nextval(owner_number_seq) в БД).
+  ownerNumber  Int?      @unique
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   boats        Boat[]
@@ -78,6 +81,9 @@ model Boat {
   capacity     Int
   pricePerDay  Decimal        @db.Decimal(10, 2)
   priceUnit   String         @default("SUTKI")
+  // Внутренний номер катера для дашборда (00001, 00002, ...).
+  // Присваивается автоматически при создании (DEFAULT nextval(boat_number_seq) в БД).
+  boatNumber   Int?           @unique
   location     String
   routes       String[]
   images       String[]
