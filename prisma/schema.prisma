@@ -131,6 +131,9 @@ model Booking {
   guest       User?         @relation(fields: [guestId], references: [id])
   startDate   DateTime      @db.Date
   endDate     DateTime      @db.Date
+  // Время начала аренды (для тарифов "час"/"тур") — используется, чтобы один и тот же
+  // временной слот на дату не могли занять два гостя одновременно.
+  startTime   String?
   totalPrice  Decimal       @db.Decimal(10, 2)
   commission  Decimal       @db.Decimal(10, 2)
   // Количество человек в брони — важно для тур-тарифа (priceUnit = TOUR),

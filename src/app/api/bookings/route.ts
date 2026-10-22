@@ -60,8 +60,8 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json() as Record<string, unknown>
-  const { boatId, startDate, endDate, guestName, guestPhone, guestEmail, guestCount } = body as {
-    boatId?: string; startDate?: string; endDate?: string;
+  const { boatId, startDate, endDate, startTime, guestName, guestPhone, guestEmail, guestCount } = body as {
+    boatId?: string; startDate?: string; endDate?: string; startTime?: string;
     guestName?: string; guestPhone?: string; guestEmail?: string; guestCount?: number
   }
 
@@ -107,14 +107,29 @@ export async function POST(req: NextRequest) {
     : days * Number(boat.pricePerDay)
   const commission = Math.round(totalPrice * COMMISSION_RATE * 100) / 100
 
-  const conflict = await sql`
-    SELECT id FROM "Booking"
-    WHERE "boatId" = ${boatId}
-      AND status IN ('PENDING', 'CONFIRMED')
-      AND "startDate" < ${end.toISOString()}::date
-      AND "endDate" > ${start.toISOString()}::date
-    LIMIT 1`
-  if (conflict.length > 0) return Response.json({ error: 'Катер занят на выбранные даты' }, { status: 409 })
+  // Для почасовых/тур-бронирований (не "сутки") занятость считаем по конкретному времени,
+  // а не на весь день — иначе один гость на 10:00 блокировал бы весь день для всех остальных.
+  const isSlotBased = boat.priceUnit !== 'SUTKI'
+  const slotConflict = isSlotBased && startTime
+    ? await sql`
+        SELECT id FROM "Booking"
+        WHERE "boatId" = ${boatId}
+          AND status IN ('PENDING', 'CONFIRMED')
+          AND "startDate" = ${start.toISOString()}::date
+          AND "startTime" = ${startTime}
+        LIMIT 1`
+    : []
+  const dayConflict = !isSlotBased
+    ? await sql`
+        SELECT id FROM "Booking"
+        WHERE "boatId" = ${boatId}
+          AND status IN ('PENDING', 'CONFIRMED')
+          AND "startDate" < ${end.toISOString()}::date
+          AND "endDate" > ${start.toISOString()}::date
+        LIMIT 1`
+    : []
+  if (slotConflict.length > 0) return Response.json({ error: 'Это время на выбранную дату уже занято' }, { status: 409 })
+  if (dayConflict.length > 0) return Response.json({ error: 'Катер занят на выбранные даты' }, { status: 409 })
 
   let bookingCode = generateBookingCode()
   for (let i = 0; i < 4; i++) {
@@ -130,12 +145,12 @@ export async function POST(req: NextRequest) {
   const bookingRows = await sql`
     INSERT INTO "Booking" (
       id, "boatId", "guestId", "guestName", "guestPhone", "guestEmail",
-      "bookingCode", "startDate", "endDate", "totalPrice", commission, "guestCount", status, "createdAt", "updatedAt"
+      "bookingCode", "startDate", "endDate", "startTime", "totalPrice", commission, "guestCount", status, "createdAt", "updatedAt"
     ) VALUES (
       ${bookingId}, ${boatId},
       ${session?.userId ?? null}, ${!session ? (guestName ?? null) : null},
       ${!session ? (guestPhone ?? null) : null}, ${!session ? (guestEmail ?? null) : null},
-      ${bookingCode}, ${start.toISOString()}::date, ${end.toISOString()}::date,
+      ${bookingCode}, ${start.toISOString()}::date, ${end.toISOString()}::date, ${startTime ?? null},
       ${totalPrice}, ${commission}, ${resolvedGuestCount}, 'PENDING', NOW(), NOW()
     ) RETURNING *`
   const booking = bookingRows[0] as Record<string, unknown>

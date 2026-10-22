@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
 import { priceUnitLabel, isPerPersonBasis } from '@/lib/price'
@@ -27,14 +27,36 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, priceBasis
   const [guestCount, setGuestCount] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [bookedTimes, setBookedTimes] = useState<string[]>([])
+  const [fullyBooked, setFullyBooked] = useState(false)
 
   const perPerson = isPerPersonBasis(priceBasis)
   const maxGuests = capacity ?? 99
   const total = startDate ? (perPerson ? pricePerDay * guestCount : pricePerDay) : 0
 
+  useEffect(() => {
+    if (!startDate) { setBookedTimes([]); setFullyBooked(false); return }
+    let cancelled = false
+    fetch(`/api/boats/${boatId}/availability?date=${startDate}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return
+        setBookedTimes(Array.isArray(data.bookedTimes) ? data.bookedTimes : [])
+        setFullyBooked(Boolean(data.fullyBooked))
+      })
+      .catch(() => { if (!cancelled) { setBookedTimes([]); setFullyBooked(false) } })
+    return () => { cancelled = true }
+  }, [startDate, boatId])
+
+  useEffect(() => {
+    if (startTime && bookedTimes.includes(startTime)) setStartTime('')
+  }, [bookedTimes, startTime])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!startDate) { setError('Выберите дату'); return }
+    if (fullyBooked) { setError('Эта дата уже забронирована, выберите другую'); return }
+    if (startTime && bookedTimes.includes(startTime)) { setError('Это время уже занято, выберите другое'); return }
     if (perPerson && (!guestCount || guestCount < 1)) { setError('Укажите количество человек'); return }
     if (!isLoggedIn) {
       if (!guestName.trim()) { setError('Введите ФИО'); return }
@@ -91,10 +113,17 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, priceBasis
           <select value={startTime} onChange={(e) => setStartTime(e.target.value)} className={selectCls}>
             <option value="">Выберите время</option>
             {TIME_OPTIONS.map(t => (
-              <option key={t} value={t}>{t}</option>
+              <option key={t} value={t} disabled={bookedTimes.includes(t)}>
+                {t}{bookedTimes.includes(t) ? ' — занято' : ''}
+              </option>
             ))}
           </select>
         </div>
+        {startDate && fullyBooked && (
+          <p className="text-amber-600 text-sm bg-amber-50 rounded-lg px-3 py-2">
+            На эту дату катер уже забронирован целиком — выберите другой день.
+          </p>
+        )}
 
         {perPerson && (
           <div>
