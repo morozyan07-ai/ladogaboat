@@ -8,6 +8,7 @@ import RefundDecisionButtons from '@/components/dashboard/RefundDecisionButtons'
 import DeleteBoatButton from '@/components/dashboard/DeleteBoatButton'
 import RoleSwitcher from '@/components/dashboard/RoleSwitcher'
 import AnnouncementsFeed from '@/components/dashboard/AnnouncementsFeed'
+import OwnerSupportForm from '@/components/dashboard/OwnerSupportForm'
 import { formatOwnerNumber, formatBoatNumber } from '@/lib/numbering'
 
 export default async function OwnerDashboard() {
@@ -198,6 +199,10 @@ export default async function OwnerDashboard() {
               })}
             </div>
           )}
+        </div>
+
+        <div className="mt-8">
+          <OwnerSupportForm />
         </div>
       </div>
     </div>
