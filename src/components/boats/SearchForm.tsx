@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import Button from '@/components/ui/Button'
+import LocationHelpTooltip from '@/components/ui/LocationHelpTooltip'
 
 const MAX_GUESTS_PER_BOAT = 11
 
@@ -67,8 +68,9 @@ export default function SearchForm() {
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div ref={locationRef} className="relative">
-          <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
+          <label className="flex items-center text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">
             Место отправления
+            <LocationHelpTooltip />
           </label>
           <button
             type="button"

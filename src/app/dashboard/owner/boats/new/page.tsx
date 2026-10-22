@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
 import PhotoUploader from '@/components/dashboard/PhotoUploader'
+import LocationHelpTooltip from '@/components/ui/LocationHelpTooltip'
 
 export default function NewBoatPage() {
   const router = useRouter()
@@ -94,7 +95,7 @@ export default function NewBoatPage() {
                 "за человека" — итоговая сумма умножается на число людей в брони, гость указывает состав группы при бронировании.
               </p>
             </Field>
-            <Field label="Место базирования">
+            <Field label="Место базирования" help={<LocationHelpTooltip />}>
               <select name="location" required defaultValue="" className={inputCls}>
                 <option value="" disabled>Выберите причал...</option>
                 {departureLocations.map((loc) => (
@@ -138,10 +139,13 @@ export default function NewBoatPage() {
 
 const inputCls = 'w-full border border-slate-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white'
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, help, children }: { label: string; help?: React.ReactNode; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+      <label className="flex items-center text-sm font-medium text-slate-700 mb-1">
+        {label}
+        {help}
+      </label>
       {children}
     </div>
   )
