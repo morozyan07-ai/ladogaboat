@@ -3,13 +3,14 @@ import Link from 'next/link'
 import { verifyOwner } from '@/lib/dal'
 import { sql } from '@/lib/db'
 import OwnerPayoutForm from '@/components/dashboard/OwnerPayoutForm'
+import ProfileForm from '@/components/dashboard/ProfileForm'
 import RefundDecisionButtons from '@/components/dashboard/RefundDecisionButtons'
 import DeleteBoatButton from '@/components/dashboard/DeleteBoatButton'
 
 export default async function OwnerDashboard() {
   const session = await verifyOwner()
 
-  const [boats, bookings, payoutRows] = await Promise.all([
+  const [boats, bookings, payoutRows, profileRows] = await Promise.all([
     sql`
       SELECT b.*, COUNT(DISTINCT bk.id)::int as "bookingCount", COUNT(DISTINCT r.id)::int as "reviewCount"
       FROM "Boat" b
@@ -31,9 +32,11 @@ export default async function OwnerDashboard() {
       SELECT "payoutLegalName", "payoutInn", "payoutOgrn", "payoutBankName",
              "payoutBik", "payoutAccount", "payoutCorrAccount", "payoutUpdatedAt"
       FROM "User" WHERE id = ${session.userId} LIMIT 1`,
+    sql`SELECT name, email, phone FROM "User" WHERE id = ${session.userId} LIMIT 1`,
   ])
 
   const payoutUser = (payoutRows[0] ?? {}) as Record<string, unknown>
+  const profileUser = (profileRows[0] ?? { name: session.name, email: session.email, phone: null }) as Record<string, unknown>
 
   const totalRevenue = bookings
     .filter((b: Record<string, unknown>) => b.status === 'CONFIRMED' || b.status === 'COMPLETED')
@@ -83,6 +86,16 @@ export default async function OwnerDashboard() {
         </div>
 
         <div className="mb-8">
+          <ProfileForm
+            initial={{
+              name: profileUser.name as string,
+              email: profileUser.email as string,
+              phone: profileUser.phone as string | null,
+            }}
+          />
+        </div>
+
+        <div className="mb-8">
           <OwnerPayoutForm initial={payoutUser} />
         </div>
 
@@ -113,6 +126,7 @@ export default async function OwnerDashboard() {
                       {boat.status === 'ACTIVE' ? 'Активен' : 'Неактивен'}
                     </span>
                     <Link href={`/boats/${boat.id}`} className="text-sm text-blue-600 hover:underline">Просмотр</Link>
+                    <Link href={`/dashboard/owner/boats/${boat.id}/edit`} className="text-sm text-blue-600 hover:underline">Редактировать</Link>
                     <DeleteBoatButton boatId={boat.id as string} />
                   </div>
                 </div>

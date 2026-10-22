@@ -20,3 +20,9 @@ export const verifyGuest = cache(async () => {
   if (session.role !== 'GUEST' && session.role !== 'ADMIN') redirect('/dashboard')
   return session
 })
+
+export const verifyAdmin = cache(async () => {
+  const session = await verifySession()
+  if (session.role !== 'ADMIN') redirect('/dashboard')
+  return session
+})

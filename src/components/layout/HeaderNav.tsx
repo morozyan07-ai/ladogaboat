@@ -9,6 +9,12 @@ type Props = {
   role: string | null
 }
 
+function dashboardHref(role: string) {
+  if (role === 'ADMIN') return '/dashboard/admin'
+  if (role === 'OWNER') return '/dashboard/owner'
+  return '/dashboard/guest'
+}
+
 export default function HeaderNav({ role }: Props) {
   const pathname = usePathname()
   const isAuthPage = pathname?.startsWith('/auth')
@@ -48,7 +54,7 @@ export default function HeaderNav({ role }: Props) {
       {role ? (
         <>
           <Link
-            href={role === 'OWNER' ? '/dashboard/owner' : '/dashboard/guest'}
+            href={dashboardHref(role)}
             onClick={() => setMenuOpen(false)}
             className={mobileLinkClass}
           >
@@ -86,7 +92,7 @@ export default function HeaderNav({ role }: Props) {
         {role ? (
           <>
             <Link
-              href={role === 'OWNER' ? '/dashboard/owner' : '/dashboard/guest'}
+              href={dashboardHref(role)}
               className="text-white/90 hover:text-white font-medium transition-colors"
             >
               Личный кабинет

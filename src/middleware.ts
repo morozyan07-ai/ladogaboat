@@ -35,6 +35,7 @@ async function decrypt(token: string | undefined = ''): Promise<SessionPayload |
 const protectedRoutes = ['/dashboard']
 const ownerRoutes = ['/dashboard/owner']
 const guestRoutes = ['/dashboard/guest']
+const adminRoutes = ['/dashboard/admin']
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname
@@ -46,6 +47,9 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/auth/login', req.nextUrl))
   }
   if (session?.userId) {
+    if (adminRoutes.some((r) => path.startsWith(r)) && session.role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/dashboard', req.nextUrl))
+    }
     if (ownerRoutes.some((r) => path.startsWith(r)) && session.role === 'GUEST') {
       return NextResponse.redirect(new URL('/dashboard/guest', req.nextUrl))
     }
