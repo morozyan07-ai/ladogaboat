@@ -70,5 +70,6 @@ export async function login(state: FormState, formData: FormData): Promise<FormS
   }
 
   await createSession({ id: user.id, role: user.role, name: user.name, email: user.email })
+  if (user.role === 'ADMIN') redirect('/dashboard/admin')
   redirect(user.role === 'OWNER' ? '/dashboard/owner' : '/dashboard/guest')
 }
