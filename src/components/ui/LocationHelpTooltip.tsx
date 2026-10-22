@@ -9,7 +9,7 @@ export default function LocationHelpTooltip() {
       >
         ?
       </span>
-      <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 px-3 py-2 rounded-lg bg-slate-800 text-white text-xs leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-opacity z-30">
+      <span className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-full ml-2 w-64 px-3 py-2 rounded-lg bg-slate-800 text-white text-xs leading-relaxed opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-opacity z-30">
         Если вы не можете найти своё место отправления или начало аренды лодки/катера — напишите нам, указав место любым способом (название причала или адрес причала), через форму обратной связи или техподдержки, и мы добавим точку отправления.
       </span>
     </span>
