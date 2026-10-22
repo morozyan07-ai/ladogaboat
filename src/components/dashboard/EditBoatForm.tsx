@@ -1,17 +1,9 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
 import PhotoUploader from '@/components/dashboard/PhotoUploader'
-
-const DEPARTURE_LOCATIONS = [
-  'Набережная Ладожской Флотилии, 5А',
-  'Причал Маяк/Сердоболь, Ленина, 1',
-  'Валаамский причал, Валаамская, 1',
-  'Причал Фанерный тупик',
-  'Центральный пирс Лахденпохья',
-]
 
 type BoatData = {
   id: string
@@ -36,6 +28,14 @@ export default function EditBoatForm({ boat }: { boat: BoatData }) {
   const [routeInput, setRouteInput] = useState('')
   const [routes, setRoutes] = useState<string[]>(boat.routes)
   const [images, setImages] = useState<string[]>(boat.images)
+  const [departureLocations, setDepartureLocations] = useState<{ id: string; name: string }[]>([])
+
+  useEffect(() => {
+    fetch('/api/departure-locations')
+      .then((res) => res.json())
+      .then((data) => setDepartureLocations(Array.isArray(data) ? data : []))
+      .catch(() => {})
+  }, [])
 
   function addRoute() {
     const val = routeInput.trim()
@@ -101,10 +101,10 @@ export default function EditBoatForm({ boat }: { boat: BoatData }) {
         <Field label="Место базирования">
           <select name="location" required defaultValue={boat.location} className={inputCls}>
             <option value="" disabled>Выберите причал...</option>
-            {DEPARTURE_LOCATIONS.map((loc) => (
-              <option key={loc} value={loc}>{loc}</option>
+            {departureLocations.map((loc) => (
+              <option key={loc.id} value={loc.name}>{loc.name}</option>
             ))}
-            {!DEPARTURE_LOCATIONS.includes(boat.location) && (
+            {!departureLocations.some((loc) => loc.name === boat.location) && (
               <option value={boat.location}>{boat.location}</option>
             )}
           </select>

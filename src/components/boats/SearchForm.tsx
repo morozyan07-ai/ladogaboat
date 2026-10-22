@@ -4,14 +4,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import Button from '@/components/ui/Button'
 
-const DEPARTURE_LOCATIONS = [
-  'Набережная Ладожской Флотилии, 5А',
-  'Причал Маяк/Сердоболь, Ленина, 1',
-  'Валаамский причал, Валаамская, 1',
-  'Причал Фанерный тупик',
-  'Центральный пирс Лахденпохья',
-]
-
 const MAX_GUESTS_PER_BOAT = 11
 
 function buildTimeOptions() {
@@ -35,6 +27,7 @@ export default function SearchForm() {
   const [capacity, setCapacity] = useState(sp.get('capacity') ?? '')
   const [locationOpen, setLocationOpen] = useState(false)
   const locationRef = useRef<HTMLDivElement>(null)
+  const [departureLocations, setDepartureLocations] = useState<string[]>([])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -44,6 +37,13 @@ export default function SearchForm() {
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/departure-locations')
+      .then((res) => res.json())
+      .then((data) => setDepartureLocations(Array.isArray(data) ? data.map((l: { name: string }) => l.name) : []))
+      .catch(() => {})
   }, [])
 
   const guestsCount = Number(capacity) || 0
@@ -79,7 +79,7 @@ export default function SearchForm() {
           </button>
           {locationOpen && (
             <div className="absolute z-20 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg p-2 max-h-56 overflow-auto">
-              {DEPARTURE_LOCATIONS.map((loc) => (
+              {departureLocations.map((loc) => (
                 <label
                   key={loc}
                   className="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-slate-50 cursor-pointer"

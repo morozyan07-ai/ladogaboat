@@ -5,13 +5,14 @@ import { sql } from '@/lib/db'
 import MiniBarChart from '@/components/dashboard/MiniBarChart'
 import RoleSwitcher from '@/components/dashboard/RoleSwitcher'
 import { formatOwnerNumber, formatBoatNumber } from '@/lib/numbering'
+import DepartureLocationsManager from '@/components/dashboard/DepartureLocationsManager'
 
 const PAID_STATUSES = ['CONFIRMED', 'COMPLETED']
 
 export default async function AdminDashboard() {
   const session = await verifyAdmin()
 
-  const [summaryRows, usersRows, boatsRows, byBoatRows, monthlyRows, refundRows] = await Promise.all([
+  const [summaryRows, usersRows, boatsRows, byBoatRows, monthlyRows, refundRows, locationRows] = await Promise.all([
     sql`
       SELECT
         COUNT(*)::int as "totalBookings",
@@ -50,6 +51,7 @@ export default async function AdminDashboard() {
       FROM "Booking"
       WHERE "refundStatus" != 'NONE'
       GROUP BY "refundStatus"`,
+    sql`SELECT id, name FROM "DepartureLocation" ORDER BY name ASC`,
   ])
 
   const summary = summaryRows[0] as Record<string, unknown>
@@ -154,6 +156,10 @@ export default async function AdminDashboard() {
               ))}
             </div>
           )}
+        </div>
+
+        <div className="mb-8">
+          <DepartureLocationsManager initial={locationRows as { id: string; name: string }[]} />
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm">

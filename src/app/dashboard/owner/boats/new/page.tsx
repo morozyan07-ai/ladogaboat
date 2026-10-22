@@ -1,17 +1,9 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
 import PhotoUploader from '@/components/dashboard/PhotoUploader'
-
-const DEPARTURE_LOCATIONS = [
-  'Набережная Ладожской Флотилии, 5А',
-  'Причал Маяк/Сердоболь, Ленина, 1',
-  'Валаамский причал, Валаамская, 1',
-  'Причал Фанерный тупик',
-  'Центральный пирс Лахденпохья',
-]
 
 export default function NewBoatPage() {
   const router = useRouter()
@@ -21,6 +13,14 @@ export default function NewBoatPage() {
   const [routeInput, setRouteInput] = useState('')
   const [routes, setRoutes] = useState<string[]>([])
   const [images, setImages] = useState<string[]>([])
+  const [departureLocations, setDepartureLocations] = useState<{ id: string; name: string }[]>([])
+
+  useEffect(() => {
+    fetch('/api/departure-locations')
+      .then((res) => res.json())
+      .then((data) => setDepartureLocations(Array.isArray(data) ? data : []))
+      .catch(() => {})
+  }, [])
 
   function addRoute() {
     const val = routeInput.trim()
@@ -86,8 +86,8 @@ export default function NewBoatPage() {
             <Field label="Место базирования">
               <select name="location" required defaultValue="" className={inputCls}>
                 <option value="" disabled>Выберите причал...</option>
-                {DEPARTURE_LOCATIONS.map((loc) => (
-                  <option key={loc} value={loc}>{loc}</option>
+                {departureLocations.map((loc) => (
+                  <option key={loc.id} value={loc.name}>{loc.name}</option>
                 ))}
               </select>
             </Field>
