@@ -86,9 +86,7 @@ export default function RegisterPage() {
           <p className="text-slate-500 mt-2">Разместите катер на Ladoga Boat. Гостям аккаунт не нужен — бронирование без регистрации.</p>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-          <Suspense fallback={<div className="h-64 animate-pulse bg-slate-100 rounded-xl" />}>
-            <RegisterForm />
-          </Suspense>
+          <RegisterForm />
           <p className="text-center text-sm text-slate-500 mt-6">
             Уже есть аккаунт?{' '}
             <Link href="/auth/login" className="text-blue-600 hover:underline font-medium">
