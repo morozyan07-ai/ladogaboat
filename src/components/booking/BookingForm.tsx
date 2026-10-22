@@ -3,33 +3,38 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
-import { priceUnitLabel } from '@/lib/price'
+import { priceUnitLabel, isPerPersonUnit } from '@/lib/price'
 
 type Props = {
   boatId: string
   pricePerDay: number
   priceUnit?: string
+  capacity?: number
   isLoggedIn: boolean
 }
 
 const TIME_OPTIONS: string[] = []
 for (let h = 8; h <= 23; h++) TIME_OPTIONS.push(String(h).padStart(2, '0') + ':00')
 
-export default function BookingForm({ boatId, pricePerDay, priceUnit, isLoggedIn }: Props) {
+export default function BookingForm({ boatId, pricePerDay, priceUnit, capacity, isLoggedIn }: Props) {
   const router = useRouter()
   const [startDate, setStartDate] = useState('')
   const [startTime, setStartTime] = useState('')
   const [guestName, setGuestName] = useState('')
   const [guestPhone, setGuestPhone] = useState('')
   const [guestEmail, setGuestEmail] = useState('')
+  const [guestCount, setGuestCount] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const total = startDate ? pricePerDay : 0
+  const perPerson = isPerPersonUnit(priceUnit)
+  const maxGuests = capacity ?? 99
+  const total = startDate ? (perPerson ? pricePerDay * guestCount : pricePerDay) : 0
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!startDate) { setError('Выберите дату'); return }
+    if (perPerson && (!guestCount || guestCount < 1)) { setError('Укажите количество человек'); return }
     if (!isLoggedIn) {
       if (!guestName.trim()) { setError('Введите ФИО'); return }
       if (!guestPhone.trim()) { setError('Введите номер телефона'); return }
@@ -38,8 +43,9 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, isLoggedIn
     setLoading(true)
     setError('')
     try {
-      const body: Record<string, string> = { boatId, startDate, endDate: startDate }
+      const body: Record<string, string | number> = { boatId, startDate, endDate: startDate }
       if (startTime) body.startTime = startTime
+      if (perPerson) body.guestCount = guestCount
       if (!isLoggedIn) {
         body.guestName = guestName.trim()
         body.guestPhone = guestPhone.trim()
@@ -89,6 +95,16 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, isLoggedIn
           </select>
         </div>
 
+        {perPerson && (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Количество человек</label>
+            <input type="number" required min={1} max={maxGuests} value={guestCount}
+              onChange={(e) => setGuestCount(Math.min(maxGuests, Math.max(1, Number(e.target.value) || 1)))}
+              className={inputCls} />
+            <p className="text-xs text-slate-400 mt-1">Цена указана за человека — укажите точный состав группы.</p>
+          </div>
+        )}
+
         {!isLoggedIn && (
           <div className="space-y-3 pt-1">
             <p className="text-xs text-slate-500">
@@ -115,8 +131,8 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, isLoggedIn
         {startDate && (
           <div className="bg-blue-50 rounded-xl p-4 space-y-1 text-sm">
             <div className="flex justify-between text-slate-600">
-              <span>Аренда на {priceUnitLabel(priceUnit)}</span>
-              <span>{pricePerDay.toLocaleString('ru-RU')} ₽</span>
+              <span>{perPerson ? `Цена за человека × ${guestCount}` : `Аренда на ${priceUnitLabel(priceUnit)}`}</span>
+              <span>{pricePerDay.toLocaleString('ru-RU')} ₽{perPerson ? ' / чел.' : ''}</span>
             </div>
             <div className="flex justify-between font-semibold text-slate-800 pt-2 border-t border-blue-100">
               <span>Итого</span>

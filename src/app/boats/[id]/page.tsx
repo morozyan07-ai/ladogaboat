@@ -187,6 +187,7 @@ export default async function BoatDetailPage({ params }: Props) {
                 boatId={boat.id as string}
                 pricePerDay={Number(boat.pricePerDay)}
                 priceUnit={boat.priceUnit as string}
+                capacity={Number(boat.capacity)}
                 isLoggedIn={!!session}
               />
             </div>

@@ -60,9 +60,9 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json() as Record<string, unknown>
-  const { boatId, startDate, endDate, guestName, guestPhone, guestEmail } = body as {
+  const { boatId, startDate, endDate, guestName, guestPhone, guestEmail, guestCount } = body as {
     boatId?: string; startDate?: string; endDate?: string;
-    guestName?: string; guestPhone?: string; guestEmail?: string
+    guestName?: string; guestPhone?: string; guestEmail?: string; guestCount?: number
   }
 
   if (!boatId || !startDate || !endDate) {
@@ -90,7 +90,21 @@ export async function POST(req: NextRequest) {
   const boat = boatRows[0] as Record<string, unknown>
 
   const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / 86400000))
-  const totalPrice = days * Number(boat.pricePerDay)
+
+  // Тур-тариф (priceUnit = TOUR) - цена указана за человека, а не за весь катер,
+  // иначе группа могла бы оплатить за одного и приехать в большем составе.
+  const isPerPerson = boat.priceUnit === 'TOUR'
+  const capacity = Number(boat.capacity) || 1
+  const resolvedGuestCount = isPerPerson
+    ? Math.min(Math.max(1, Math.round(Number(guestCount) || 1)), capacity)
+    : 1
+  if (isPerPerson && (!guestCount || Number(guestCount) < 1)) {
+    return Response.json({ error: 'Укажите количество человек' }, { status: 400 })
+  }
+
+  const totalPrice = isPerPerson
+    ? resolvedGuestCount * Number(boat.pricePerDay)
+    : days * Number(boat.pricePerDay)
   const commission = Math.round(totalPrice * COMMISSION_RATE * 100) / 100
 
   const conflict = await sql`
@@ -116,13 +130,13 @@ export async function POST(req: NextRequest) {
   const bookingRows = await sql`
     INSERT INTO "Booking" (
       id, "boatId", "guestId", "guestName", "guestPhone", "guestEmail",
-      "bookingCode", "startDate", "endDate", "totalPrice", commission, status, "createdAt", "updatedAt"
+      "bookingCode", "startDate", "endDate", "totalPrice", commission, "guestCount", status, "createdAt", "updatedAt"
     ) VALUES (
       ${bookingId}, ${boatId},
       ${session?.userId ?? null}, ${!session ? (guestName ?? null) : null},
       ${!session ? (guestPhone ?? null) : null}, ${!session ? (guestEmail ?? null) : null},
       ${bookingCode}, ${start.toISOString()}::date, ${end.toISOString()}::date,
-      ${totalPrice}, ${commission}, 'PENDING', NOW(), NOW()
+      ${totalPrice}, ${commission}, ${resolvedGuestCount}, 'PENDING', NOW(), NOW()
     ) RETURNING *`
   const booking = bookingRows[0] as Record<string, unknown>
 
@@ -137,7 +151,9 @@ export async function POST(req: NextRequest) {
   try {
     const order = await createPayment({
       amountRub: totalPrice,
-      description: `Аренда: ${boat.title} (${days} дн.)`,
+      description: isPerPerson
+        ? `Аренда: ${boat.title} (${resolvedGuestCount} чел.)`
+        : `Аренда: ${boat.title} (${days} дн.)`,
       bookingId: booking.id as string,
       email: !session ? (guestEmail ?? undefined) : undefined,
       successUrl: returnUrl,
@@ -174,6 +190,7 @@ export async function POST(req: NextRequest) {
         `Код бронирования: ${bookingCode}`, '',
         `Катер: ${boat.title}`,
         `Даты: ${startFmt} — ${endFmt} (${days} дн.)`,
+        ...(isPerPerson ? [`Человек: ${resolvedGuestCount}`] : []),
         `Сумма: ${totalPrice.toLocaleString('ru-RU')} ₽`, '',
         paymentUrl
           ? `Для подтверждения оплатите бронирование:\n${paymentUrl}`
@@ -194,6 +211,7 @@ export async function POST(req: NextRequest) {
         `Новое бронирование на ваш катер "${boat.title}", ожидает оплаты гостем.`, '',
         `Код: ${bookingCode}`,
         `Даты: ${startFmt} — ${endFmt} (${days} дн.)`,
+        ...(isPerPerson ? [`Человек: ${resolvedGuestCount}`] : []),
         `К получению: ${(totalPrice - commission).toLocaleString('ru-RU')} ₽`, '',
         'Контакты гостя придут отдельным письмом сразу после подтверждения оплаты.', '',
         `ЛК: ${SITE_URL}/dashboard/owner`,

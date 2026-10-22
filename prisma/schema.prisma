@@ -122,6 +122,9 @@ model Booking {
   endDate     DateTime      @db.Date
   totalPrice  Decimal       @db.Decimal(10, 2)
   commission  Decimal       @db.Decimal(10, 2)
+  // Количество человек в брони — важно для тур-тарифа (priceUnit = TOUR),
+  // где цена указана за человека, а не за весь катер.
+  guestCount  Int           @default(1)
   status      BookingStatus @default(PENDING)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
