@@ -2,14 +2,10 @@
 
 import Link from 'next/link'
 import { useActionState } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
 import { register } from '@/app/actions/auth'
 import Button from '@/components/ui/Button'
 
 function RegisterForm() {
-  const searchParams = useSearchParams()
-  const defaultRole = searchParams.get('role') === 'OWNER' ? 'OWNER' : 'GUEST'
   const [state, action, pending] = useActionState(register, undefined)
 
   return (
@@ -59,24 +55,6 @@ function RegisterForm() {
         {state?.errors?.password && <p className="text-red-500 text-xs mt-1">{state.errors.password[0]}</p>}
       </div>
       <div>
-        <label className="block text-sm font-medium text-slate-700 mb-3">Я регистрируюсь как</label>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { value: 'GUEST', label: '🧳 Гость', desc: 'Хочу арендовать катер' },
-            { value: 'OWNER', label: '⛵ Судовладелец', desc: 'Хочу сдать катер' },
-          ].map(({ value, label, desc }) => (
-            <label key={value} className="relative cursor-pointer">
-              <input type="radio" name="role" value={value} defaultChecked={defaultRole === value} className="sr-only peer" />
-              <div className="border-2 border-slate-200 peer-checked:border-blue-500 peer-checked:bg-blue-50 rounded-xl p-3 text-center transition-colors">
-                <div className="font-medium text-slate-800 text-sm">{label}</div>
-                <div className="text-xs text-slate-500 mt-0.5">{desc}</div>
-              </div>
-            </label>
-          ))}
-        </div>
-        {state?.errors?.role && <p className="text-red-500 text-xs mt-1">{state.errors.role[0]}</p>}
-      </div>
-      <div>
         <label className="flex items-start gap-2 cursor-pointer">
           <input name="consent" type="checkbox" required className="mt-1" />
           <span className="text-xs text-slate-500">
@@ -104,8 +82,8 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <span className="text-5xl">⛵</span>
-          <h1 className="text-2xl font-semibold text-slate-800 mt-4">Создать аккаунт</h1>
-          <p className="text-slate-500 mt-2">Присоединитесь к Ladoga Boat</p>
+          <h1 className="text-2xl font-semibold text-slate-800 mt-4">Регистрация судовладельца</h1>
+          <p className="text-slate-500 mt-2">Разместите катер на Ladoga Boat. Гостям аккаунт не нужен — бронирование без регистрации.</p>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
           <Suspense fallback={<div className="h-64 animate-pulse bg-slate-100 rounded-xl" />}>

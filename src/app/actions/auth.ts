@@ -12,14 +12,15 @@ export async function register(state: FormState, formData: FormData): Promise<Fo
   const email = (formData.get('email') as string ?? '').trim().toLowerCase()
   const phone = (formData.get('phone') as string ?? '').trim()
   const password = formData.get('password') as string ?? ''
-  const role = formData.get('role') as string ?? ''
+  // Регистрация — только для судовладельцев. Гости бронируют без аккаунта
+  // (см. BookingForm) и получают код брони на email.
+  const role = 'OWNER'
 
   const errors: Record<string, string[]> = {}
   if (name.length < 2) errors.name = ['Имя должно содержать минимум 2 символа']
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = ['Введите корректный email']
   if (phone.length < 10) errors.phone = ['Введите корректный номер телефона']
   if (password.length < 6) errors.password = ['Пароль должен содержать минимум 6 символов']
-  if (!['GUEST', 'OWNER'].includes(role)) errors.role = ['Неверная роль']
   if (Object.keys(errors).length) return { errors }
 
   if (formData.get('consent') !== 'on') {
@@ -44,7 +45,7 @@ export async function register(state: FormState, formData: FormData): Promise<Fo
   }
 
   await createSession({ id: user.id, role: user.role, name: user.name, email: user.email })
-  redirect(role === 'OWNER' ? '/dashboard/owner' : '/dashboard/guest')
+  redirect('/dashboard/owner')
 }
 
 export async function login(state: FormState, formData: FormData): Promise<FormState> {
