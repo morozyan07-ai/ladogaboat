@@ -57,7 +57,10 @@ jobs:
             --environment SESSION_SECRET="${{ secrets.SESSION_SECRET }}" \
             --environment NODE_ENV=production \
             --environment CLOUDPAYMENTS_PUBLIC_ID="${{ secrets.CLOUDPAYMENTS_PUBLIC_ID }}" \
-            --environment CLOUDPAYMENTS_API_SECRET="${{ secrets.CLOUDPAYMENTS_API_SECRET }}"
+            --environment CLOUDPAYMENTS_API_SECRET="${{ secrets.CLOUDPAYMENTS_API_SECRET }}" \
+            --environment YC_S3_BUCKET="${{ secrets.YC_S3_BUCKET }}" \
+            --environment YC_S3_ACCESS_KEY_ID="${{ secrets.YC_S3_ACCESS_KEY_ID }}" \
+            --environment YC_S3_SECRET_ACCESS_KEY="${{ secrets.YC_S3_SECRET_ACCESS_KEY }}"
 
       - name: Cleanup
         if: always()

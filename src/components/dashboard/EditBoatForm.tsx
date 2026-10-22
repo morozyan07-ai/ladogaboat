@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
+import PhotoUploader from '@/components/dashboard/PhotoUploader'
 
 const DEPARTURE_LOCATIONS = [
   'Набережная Ладожской Флотилии, 5А',
@@ -34,19 +35,12 @@ export default function EditBoatForm({ boat }: { boat: BoatData }) {
   const [status, setStatus] = useState(boat.status)
   const [routeInput, setRouteInput] = useState('')
   const [routes, setRoutes] = useState<string[]>(boat.routes)
-  const [imageInput, setImageInput] = useState('')
   const [images, setImages] = useState<string[]>(boat.images)
 
   function addRoute() {
     const val = routeInput.trim()
     if (val && !routes.includes(val)) setRoutes([...routes, val])
     setRouteInput('')
-  }
-
-  function addImage() {
-    const val = imageInput.trim()
-    if (val && !images.includes(val)) setImages([...images, val])
-    setImageInput('')
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -140,35 +134,8 @@ export default function EditBoatForm({ boat }: { boat: BoatData }) {
             ))}
           </div>
         </Field>
-        <Field label="Фотографии (прямая ссылка на файл изображения)">
-          <p className="text-xs text-slate-400 mb-2">
-            Нужна именно прямая ссылка на файл — он должен открываться сам по себе и заканчиваться на .jpg/.png/.webp и т.п.
-            Ссылка на страницу просмотра (альбом в Я.Диске, Google Photos, пост в соцсети) не подойдёт — фото не отобразится.
-          </p>
-          <div className="flex gap-2 mb-2">
-            <input
-              value={imageInput}
-              onChange={(e) => setImageInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addImage() } }}
-              placeholder="https://.../photo.jpg"
-              className={inputCls}
-            />
-            <Button type="button" variant="secondary" onClick={addImage}>+</Button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {images.map((img, i) => (
-              <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden bg-slate-100">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img} alt="" className="w-full h-full object-cover"
-                  onError={(e) => { (e.target as HTMLImageElement).style.opacity = '0.25' }} />
-                <button
-                  type="button"
-                  onClick={() => setImages(images.filter((_, j) => j !== i))}
-                  className="absolute top-0.5 right-0.5 bg-white rounded-full text-red-500 text-xs w-5 h-5 flex items-center justify-center shadow"
-                >×</button>
-              </div>
-            ))}
-          </div>
+        <Field label="Фотографии">
+          <PhotoUploader images={images} onChange={setImages} />
         </Field>
         {error && <p className="text-red-500 text-sm bg-red-50 rounded-lg px-4 py-3">{error}</p>}
         {saved && <p className="text-green-600 text-sm bg-green-50 rounded-lg px-4 py-3">Изменения сохранены</p>}

@@ -13,6 +13,7 @@
     "deploy": "npm run pages:build && npx wrangler pages deploy .open-next/assets"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.705.0",
     "@neondatabase/serverless": "^1.1.0",
     "bcrypt-ts": "^8.0.1",
     "jose": "6.2.3",
