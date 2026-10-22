@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
-import { priceUnitLabel, isPerPersonUnit } from '@/lib/price'
+import { priceUnitLabel, isPerPersonBasis } from '@/lib/price'
 
 type Props = {
   boatId: string
   pricePerDay: number
   priceUnit?: string
+  priceBasis?: string
   capacity?: number
   isLoggedIn: boolean
 }
@@ -16,7 +17,7 @@ type Props = {
 const TIME_OPTIONS: string[] = []
 for (let h = 8; h <= 23; h++) TIME_OPTIONS.push(String(h).padStart(2, '0') + ':00')
 
-export default function BookingForm({ boatId, pricePerDay, priceUnit, capacity, isLoggedIn }: Props) {
+export default function BookingForm({ boatId, pricePerDay, priceUnit, priceBasis, capacity, isLoggedIn }: Props) {
   const router = useRouter()
   const [startDate, setStartDate] = useState('')
   const [startTime, setStartTime] = useState('')
@@ -27,7 +28,7 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, capacity, 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const perPerson = isPerPersonUnit(priceUnit)
+  const perPerson = isPerPersonBasis(priceBasis)
   const maxGuests = capacity ?? 99
   const total = startDate ? (perPerson ? pricePerDay * guestCount : pricePerDay) : 0
 

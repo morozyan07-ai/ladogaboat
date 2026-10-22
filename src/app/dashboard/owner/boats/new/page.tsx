@@ -10,6 +10,7 @@ export default function NewBoatPage() {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
   const [priceUnit, setPriceUnit] = useState('SUTKI')
+  const [priceBasis, setPriceBasis] = useState('BOAT')
   const [routeInput, setRouteInput] = useState('')
   const [routes, setRoutes] = useState<string[]>([])
   const [images, setImages] = useState<string[]>([])
@@ -37,6 +38,7 @@ export default function NewBoatPage() {
       capacity: Number(fd.get('capacity')),
       pricePerDay: Number(fd.get('pricePerDay')),
       priceUnit,
+      priceBasis,
       location: fd.get('location'),
       routes,
       images,
@@ -83,6 +85,15 @@ export default function NewBoatPage() {
                 </select>
               </Field>
             </div>
+            <Field label="А от чего считается цена">
+              <select value={priceBasis} onChange={e => setPriceBasis(e.target.value)} className={inputCls}>
+                <option value="BOAT">за лодку целиком</option>
+                <option value="PERSON">за человека</option>
+              </select>
+              <p className="text-xs text-slate-400 mt-1">
+                "за человека" — итоговая сумма умножается на число людей в брони, гость указывает состав группы при бронировании.
+              </p>
+            </Field>
             <Field label="Место базирования">
               <select name="location" required defaultValue="" className={inputCls}>
                 <option value="" disabled>Выберите причал...</option>

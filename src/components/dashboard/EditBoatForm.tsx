@@ -12,6 +12,7 @@ type BoatData = {
   capacity: number
   pricePerDay: number
   priceUnit: string
+  priceBasis: string
   location: string
   routes: string[]
   images: string[]
@@ -24,6 +25,7 @@ export default function EditBoatForm({ boat }: { boat: BoatData }) {
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
   const [priceUnit, setPriceUnit] = useState(boat.priceUnit)
+  const [priceBasis, setPriceBasis] = useState(boat.priceBasis)
   const [status, setStatus] = useState(boat.status)
   const [routeInput, setRouteInput] = useState('')
   const [routes, setRoutes] = useState<string[]>(boat.routes)
@@ -53,6 +55,7 @@ export default function EditBoatForm({ boat }: { boat: BoatData }) {
       capacity: Number(fd.get('capacity')),
       pricePerDay: Number(fd.get('pricePerDay')),
       priceUnit,
+      priceBasis,
       location: fd.get('location'),
       routes,
       images,
@@ -98,6 +101,15 @@ export default function EditBoatForm({ boat }: { boat: BoatData }) {
             </select>
           </Field>
         </div>
+        <Field label="А от чего считается цена">
+          <select value={priceBasis} onChange={e => setPriceBasis(e.target.value)} className={inputCls}>
+            <option value="BOAT">за лодку целиком</option>
+            <option value="PERSON">за человека</option>
+          </select>
+          <p className="text-xs text-slate-400 mt-1">
+            "за человека" — итоговая сумма умножается на число людей в брони, гость указывает состав группы при бронировании.
+          </p>
+        </Field>
         <Field label="Место базирования">
           <select name="location" required defaultValue={boat.location} className={inputCls}>
             <option value="" disabled>Выберите причал...</option>

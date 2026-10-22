@@ -6,20 +6,20 @@ import { sql } from '@/lib/db'
 import { getSession } from '@/lib/session'
 import BookingForm from '@/components/booking/BookingForm'
 import { SITE_URL } from '@/lib/seo'
-import { priceUnitLabel } from '@/lib/price'
+import { priceSuffix } from '@/lib/price'
 
 type Props = { params: Promise<{ id: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
   const rows = await sql`
-    SELECT title, description, location, images, capacity, "pricePerDay", "priceUnit"
+    SELECT title, description, location, images, capacity, "pricePerDay", "priceUnit", "priceBasis"
     FROM "Boat" WHERE id = ${id} LIMIT 1`
   if (!rows.length) return {}
 
   const boat = rows[0] as Record<string, unknown>
   const title = `${boat.title} — аренда катера, ${boat.location}`
-  const description = `${String(boat.description).slice(0, 150)}... Вместимость до ${boat.capacity} чел., от ${Number(boat.pricePerDay).toLocaleString('ru-RU')} ₽/${priceUnitLabel(boat.priceUnit as string)}. Бронирование онлайн.`
+  const description = `${String(boat.description).slice(0, 150)}... Вместимость до ${boat.capacity} чел., от ${Number(boat.pricePerDay).toLocaleString('ru-RU')} ₽/${priceSuffix(boat.priceUnit as string, boat.priceBasis as string)}. Бронирование онлайн.`
   const image = (boat.images as string[])[0]
 
   return {
@@ -180,13 +180,14 @@ export default async function BoatDetailPage({ params }: Props) {
             <div className="sticky top-24">
               <div className="text-2xl font-semibold text-white mb-1">
                 {Number(boat.pricePerDay).toLocaleString('ru-RU')} ₽
-                <span className="text-base font-normal text-slate-300"> / {priceUnitLabel(boat.priceUnit as string)}</span>
+                <span className="text-base font-normal text-slate-300"> / {priceSuffix(boat.priceUnit as string, boat.priceBasis as string)}</span>
               </div>
               <p className="text-slate-300 text-sm mb-4">Оплата картой или через СБП</p>
               <BookingForm
                 boatId={boat.id as string}
                 pricePerDay={Number(boat.pricePerDay)}
                 priceUnit={boat.priceUnit as string}
+                priceBasis={boat.priceBasis as string}
                 capacity={Number(boat.capacity)}
                 isLoggedIn={!!session}
               />

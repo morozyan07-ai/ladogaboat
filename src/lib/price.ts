@@ -1,18 +1,27 @@
-// Единица тарификации катера: HOUR (час) / TOUR (тур, цена за человека) / SUTKI (сутки, по умолчанию).
-// Используется везде, где показывается цена — чтобы подпись совпадала с тем,
-// что владелец выбрал в редактировании катера.
+// Цена катера складывается из двух независимых настроек:
+// - priceUnit: HOUR (час) / TOUR (тур) / SUTKI (сутки, по умолчанию) — единица времени.
+// - priceBasis: BOAT (за весь катер целиком, по умолчанию) / PERSON (за человека,
+//   умножается на число людей в брони) — чтобы можно было задать "час с человека"
+//   или "тур за лодку целиком".
 
 export function priceUnitLabel(unit: string | null | undefined): string {
   switch (unit) {
     case 'HOUR':
       return 'час'
     case 'TOUR':
-      return 'чел.'
+      return 'тур'
     default:
       return 'день'
   }
 }
 
-export function isPerPersonUnit(unit: string | null | undefined): boolean {
-  return unit === 'TOUR'
+export function isPerPersonBasis(basis: string | null | undefined): boolean {
+  return basis === 'PERSON'
+}
+
+// Подпись цены, которая показывается в каталоге/на странице катера.
+// Для цены "за человека" показываем "чел." независимо от единицы времени —
+// единица уточняется отдельно в самой форме бронирования.
+export function priceSuffix(unit: string | null | undefined, basis: string | null | undefined): string {
+  return isPerPersonBasis(basis) ? 'чел.' : priceUnitLabel(unit)
 }

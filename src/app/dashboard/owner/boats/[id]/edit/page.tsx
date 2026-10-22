@@ -32,6 +32,7 @@ export default async function EditBoatPage({ params }: Props) {
             capacity: boat.capacity as number,
             pricePerDay: Number(boat.pricePerDay),
             priceUnit: (boat.priceUnit as string) ?? 'SUTKI',
+            priceBasis: (boat.priceBasis as string) ?? 'BOAT',
             location: boat.location as string,
             routes: (boat.routes as string[]) ?? [],
             images: (boat.images as string[]) ?? [],

@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
 
   // Тур-тариф (priceUnit = TOUR) - цена указана за человека, а не за весь катер,
   // иначе группа могла бы оплатить за одного и приехать в большем составе.
-  const isPerPerson = boat.priceUnit === 'TOUR'
+  const isPerPerson = boat.priceBasis === 'PERSON'
   const capacity = Number(boat.capacity) || 1
   const resolvedGuestCount = isPerPerson
     ? Math.min(Math.max(1, Math.round(Number(guestCount) || 1)), capacity)

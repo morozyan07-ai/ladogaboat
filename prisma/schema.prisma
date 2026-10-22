@@ -81,6 +81,10 @@ model Boat {
   capacity     Int
   pricePerDay  Decimal        @db.Decimal(10, 2)
   priceUnit   String         @default("SUTKI")
+  // Основание цены: BOAT — за весь катер целиком, PERSON — за одного человека
+  // (умножается на число людей в брони). Независимо от единицы (час/сутки/тур) —
+  // например, "час с человека" или "тур за лодку целиком".
+  priceBasis   String         @default("BOAT")
   // Внутренний номер катера для дашборда (00001, 00002, ...).
   // Присваивается автоматически при создании (DEFAULT nextval(boat_number_seq) в БД).
   boatNumber   Int?           @unique
