@@ -7,12 +7,13 @@ import ProfileForm from '@/components/dashboard/ProfileForm'
 import RefundDecisionButtons from '@/components/dashboard/RefundDecisionButtons'
 import DeleteBoatButton from '@/components/dashboard/DeleteBoatButton'
 import RoleSwitcher from '@/components/dashboard/RoleSwitcher'
+import AnnouncementsFeed from '@/components/dashboard/AnnouncementsFeed'
 import { formatOwnerNumber, formatBoatNumber } from '@/lib/numbering'
 
 export default async function OwnerDashboard() {
   const session = await verifyOwner()
 
-  const [boats, bookings, payoutRows, profileRows] = await Promise.all([
+  const [boats, bookings, payoutRows, profileRows, announcementRows] = await Promise.all([
     sql`
       SELECT b.*, COUNT(DISTINCT bk.id)::int as "bookingCount", COUNT(DISTINCT r.id)::int as "reviewCount"
       FROM "Boat" b
@@ -35,6 +36,7 @@ export default async function OwnerDashboard() {
              "payoutBik", "payoutAccount", "payoutCorrAccount", "payoutUpdatedAt"
       FROM "User" WHERE id = ${session.userId} LIMIT 1`,
     sql`SELECT name, email, phone, "ownerNumber" FROM "User" WHERE id = ${session.userId} LIMIT 1`,
+    sql`SELECT id, title, body, "createdAt" FROM "Announcement" ORDER BY "createdAt" DESC LIMIT 5`,
   ])
 
   const payoutUser = (payoutRows[0] ?? {}) as Record<string, unknown>
@@ -89,6 +91,10 @@ export default async function OwnerDashboard() {
               </p>
             </div>
           </div>
+        </div>
+
+        <div className="mb-8">
+          <AnnouncementsFeed items={announcementRows as { id: string; title: string; body: string; createdAt: string }[]} />
         </div>
 
         <div className="mb-8">
