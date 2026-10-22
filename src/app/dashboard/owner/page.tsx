@@ -6,6 +6,7 @@ import OwnerPayoutForm from '@/components/dashboard/OwnerPayoutForm'
 import ProfileForm from '@/components/dashboard/ProfileForm'
 import RefundDecisionButtons from '@/components/dashboard/RefundDecisionButtons'
 import DeleteBoatButton from '@/components/dashboard/DeleteBoatButton'
+import RoleSwitcher from '@/components/dashboard/RoleSwitcher'
 
 export default async function OwnerDashboard() {
   const session = await verifyOwner()
@@ -48,6 +49,7 @@ export default async function OwnerDashboard() {
         <Link href="/" className="inline-flex items-center gap-1 text-white/60 hover:text-white transition-colors text-sm mb-6">
           ← Главная
         </Link>
+        {session.role === 'ADMIN' && <RoleSwitcher active="owner" />}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-semibold text-white">Кабинет судовладельца</h1>

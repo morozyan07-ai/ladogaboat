@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { verifyAdmin } from '@/lib/dal'
 import { sql } from '@/lib/db'
 import MiniBarChart from '@/components/dashboard/MiniBarChart'
+import RoleSwitcher from '@/components/dashboard/RoleSwitcher'
 
 const PAID_STATUSES = ['CONFIRMED', 'COMPLETED']
 
@@ -85,6 +86,7 @@ export default async function AdminDashboard() {
         <Link href="/" className="inline-flex items-center gap-1 text-white/60 hover:text-white transition-colors text-sm mb-6">
           ← Главная
         </Link>
+        <RoleSwitcher active="admin" />
         <div className="mb-8">
           <h1 className="text-3xl font-semibold text-white">Админ-панель</h1>
           <p className="text-white/70 mt-1">Привет, {session.name}! Метрики по всей площадке.</p>
