@@ -78,7 +78,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-2 gap-4">
             {[
               { num: '1', label: 'место для поиска катеров на Ладоге' },
-              { num: '8%', label: 'комиссия сервиса — без скрытых сборов' },
+              { num: 'Онлайн', label: 'оплата картой и СБП, без звонков и наличных' },
               { num: '24/7', label: 'поддержка через Telegram и WhatsApp' },
               { num: '0', label: 'регистрация не нужна для бронирования' },
             ].map((s) => (
