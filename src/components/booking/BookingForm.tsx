@@ -25,19 +25,22 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, priceBasis
   const [guestPhone, setGuestPhone] = useState('')
   const [guestEmail, setGuestEmail] = useState('')
   const [guestCount, setGuestCount] = useState(1)
+  const [durationHours, setDurationHours] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [bookedTimes, setBookedTimes] = useState<string[]>([])
   const [fullyBooked, setFullyBooked] = useState(false)
 
   const perPerson = isPerPersonBasis(priceBasis)
+  const hourly = priceUnit === 'HOUR'
   const maxGuests = capacity ?? 99
-  const total = startDate ? (perPerson ? pricePerDay * guestCount : pricePerDay) : 0
+  const maxDurationHours = startTime ? Math.min(12, 24 - Number(startTime.slice(0, 2))) : 12
+  const total = pricePerDay * (perPerson ? guestCount : 1) * (hourly ? durationHours : 1)
 
   useEffect(() => {
     if (!startDate) { setBookedTimes([]); setFullyBooked(false); return }
     let cancelled = false
-    fetch(`/api/boats/${boatId}/availability?date=${startDate}`)
+    fetch(`/api/boats/${boatId}/availability?date=${startDate}&durationHours=${durationHours}`)
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return
@@ -46,7 +49,7 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, priceBasis
       })
       .catch(() => { if (!cancelled) { setBookedTimes([]); setFullyBooked(false) } })
     return () => { cancelled = true }
-  }, [startDate, boatId])
+  }, [startDate, boatId, durationHours])
 
   useEffect(() => {
     if (startTime && bookedTimes.includes(startTime)) setStartTime('')
@@ -55,6 +58,8 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, priceBasis
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!startDate) { setError('Выберите дату'); return }
+    if (hourly && !startTime) { setError('Выберите время отправления'); return }
+    if (hourly && (durationHours < 1 || durationHours > maxDurationHours)) { setError('Выберите доступную длительность'); return }
     if (fullyBooked) { setError('Эта дата уже забронирована, выберите другую'); return }
     if (startTime && bookedTimes.includes(startTime)) { setError('Это время уже занято, выберите другое'); return }
     if (perPerson && (!guestCount || guestCount < 1)) { setError('Укажите количество человек'); return }
@@ -68,6 +73,7 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, priceBasis
     try {
       const body: Record<string, string | number> = { boatId, startDate, endDate: startDate }
       if (startTime) body.startTime = startTime
+      if (hourly) body.durationHours = durationHours
       if (perPerson) body.guestCount = guestCount
       if (!isLoggedIn) {
         body.guestName = guestName.trim()
@@ -110,7 +116,11 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, priceBasis
         </div>
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Время отправления</label>
-          <select value={startTime} onChange={(e) => setStartTime(e.target.value)} className={selectCls}>
+          <select required={hourly} value={startTime} onChange={(e) => {
+            const value = e.target.value
+            setStartTime(value)
+            if (value) setDurationHours((hours) => Math.min(hours, Math.min(12, 24 - Number(value.slice(0, 2)))))
+          }} className={selectCls}>
             <option value="">Выберите время</option>
             {TIME_OPTIONS.map(t => (
               <option key={t} value={t} disabled={bookedTimes.includes(t)}>
@@ -119,6 +129,16 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, priceBasis
             ))}
           </select>
         </div>
+        {hourly && (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Длительность</label>
+            <select value={durationHours} onChange={(e) => setDurationHours(Number(e.target.value))} className={selectCls}>
+              {Array.from({ length: maxDurationHours }, (_, i) => i + 1).map((hours) => (
+                <option key={hours} value={hours}>{hours} {hours === 1 ? 'час' : hours < 5 ? 'часа' : 'часов'}</option>
+              ))}
+            </select>
+          </div>
+        )}
         {startDate && fullyBooked && (
           <p className="text-amber-600 text-sm bg-amber-50 rounded-lg px-3 py-2">
             На эту дату катер уже забронирован целиком — выберите другой день.
@@ -131,7 +151,7 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, priceBasis
             <input type="number" required min={1} max={maxGuests} value={guestCount}
               onChange={(e) => setGuestCount(Math.min(maxGuests, Math.max(1, Number(e.target.value) || 1)))}
               className={inputCls} />
-            <p className="text-xs text-slate-400 mt-1">Цена указана за человека — укажите точный состав группы.</p>
+            <p className="text-xs text-slate-400 mt-1">Цена указана за человека{hourly ? ' в час' : ''} — укажите точный состав группы.</p>
           </div>
         )}
 
@@ -158,18 +178,16 @@ export default function BookingForm({ boatId, pricePerDay, priceUnit, priceBasis
           </div>
         )}
 
-        {startDate && (
-          <div className="bg-blue-50 rounded-xl p-4 space-y-1 text-sm">
-            <div className="flex justify-between text-slate-600">
-              <span>{perPerson ? `Цена за человека × ${guestCount}` : `Аренда на ${priceUnitLabel(priceUnit)}`}</span>
-              <span>{pricePerDay.toLocaleString('ru-RU')} ₽{perPerson ? ' / чел.' : ''}</span>
-            </div>
-            <div className="flex justify-between font-semibold text-slate-800 pt-2 border-t border-blue-100">
-              <span>Итого</span>
-              <span>{total.toLocaleString('ru-RU')} ₽</span>
-            </div>
+        <div className="bg-blue-50 rounded-xl p-4 space-y-1 text-sm">
+          <div className="flex justify-between text-slate-600">
+            <span>{hourly ? `Тариф × ${durationHours} ч${perPerson ? ` × ${guestCount} чел.` : ''}` : perPerson ? `Цена за человека × ${guestCount}` : `Аренда на ${priceUnitLabel(priceUnit)}`}</span>
+            <span>{pricePerDay.toLocaleString('ru-RU')} ₽{hourly ? ' / ч' : perPerson ? ' / чел.' : ''}</span>
           </div>
-        )}
+          <div className="flex justify-between font-semibold text-slate-800 pt-2 border-t border-blue-100">
+            <span>Итого за аренду</span>
+            <span>{total.toLocaleString('ru-RU')} ₽</span>
+          </div>
+        </div>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 

@@ -81,7 +81,7 @@ export default function HomePage() {
               { n: '03', title: 'Отправляйтесь', desc: 'Свяжитесь с капитаном и отправляйтесь. Поддержка работает 24/7.' },
             ].map(({ n, title, desc }) => (
               <div key={n}>
-                <div className="text-7xl font-black text-teal-500/20 mb-5 leading-none">{n}</div>
+                <div className="text-7xl font-black text-teal-400 mb-5 leading-none">{n}</div>
                 <h3 className="text-xl font-semibold text-white mb-3">{title}</h3>
                 <p className="text-slate-100 leading-relaxed">{desc}</p>
               </div>

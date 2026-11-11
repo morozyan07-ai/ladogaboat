@@ -16,7 +16,7 @@ export default async function BookingConfirmPage({ searchParams }: Props) {
   let booking: Record<string, unknown> | null = null
   if (code) {
     const rows = await sql`
-      SELECT bk.*, bo.title as "boatTitle", bo.location as "boatLocation"
+      SELECT bk.*, bo.title as "boatTitle", bo.location as "boatLocation", bo."priceUnit" as "priceUnit"
       FROM "Booking" bk
       JOIN "Boat" bo ON bo.id = bk."boatId"
       WHERE bk."bookingCode" = ${code} LIMIT 1`
@@ -74,8 +74,12 @@ export default async function BookingConfirmPage({ searchParams }: Props) {
               <span className="text-slate-700">{booking.boatLocation as string}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-slate-500">Даты</span>
-              <span className="text-slate-700">{startFmt} — {endFmt}</span>
+              <span className="text-slate-500">{booking.priceUnit === 'HOUR' ? 'Поездка' : 'Даты'}</span>
+              <span className="text-slate-700">
+                {booking.priceUnit === 'HOUR'
+                  ? `${startFmt}${booking.startTime ? `, ${booking.startTime}` : ''} · ${Number(booking.durationHours)} ч.`
+                  : `${startFmt} — ${endFmt}`}
+              </span>
             </div>
             <div className="flex justify-between text-sm font-semibold pt-2 border-t border-slate-200">
               <span className="text-slate-700">Сумма</span>

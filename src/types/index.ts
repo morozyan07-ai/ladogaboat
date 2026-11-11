@@ -47,6 +47,8 @@ export type Booking = {
   guestId: string
   startDate: Date
   endDate: Date
+  startTime?: string | null
+  durationHours?: number
   totalPrice: number
   commission: number
   status: BookingStatus

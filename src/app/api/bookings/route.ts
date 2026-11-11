@@ -22,7 +22,7 @@ export async function GET() {
   if (session.role === 'OWNER') {
     rows = await sql`
       SELECT bk.*,
-        json_build_object('id', bo.id, 'title', bo.title, 'images', bo.images) as boat,
+        json_build_object('id', bo.id, 'title', bo.title, 'images', bo.images, 'priceUnit', bo."priceUnit") as boat,
         CASE WHEN g.id IS NOT NULL THEN json_build_object('id', g.id, 'name', g.name, 'email', g.email) ELSE NULL END as guest,
         CASE WHEN r.id IS NOT NULL THEN row_to_json(r) ELSE NULL END as review
       FROM "Booking" bk
@@ -34,7 +34,7 @@ export async function GET() {
   } else {
     rows = await sql`
       SELECT bk.*,
-        json_build_object('id', bo.id, 'title', bo.title, 'images', bo.images) as boat,
+        json_build_object('id', bo.id, 'title', bo.title, 'images', bo.images, 'priceUnit', bo."priceUnit") as boat,
         CASE WHEN g.id IS NOT NULL THEN json_build_object('id', g.id, 'name', g.name, 'email', g.email) ELSE NULL END as guest,
         CASE WHEN r.id IS NOT NULL THEN row_to_json(r) ELSE NULL END as review
       FROM "Booking" bk
@@ -60,9 +60,9 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json() as Record<string, unknown>
-  const { boatId, startDate, endDate, startTime, guestName, guestPhone, guestEmail, guestCount } = body as {
+  const { boatId, startDate, endDate, startTime, durationHours, guestName, guestPhone, guestEmail, guestCount } = body as {
     boatId?: string; startDate?: string; endDate?: string; startTime?: string;
-    guestName?: string; guestPhone?: string; guestEmail?: string; guestCount?: number
+    durationHours?: number; guestName?: string; guestPhone?: string; guestEmail?: string; guestCount?: number
   }
 
   if (!boatId || !startDate || !endDate) {
@@ -88,6 +88,19 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: 'Катер недоступен' }, { status: 404 })
   }
   const boat = boatRows[0] as Record<string, unknown>
+  const isHourly = boat.priceUnit === 'HOUR'
+  const requestedDurationHours = isHourly ? Number(durationHours) : 1
+  const startTimeMatch = typeof startTime === 'string' ? startTime.match(/^([01]\d|2[0-3]):00$/) : null
+  if (isHourly && !startTimeMatch) {
+    return Response.json({ error: 'Выберите время отправления' }, { status: 400 })
+  }
+  if (isHourly && (!Number.isInteger(requestedDurationHours) || requestedDurationHours < 1 || requestedDurationHours > 12)) {
+    return Response.json({ error: 'Длительность должна быть от 1 до 12 часов' }, { status: 400 })
+  }
+  const requestedStartMinutes = startTimeMatch ? Number(startTimeMatch[1]) * 60 : 0
+  if (isHourly && requestedStartMinutes + requestedDurationHours * 60 > 24 * 60) {
+    return Response.json({ error: 'Выберите время, в которое катер успеет вернуться в тот же день' }, { status: 400 })
+  }
 
   const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / 86400000))
 
@@ -102,23 +115,36 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: 'Укажите количество человек' }, { status: 400 })
   }
 
-  const totalPrice = isPerPerson
-    ? resolvedGuestCount * Number(boat.pricePerDay)
-    : days * Number(boat.pricePerDay)
+  const totalPrice = isHourly
+    ? Number(boat.pricePerDay) * requestedDurationHours * (isPerPerson ? resolvedGuestCount : 1)
+    : isPerPerson
+      ? resolvedGuestCount * Number(boat.pricePerDay)
+      : days * Number(boat.pricePerDay)
   const commission = Math.round(totalPrice * COMMISSION_RATE * 100) / 100
 
   // Для почасовых/тур-бронирований (не "сутки") занятость считаем по конкретному времени,
   // а не на весь день — иначе один гость на 10:00 блокировал бы весь день для всех остальных.
   const isSlotBased = boat.priceUnit !== 'SUTKI'
-  const slotConflict = isSlotBased && startTime
-    ? await sql`
+  let slotConflict: Record<string, unknown>[] = []
+  if (isHourly && startTime) {
+    slotConflict = await sql`
+        SELECT id FROM "Booking"
+        WHERE "boatId" = ${boatId}
+          AND status IN ('PENDING', 'CONFIRMED')
+          AND "startDate" = ${start.toISOString()}::date
+          AND "startTime" IS NOT NULL
+          AND (SPLIT_PART("startTime", ':', 1)::int * 60 + SPLIT_PART("startTime", ':', 2)::int) < ${requestedStartMinutes + requestedDurationHours * 60}
+          AND (SPLIT_PART("startTime", ':', 1)::int * 60 + SPLIT_PART("startTime", ':', 2)::int + COALESCE("durationHours", 1) * 60) > ${requestedStartMinutes}
+        LIMIT 1`
+  } else if (isSlotBased && startTime) {
+    slotConflict = await sql`
         SELECT id FROM "Booking"
         WHERE "boatId" = ${boatId}
           AND status IN ('PENDING', 'CONFIRMED')
           AND "startDate" = ${start.toISOString()}::date
           AND "startTime" = ${startTime}
         LIMIT 1`
-    : []
+  }
   const dayConflict = !isSlotBased
     ? await sql`
         SELECT id FROM "Booking"
@@ -140,17 +166,20 @@ export async function POST(req: NextRequest) {
 
   const startFmt = start.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
   const endFmt = end.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })
+  const scheduleLines = isHourly
+    ? [`Дата и время: ${startFmt}, ${startTime}`, `Длительность: ${requestedDurationHours} ч.`]
+    : [`Даты: ${startFmt} — ${endFmt} (${days} дн.)`]
 
   const bookingId = crypto.randomUUID()
   const bookingRows = await sql`
     INSERT INTO "Booking" (
       id, "boatId", "guestId", "guestName", "guestPhone", "guestEmail",
-      "bookingCode", "startDate", "endDate", "startTime", "totalPrice", commission, "guestCount", status, "createdAt", "updatedAt"
+      "bookingCode", "startDate", "endDate", "startTime", "durationHours", "totalPrice", commission, "guestCount", status, "createdAt", "updatedAt"
     ) VALUES (
       ${bookingId}, ${boatId},
       ${session?.userId ?? null}, ${!session ? (guestName ?? null) : null},
       ${!session ? (guestPhone ?? null) : null}, ${!session ? (guestEmail ?? null) : null},
-      ${bookingCode}, ${start.toISOString()}::date, ${end.toISOString()}::date, ${startTime ?? null},
+      ${bookingCode}, ${start.toISOString()}::date, ${end.toISOString()}::date, ${startTime ?? null}, ${requestedDurationHours},
       ${totalPrice}, ${commission}, ${resolvedGuestCount}, 'PENDING', NOW(), NOW()
     ) RETURNING *`
   const booking = bookingRows[0] as Record<string, unknown>
@@ -166,9 +195,11 @@ export async function POST(req: NextRequest) {
   try {
     const order = await createPayment({
       amountRub: totalPrice,
-      description: isPerPerson
-        ? `Аренда: ${boat.title} (${resolvedGuestCount} чел.)`
-        : `Аренда: ${boat.title} (${days} дн.)`,
+      description: isHourly
+        ? `Аренда: ${boat.title} (${requestedDurationHours} ч.${isPerPerson ? `, ${resolvedGuestCount} чел.` : ''})`
+        : isPerPerson
+          ? `Аренда: ${boat.title} (${resolvedGuestCount} чел.)`
+          : `Аренда: ${boat.title} (${days} дн.)`,
       bookingId: booking.id as string,
       email: !session ? (guestEmail ?? undefined) : undefined,
       successUrl: returnUrl,
@@ -204,7 +235,7 @@ export async function POST(req: NextRequest) {
         'Ваше бронирование принято.',
         `Код бронирования: ${bookingCode}`, '',
         `Катер: ${boat.title}`,
-        `Даты: ${startFmt} — ${endFmt} (${days} дн.)`,
+        ...scheduleLines,
         ...(isPerPerson ? [`Человек: ${resolvedGuestCount}`] : []),
         `Сумма: ${totalPrice.toLocaleString('ru-RU')} ₽`, '',
         paymentUrl
@@ -225,7 +256,7 @@ export async function POST(req: NextRequest) {
       text: [
         `Новое бронирование на ваш катер "${boat.title}", ожидает оплаты гостем.`, '',
         `Код: ${bookingCode}`,
-        `Даты: ${startFmt} — ${endFmt} (${days} дн.)`,
+        ...scheduleLines,
         ...(isPerPerson ? [`Человек: ${resolvedGuestCount}`] : []),
         `К получению: ${(totalPrice - commission).toLocaleString('ru-RU')} ₽`, '',
         'Контакты гостя придут отдельным письмом сразу после подтверждения оплаты.', '',

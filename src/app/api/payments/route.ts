@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   if (!bookingId) return Response.json({ error: 'bookingId required' }, { status: 400 })
 
   const rows = await sql`
-    SELECT bk.*, bo.title as "boatTitle"
+    SELECT bk.*, bo.title as "boatTitle", bo."priceUnit" as "priceUnit"
     FROM "Booking" bk
     JOIN "Boat" bo ON bo.id = bk."boatId"
     WHERE bk.id = ${bookingId} LIMIT 1`
@@ -35,7 +35,9 @@ export async function POST(req: NextRequest) {
   try {
     order = await createPayment({
       amountRub: Number(booking.totalPrice),
-      description: `Аренда: ${booking.boatTitle ?? 'катер'} (${days} дн.)`,
+      description: booking.priceUnit === 'HOUR'
+        ? `Аренда: ${booking.boatTitle ?? 'катер'} (${Number(booking.durationHours ?? 1)} ч.)`
+        : `Аренда: ${booking.boatTitle ?? 'катер'} (${days} дн.)`,
       bookingId: booking.id as string,
       successUrl: `${SITE_URL}/dashboard/guest?payment=done&booking=${booking.id}`,
       failUrl: `${SITE_URL}/dashboard/guest?payment=failed&booking=${booking.id}`,

@@ -24,14 +24,26 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return Response.json({ fullyBooked: rows.length > 0, bookedTimes: [] })
   }
 
+  const durationHours = Math.min(12, Math.max(1, Number(req.nextUrl.searchParams.get('durationHours')) || 1))
   const rows = await sql`
-    SELECT "startTime" FROM "Booking"
+    SELECT "startTime", "durationHours" FROM "Booking"
     WHERE "boatId" = ${id}
       AND status IN ('PENDING', 'CONFIRMED')
       AND "startDate" = ${date}::date
       AND "startTime" IS NOT NULL`
-  return Response.json({
-    fullyBooked: false,
-    bookedTimes: rows.map((r: Record<string, unknown>) => r.startTime as string),
-  })
+  const bookedTimes = priceUnit === 'HOUR'
+    ? Array.from({ length: 16 }, (_, i) => `${String(i + 8).padStart(2, '0')}:00`).filter((time) => {
+        const [hour, minute] = time.split(':').map(Number)
+        const requestedStart = hour * 60 + minute
+        if (requestedStart + durationHours * 60 > 24 * 60) return true
+        return rows.some((row: Record<string, unknown>) => {
+          const existingTime = row.startTime as string
+          const [existingHour, existingMinute] = existingTime.split(':').map(Number)
+          const existingStart = existingHour * 60 + existingMinute
+          const existingEnd = existingStart + Number(row.durationHours ?? 1) * 60
+          return requestedStart < existingEnd && requestedStart + durationHours * 60 > existingStart
+        })
+      })
+    : rows.map((r: Record<string, unknown>) => r.startTime as string)
+  return Response.json({ fullyBooked: false, bookedTimes })
 }

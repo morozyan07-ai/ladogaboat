@@ -1,0 +1,1 @@
+ALTER TABLE "Booking" ADD COLUMN "durationHours" INTEGER NOT NULL DEFAULT 1;

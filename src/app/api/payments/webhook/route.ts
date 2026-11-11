@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
 
     const rows = await sql`
       SELECT bk.*,
-        bo.title as "boatTitle", bo.location as "boatLocation",
+        bo.title as "boatTitle", bo.location as "boatLocation", bo."priceUnit" as "priceUnit",
         own.email as "ownerEmail",
         g.name as "guestName2", g.email as "guestEmail2", g.phone as "guestPhone2"
       FROM "Booking" bk
@@ -101,7 +101,9 @@ export async function POST(req: NextRequest) {
           `Код бронирования: ${booking.bookingCode ?? bookingId}`,
           `Катер: ${booking.boatTitle}`,
           `Место: ${booking.boatLocation}`,
-          `Даты: ${startFmt} — ${endFmt}`,
+          ...(booking.priceUnit === 'HOUR'
+            ? [`Дата и время: ${startFmt}${booking.startTime ? `, ${booking.startTime}` : ''}`, `Длительность: ${Number(booking.durationHours)} ч.`]
+            : [`Даты: ${startFmt} — ${endFmt}`]),
           `Сумма: ${Number(booking.totalPrice).toLocaleString('ru-RU')} ₽`, '',
           `Детали: ${confirmUrl}`, '',
           'Ждём вас на Ладоге! Вопросы: support@ladogaboat.ru', '', 'Ladoga Boat',
@@ -120,7 +122,9 @@ export async function POST(req: NextRequest) {
         text: [
           `Оплата по бронированию "${booking.boatTitle}" подтверждена.`, '',
           `Код: ${booking.bookingCode ?? bookingId}`,
-          `Даты: ${ownerStartFmt} — ${ownerEndFmt}`, '',
+          ...(booking.priceUnit === 'HOUR'
+            ? [`Дата и время: ${ownerStartFmt}${booking.startTime ? `, ${booking.startTime}` : ''}`, `Длительность: ${Number(booking.durationHours)} ч.`]
+            : [`Даты: ${ownerStartFmt} — ${ownerEndFmt}`]), '',
           `Гость: ${guestName}`,
           `Телефон: ${guestPhone ?? 'не указан'}`,
           `Email: ${guestEmail ?? 'не указан'}`, '',

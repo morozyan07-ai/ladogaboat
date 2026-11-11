@@ -223,7 +223,9 @@ function GuestDashboardContent() {
                       {b.boat?.title}
                     </Link>
                     <p className="text-sm text-slate-500 mt-1">
-                      {new Date(b.startDate).toLocaleDateString('ru-RU')} — {new Date(b.endDate).toLocaleDateString('ru-RU')}
+                      {b.boat?.priceUnit === 'HOUR'
+                        ? `${new Date(b.startDate).toLocaleDateString('ru-RU')}${b.startTime ? `, ${b.startTime}` : ''} · ${b.durationHours ?? 1} ч.`
+                        : `${new Date(b.startDate).toLocaleDateString('ru-RU')} — ${new Date(b.endDate).toLocaleDateString('ru-RU')}`}
                     </p>
                     <p className="text-sm font-medium text-slate-800 mt-1">
                       {Number(b.totalPrice).toLocaleString('ru-RU')} ₽
